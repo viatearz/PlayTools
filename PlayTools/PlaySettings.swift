@@ -36,6 +36,8 @@ let settings = PlaySettings.shared
         }
     }
 
+    lazy var cursorSetting = extraSettingsData.cursorSettingData
+
     @objc lazy var forceQuitOnClose = extraSettingsData.forceQuitOnClose
 
     lazy var discordActivity = settingsData.discordActivity
@@ -129,5 +131,14 @@ struct AppSettingsData: Codable {
 }
 
 struct ExtraAppSettingsData: Codable {
+    var cursorSettingData = CursorSettingData()
     var forceQuitOnClose = false
+}
+
+struct CursorSettingData: Codable {
+    var enable = false
+    var width = 32
+    var height = 32
+    var hotSpotX = 0
+    var hotSpotY = 0
 }
