@@ -17,6 +17,7 @@ public class PlayCover: NSObject {
         PlayScreen.shared.initialize()
         PlayInput.shared.initialize()
         DiscordIPC.shared.initialize()
+        initCustomCursor()
 
         if PlaySettings.shared.rootWorkDir {
             // Change the working directory to / just like iOS
@@ -71,6 +72,23 @@ public class PlayCover: NSObject {
                 // This actually happens for ToF. Hope future developers can solve this.
             }
         }
+    }
+
+    static func initCustomCursor() {
+        let cursorSetting = PlaySettings.shared.cursorSetting
+        if !cursorSetting.enable {
+            return
+        }
+
+        let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? ""
+        let imageUrl = URL(fileURLWithPath: "/Users/\(NSUserName())/Library/Containers/io.playcover.PlayCover")
+            .appendingPathComponent("Cursors")
+            .appendingPathComponent("\(bundleIdentifier).png")
+        AKInterface.shared!.setupCustomCursor(
+            imageUrl: imageUrl,
+            size: CGSize(width: cursorSetting.width, height: cursorSetting.height),
+            hotSpot: CGPoint(x: cursorSetting.hotSpotX, y: cursorSetting.hotSpotY)
+        )
     }
 
     static func delay(_ delay: Double, closure: @escaping () -> Void) {
