@@ -11,6 +11,9 @@ import Foundation
 
 public class ModeAutomaton {
     static public func onOption() -> Bool {
+        if mode == .gamepadToKeyEditor {
+            return false
+        }
         if mode == .editor || mode == .textInput {
             return false
         }
@@ -32,6 +35,10 @@ public class ModeAutomaton {
     }
 
     static public func onCmdK() {
+        if mode == .gamepadToKeyEditor {
+            return
+        }
+
         guard settings.keymapping else {
             return
         }
@@ -46,6 +53,14 @@ public class ModeAutomaton {
             mode.set(.editor)
             Toucher.writeLog(logMessage: "editor opened")
         }
+    }
+
+    static public func onOpenGamepadToKeySetting() {
+        mode.set(.gamepadToKeyEditor)
+    }
+
+    static public func onCloseGamepadToKeySetting() {
+        mode.set(.arbitraryClick)
     }
 
     static public func onUITextInputBeginEdit() {

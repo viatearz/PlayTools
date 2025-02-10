@@ -11,6 +11,9 @@ import Foundation
 public protocol Plugin: NSObjectProtocol {
     init()
 
+    func postKeyEvent(keyCode: UInt16, keyDown: Bool)
+    func postMouseEvent(left: Bool, right: Bool, keyDown: Bool)
+
     var screenCount: Int { get }
     var mousePoint: CGPoint { get }
     var windowFrame: CGRect { get }

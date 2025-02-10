@@ -9,6 +9,7 @@ import GameController
 let mode = ControlMode.mode
 
 public enum ControlModeLiteral: String {
+    case gamepadToKeyEditor
     case textInput
     case cameraRotate
     case arbitraryClick

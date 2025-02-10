@@ -13,6 +13,8 @@ public class EventAdapters {
 
     static func keyboard(controlMode: ControlModeLiteral) -> KeyboardEventAdapter {
         switch controlMode {
+        case .gamepadToKeyEditor:
+            return TransparentKeyboardEventAdapter()
         case  .off, .textInput:
             return TransparentKeyboardEventAdapter()
         case .cameraRotate, .arbitraryClick:
@@ -24,6 +26,8 @@ public class EventAdapters {
 
     static func mouse(controlMode: ControlModeLiteral) -> MouseEventAdapter {
         switch controlMode {
+        case .gamepadToKeyEditor:
+            return GamepadToKeyMouseEventAdapter()
         case .off, .textInput:
             return TransparentMouseEventAdapter()
         case .cameraRotate:
@@ -37,6 +41,8 @@ public class EventAdapters {
 
     static func controller(controlMode: ControlModeLiteral) -> ControllerEventAdapter {
         switch controlMode {
+        case .gamepadToKeyEditor:
+            return GamepadToKeyControllerEventAdapter()
         case .off:
             return TransparentControllerEventAdapter()
         case .textInput, .cameraRotate, .arbitraryClick:
