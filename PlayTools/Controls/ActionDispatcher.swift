@@ -67,6 +67,21 @@ public class ActionDispatcher {
             return
         }
 
+        var thumbsticks: [String: GamepadThumbstickToKeyAction] = [:]
+        for gamepadToKey in ExtraKeymapping.shared.keymapData.gamepadToKeyModels {
+            if let thumbstickName = gamepadToKey.thumbstickName {
+                var action = thumbsticks[thumbstickName]
+                if action == nil {
+                    action = GamepadThumbstickToKeyAction(keyName: thumbstickName)
+                    actions.append(action!)
+                    thumbsticks[thumbstickName] = action
+                }
+                action?.addButton(data: gamepadToKey)
+            } else {
+                actions.append(GamepadButtonToKeyAction(data: gamepadToKey))
+            }
+        }
+
         for button in keymap.currentKeymap.buttonModels {
             actions.append(ButtonAction(data: button))
         }
