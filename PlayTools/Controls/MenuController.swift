@@ -26,6 +26,21 @@ class RotateViewController: UIViewController {
 
 extension UIApplication {
     @objc
+    func toggleFloatOnTop(_ sender: AnyObject) {
+        for scene in connectedScenes {
+            guard let windowScene = scene as? UIWindowScene else { continue }
+            for window in windowScene.windows {
+                guard let nsWindow = window.nsWindow else { continue }
+                let level = nsWindow.value(forKeyPath: "level") as? Int
+                let normal = 0, floating = 3
+                nsWindow.setValue(level == normal ? floating : normal, forKeyPath: "level")
+                Toast.showHint(title: "Float on Top: \(level == normal ? "ON" : "OFF")")
+                break
+            }
+        }
+    }
+    
+    @objc
     func switchEditorMode(_ sender: AnyObject) {
         ModeAutomaton.onCmdK()
     }
@@ -161,10 +176,35 @@ var keymappingSelectors = [#selector(UIApplication.switchEditorMode(_:)),
 
 class MenuController {
     init(with builder: UIMenuBuilder) {
+        builder.insertChild(MenuController.viewMenu(), atEndOfMenu: .view)
         if Toucher.logEnabled {
             builder.insertSibling(MenuController.debuggingMenu(), afterMenu: .view)
         }
         builder.insertSibling(MenuController.keymappingMenu(), afterMenu: .view)
+    }
+
+    static func viewMenu() -> UIMenu {
+        let menuTitle = [
+            "浮动在最前面" // Float on Top
+        ]
+        let keyCommands = ["T"]
+        let selectors = [
+            #selector(UIApplication.toggleFloatOnTop)
+        ]
+        let arrowKeyChildrenCommands = zip(keyCommands, menuTitle).map { (command, btn) in
+            UIKeyCommand(title: btn,
+                 image: nil,
+                 action: selectors[menuTitle.firstIndex(of: btn)!],
+                 input: command,
+                 modifierFlags: .command,
+                 propertyList: [CommandsList.KeymappingToolbox: btn]
+            )
+        }
+        return UIMenu(title: "",
+                      image: nil,
+                      identifier: .viewMenu,
+                      options: .displayInline,
+                      children: arrowKeyChildrenCommands)
     }
 
     static func debuggingMenu() -> UIMenu {
@@ -238,4 +278,5 @@ extension UIMenu.Identifier {
     static var keymappingOptionsMenu: UIMenu.Identifier { UIMenu.Identifier("io.playcover.PlayTools.menus.keymapping") }
     static var debuggingMenu: UIMenu.Identifier { UIMenu.Identifier("io.playcover.PlayTools.menus.debug") }
     static var debuggingOptionsMenu: UIMenu.Identifier { UIMenu.Identifier("io.playcover.PlayTools.menus.debugging") }
+    static var viewMenu: UIMenu.Identifier { UIMenu.Identifier("io.playcover.PlayTools.menus.view") }
 }
