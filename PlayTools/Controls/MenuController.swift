@@ -39,7 +39,12 @@ extension UIApplication {
             }
         }
     }
-    
+
+    @objc
+    func openGamepadToKeySetting(_ sennder: AnyObject) {
+        GamepadToKeyController.shared.showSettingView()
+    }
+
     @objc
     func switchEditorMode(_ sender: AnyObject) {
         ModeAutomaton.onCmdK()
@@ -174,12 +179,21 @@ var keymappingSelectors = [#selector(UIApplication.switchEditorMode(_:)),
                            #selector(UIApplication.previousKeymap(_:))
     ]
 
+var extraFeatures = [
+    NSLocalizedString("menu.keymapping.gamepadToKeySetting", tableName: "Playtools",
+                      value: "手柄映射键盘设置", comment: "") // Gamepad to Key Setting
+    ]
+var extraFeaturesSelectors = [
+    #selector(UIApplication.openGamepadToKeySetting(_:))
+]
+
 class MenuController {
     init(with builder: UIMenuBuilder) {
         builder.insertChild(MenuController.viewMenu(), atEndOfMenu: .view)
         if Toucher.logEnabled {
             builder.insertSibling(MenuController.debuggingMenu(), afterMenu: .view)
         }
+        builder.insertSibling(MenuController.extraFeaturesMenu(), afterMenu: .view)
         builder.insertSibling(MenuController.keymappingMenu(), afterMenu: .view)
     }
 
@@ -271,9 +285,41 @@ class MenuController {
                       options: [],
                       children: [arrowKeysGroup])
     }
+
+    class func extraFeaturesMenu() -> UIMenu {
+        let keyCommands = [
+            "U"                             // Gamepad to Key Setting
+        ]
+        let arrowKeyChildrenCommands = zip(keyCommands, extraFeatures).map { (command, btn) in
+            UIKeyCommand(title: btn,
+                         image: nil,
+                         action: extraFeaturesSelectors[extraFeatures.firstIndex(of: btn)!],
+                         input: command,
+                         modifierFlags: .command,
+                         propertyList: [CommandsList.KeymappingToolbox: btn]
+            )
+        }
+
+        let arrowKeysGroup = UIMenu(title: "",
+                                    image: nil,
+                                    identifier: .extraFeaturesOptionsMenu,
+                                    options: .displayInline,
+                                    children: arrowKeyChildrenCommands)
+
+        return UIMenu(title: NSLocalizedString("menu.extraFeatures", tableName: "Playtools",
+                                               value: "额外功能", comment: ""),
+                      image: nil,
+                      identifier: .extraFeaturesMenu,
+                      options: [],
+                      children: [arrowKeysGroup])
+    }
 }
 
 extension UIMenu.Identifier {
+    static var extraFeaturesMenu: UIMenu.Identifier {
+        UIMenu.Identifier("io.playcover.PlayTools.menus.extraFeatures") }
+    static var extraFeaturesOptionsMenu: UIMenu.Identifier {
+        UIMenu.Identifier("io.playcover.PlayTools.menus.extraFeaturesOptions") }
     static var keymappingMenu: UIMenu.Identifier { UIMenu.Identifier("io.playcover.PlayTools.menus.editor") }
     static var keymappingOptionsMenu: UIMenu.Identifier { UIMenu.Identifier("io.playcover.PlayTools.menus.keymapping") }
     static var debuggingMenu: UIMenu.Identifier { UIMenu.Identifier("io.playcover.PlayTools.menus.debug") }
