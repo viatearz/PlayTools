@@ -10,6 +10,7 @@ class PlayInput {
     static var touchQueue = DispatchQueue.init(label: "playcover.toucher",
                                                qos: .userInteractive,
                                                autoreleaseFrequency: .workItem)
+    var enableMouseClick = true
 
     @objc func drainMainDispatchQueue() {
         _dispatch_main_queue_callback_4CF(nil)
@@ -33,9 +34,15 @@ class PlayInput {
 
         centre.addObserver(forName: NSNotification.Name(rawValue: "NSWindowDidBecomeKeyNotification"), object: nil,
             queue: main) { _ in
+            self.enableMouseClick = true
             if mode.cursorHidden() {
                 AKInterface.shared!.warpCursor()
             }
+        }
+
+        centre.addObserver(forName: NSNotification.Name(rawValue: "NSWindowDidResignKeyNotification"), object: nil,
+            queue: main) { _ in
+            self.enableMouseClick = false
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 5, qos: .utility) {
