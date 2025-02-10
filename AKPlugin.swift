@@ -72,6 +72,49 @@ class AKPlugin: NSObject, Plugin {
         }
     }
 
+    func postKeyEvent(keyCode: UInt16, keyDown: Bool) {
+        if let keyEvent = NSEvent.keyEvent(
+            with: keyDown ? .keyDown : .keyUp,
+            location: .zero,
+            modifierFlags: [],
+            timestamp: 0,
+            windowNumber: NSApplication.shared.keyWindow?.windowNumber ?? 0,
+            context: nil,
+            characters: "",
+            charactersIgnoringModifiers: "",
+            isARepeat: false,
+            keyCode: keyCode) {
+            DispatchQueue.main.async {
+                NSApplication.shared.postEvent(keyEvent, atStart: false)
+            }
+        }
+    }
+
+    func postMouseEvent(left: Bool, right: Bool, keyDown: Bool) {
+        var eventType: NSEvent.EventType
+        if left {
+            eventType = keyDown ? .leftMouseDown : .leftMouseUp
+        } else if right {
+            eventType = keyDown ? .rightMouseDown : .rightMouseUp
+        } else {
+            eventType = keyDown ? .otherMouseDown : .otherMouseUp
+        }
+        if let mouseEvent = NSEvent.mouseEvent(
+            with: eventType,
+            location: NSPoint(),
+            modifierFlags: [],
+            timestamp: 0,
+            windowNumber: NSApplication.shared.keyWindow?.windowNumber ?? 0,
+            context: nil,
+            eventNumber: 0,
+            clickCount: 1,
+            pressure: 1.0) {
+            DispatchQueue.main.async {
+                NSApplication.shared.postEvent(mouseEvent, atStart: false)
+            }
+        }
+    }
+
     var screenCount: Int {
         NSScreen.screens.count
     }

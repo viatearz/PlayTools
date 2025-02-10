@@ -168,3 +168,63 @@ struct KeymapConfig: Codable {
     var defaultKm: URL
     var keymapOrder: [URL]
 }
+
+class ExtraKeymapping {
+    static let shared = ExtraKeymapping()
+
+    let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? ""
+    var keymapUrl: URL
+    var keymapData: ExtraKeymappingData {
+        didSet {
+            encode()
+        }
+    }
+
+    init() {
+        keymapUrl = URL(fileURLWithPath: "/Users/\(NSUserName())/Library/Containers/io.playcover.PlayCover")
+            .appendingPathComponent("Keymapping")
+        if !FileManager.default.fileExists(atPath: keymapUrl.path) {
+            do {
+                try FileManager.default.createDirectory(
+                    atPath: keymapUrl.path,
+                    withIntermediateDirectories: true,
+                    attributes: [:])
+            } catch {
+                print("[PlayTools] Failed to create Keymapping directory.\n%@")
+            }
+        }
+        keymapUrl.appendPathComponent("\(bundleIdentifier).extra.plist")
+        keymapData = ExtraKeymappingData(bundleIdentifier: bundleIdentifier)
+        if !decode() {
+            encode()
+        }
+    }
+
+    func encode() {
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .xml
+        do {
+            let data = try encoder.encode(keymapData)
+            try data.write(to: keymapUrl)
+        } catch {
+            print("[PlayTools] Keymapping encode failed.\n%@")
+        }
+    }
+
+    func decode() -> Bool {
+        do {
+            let data = try Data(contentsOf: keymapUrl)
+            keymapData = try PropertyListDecoder().decode(ExtraKeymappingData.self, from: data)
+            return true
+        } catch {
+            keymapData = ExtraKeymappingData(bundleIdentifier: bundleIdentifier)
+            print("[PlayTools] Keymapping decode failed.\n%@")
+            return false
+        }
+    }
+}
+
+struct ExtraKeymappingData: Codable {
+    var gamepadToKeyModels: [GamepadToKey] = []
+    var bundleIdentifier: String
+}
