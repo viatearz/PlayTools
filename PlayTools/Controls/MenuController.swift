@@ -26,6 +26,21 @@ class RotateViewController: UIViewController {
 
 extension UIApplication {
     @objc
+    func toggleFloatOnTop(_ sender: AnyObject) {
+        for scene in connectedScenes {
+            guard let windowScene = scene as? UIWindowScene else { continue }
+            for window in windowScene.windows {
+                guard let nsWindow = window.nsWindow else { continue }
+                let level = nsWindow.value(forKeyPath: "level") as? Int
+                let normal = 0, floating = 3
+                nsWindow.setValue(level == normal ? floating : normal, forKeyPath: "level")
+                Toast.showHint(title: "Float on Top: \(level == normal ? "ON" : "OFF")")
+                break
+            }
+        }
+    }
+
+    @objc
     func openGamepadToKeySetting(_ sennder: AnyObject) {
         GamepadToKeyController.shared.showSettingView()
     }
@@ -180,6 +195,8 @@ var keymappingSelectors = [#selector(UIApplication.switchEditorMode(_:)),
     ]
 
 var extraFeatures = [
+    NSLocalizedString("menu.keymapping.floatOnTop", tableName: "Playtools",
+                     value: "浮动在最前面", comment: ""), // Float on Top
     NSLocalizedString("menu.keymapping.gamepadToKeySetting", tableName: "Playtools",
                       value: "手柄映射键盘设置", comment: ""), // Gamepad to Key Setting
     NSLocalizedString("menu.keymapping.toggleVirtualCursor", tableName: "Playtools",
@@ -188,6 +205,7 @@ var extraFeatures = [
                       value: "启用/禁用按住右键时滚轮缩放镜头", comment: "") // Enable/Disable Custom Camera Scale
     ]
 var extraFeaturesSelectors = [
+    #selector(UIApplication.toggleFloatOnTop(_:)),
     #selector(UIApplication.openGamepadToKeySetting(_:)),
     #selector(UIApplication.toggleGamepadVirtualCursor(_:)),
     #selector(UIApplication.toggleCustomCameraScale(_:))
@@ -289,6 +307,7 @@ class MenuController {
 
     class func extraFeaturesMenu() -> UIMenu {
         let keyCommands = [
+            "T",                            // Float on Top
             "U",                            // Gamepad to Key Setting
             "=",                            // Enable/Disable Virtual Cursor
             "0"                             // Enable/Disable Custom Camera Scale
