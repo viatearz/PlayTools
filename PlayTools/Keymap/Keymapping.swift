@@ -257,5 +257,6 @@ class ExtraKeymapping {
 struct ExtraKeymappingData: Codable {
     var gamepadToKeyModels: [GamepadToKey] = []
     var enableVirtualCursor: Bool = false
+    var enableCustomCameraScale = false
     var bundleIdentifier: String
 }
