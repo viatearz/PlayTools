@@ -82,6 +82,10 @@ public class ActionDispatcher {
             }
         }
 
+        if ExtraKeymapping.shared.keymapData.enableCustomCameraScale {
+            actions.append(CustomCameraScaleAction())
+        }
+
         for button in keymap.currentKeymap.buttonModels {
             actions.append(ButtonAction(data: button))
         }

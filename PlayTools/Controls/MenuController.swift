@@ -38,6 +38,14 @@ extension UIApplication {
     }
 
     @objc
+    func toggleCustomCameraScale(_ sender: AnyObject) {
+        let enabled = !ExtraKeymapping.shared.keymapData.enableCustomCameraScale
+        ExtraKeymapping.shared.keymapData.enableCustomCameraScale = enabled
+        ActionDispatcher.build()
+        Toast.showHint(title: "Custom Camera Scale: \(enabled ? "Enabled" : "Disabled")")
+    }
+
+    @objc
     func switchEditorMode(_ sender: AnyObject) {
         ModeAutomaton.onCmdK()
     }
@@ -175,11 +183,14 @@ var extraFeatures = [
     NSLocalizedString("menu.keymapping.gamepadToKeySetting", tableName: "Playtools",
                       value: "手柄映射键盘设置", comment: ""), // Gamepad to Key Setting
     NSLocalizedString("menu.keymapping.toggleVirtualCursor", tableName: "Playtools",
-                      value: "启用/禁用虚拟鼠标", comment: "") // Enable/Disable Virtual Cursor
+                      value: "启用/禁用虚拟鼠标", comment: ""), // Enable/Disable Virtual Cursor
+    NSLocalizedString("menu.keymapping.toggleCustomCameraScale", tableName: "Playtools",
+                      value: "启用/禁用按住右键时滚轮缩放镜头", comment: "") // Enable/Disable Custom Camera Scale
     ]
 var extraFeaturesSelectors = [
     #selector(UIApplication.openGamepadToKeySetting(_:)),
-    #selector(UIApplication.toggleGamepadVirtualCursor(_:))
+    #selector(UIApplication.toggleGamepadVirtualCursor(_:)),
+    #selector(UIApplication.toggleCustomCameraScale(_:))
 ]
 
 class MenuController {
@@ -279,7 +290,8 @@ class MenuController {
     class func extraFeaturesMenu() -> UIMenu {
         let keyCommands = [
             "U",                            // Gamepad to Key Setting
-            "="                             // Enable/Disable Virtual Cursor
+            "=",                            // Enable/Disable Virtual Cursor
+            "0"                             // Enable/Disable Custom Camera Scale
         ]
         let arrowKeyChildrenCommands = zip(keyCommands, extraFeatures).map { (command, btn) in
             UIKeyCommand(title: btn,

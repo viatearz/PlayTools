@@ -544,3 +544,48 @@ class FakeMouseAction: Action {
     }
 
 }
+
+class CustomCameraScaleAction: Action {
+    var swipeScale1, swipeScale2: SwipeAction
+    var pressed = false
+    var id: Int?
+
+    init() {
+        swipeScale1 = SwipeAction(actionName: "Zoom1", keyName: "ScrollWheel")
+        swipeScale2 = SwipeAction(actionName: "Zoom2", keyName: "ScrollWheel")
+        ActionDispatcher.register(key: KeyCodeNames.rightMouseButton,
+                                  handler: self.buttonUpdated)
+        ActionDispatcher.register(key: KeyCodeNames.scrollWheelDrag,
+                                  handler: self.scaleUpdated)
+    }
+
+    func buttonUpdated(_ pressed: Bool) {
+        self.pressed = pressed
+    }
+
+    func scaleUpdated(_ deltaX: CGFloat, _ deltaY: CGFloat) {
+        if !pressed {
+            return
+        }
+        let centerY = screen.height/2
+        let centerX = screen.width/2
+        swipeScale1.move(from: {
+            CGPoint(x: centerX, y: centerY/2)
+        }, deltaX: 0, deltaY: deltaY)
+
+        swipeScale2.move(from: {
+            CGPoint(x: centerX, y: centerY + (centerY/2))
+        }, deltaX: 0, deltaY: -deltaY)
+        // a move can't be longer than `centerY/16` due to the velocity limiter of `CameraAction`
+        // so lifting off before two touches meet
+        if swipeScale2.location.y - centerY < centerY/16 {
+            swipeScale1.doLiftOff()
+            swipeScale2.doLiftOff()
+        }
+    }
+
+    func invalidate() {
+        swipeScale1.invalidate()
+        swipeScale2.invalidate()
+    }
+}
