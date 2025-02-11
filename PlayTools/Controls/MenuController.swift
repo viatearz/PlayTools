@@ -31,6 +31,13 @@ extension UIApplication {
     }
 
     @objc
+    func toggleGamepadVirtualCursor(_ sender: AnyObject) {
+        VirtualCursorController.shared.toggleVirtualCursor()
+        let enabled = VirtualCursorController.shared.enabled
+        Toast.showHint(title: "Virtual Cursor: \(enabled ? "Enabled" : "Disabled")")
+    }
+
+    @objc
     func switchEditorMode(_ sender: AnyObject) {
         ModeAutomaton.onCmdK()
     }
@@ -166,10 +173,13 @@ var keymappingSelectors = [#selector(UIApplication.switchEditorMode(_:)),
 
 var extraFeatures = [
     NSLocalizedString("menu.keymapping.gamepadToKeySetting", tableName: "Playtools",
-                      value: "手柄映射键盘设置", comment: "") // Gamepad to Key Setting
+                      value: "手柄映射键盘设置", comment: ""), // Gamepad to Key Setting
+    NSLocalizedString("menu.keymapping.toggleVirtualCursor", tableName: "Playtools",
+                      value: "启用/禁用虚拟鼠标", comment: "") // Enable/Disable Virtual Cursor
     ]
 var extraFeaturesSelectors = [
-    #selector(UIApplication.openGamepadToKeySetting(_:))
+    #selector(UIApplication.openGamepadToKeySetting(_:)),
+    #selector(UIApplication.toggleGamepadVirtualCursor(_:))
 ]
 
 class MenuController {
@@ -268,7 +278,8 @@ class MenuController {
 
     class func extraFeaturesMenu() -> UIMenu {
         let keyCommands = [
-            "U"                             // Gamepad to Key Setting
+            "U",                            // Gamepad to Key Setting
+            "="                             // Enable/Disable Virtual Cursor
         ]
         let arrowKeyChildrenCommands = zip(keyCommands, extraFeatures).map { (command, btn) in
             UIKeyCommand(title: btn,

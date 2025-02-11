@@ -19,6 +19,11 @@ public class TouchscreenControllerEventAdapter: ControllerEventAdapter {
     public func handleValueChanged(_ profile: GCExtendedGamepad, _ element: GCControllerElement) {
         let name: String = element.aliases.first!
         if let buttonElement = element as? GCControllerButtonInput {
+            if buttonElement.isPressed && name == GCInputLeftThumbstickButton {
+                if ModeAutomaton.onPressLeftThumbstick() {
+                    return
+                }
+            }
             _ = ActionDispatcher.dispatch(key: name, pressed: buttonElement.isPressed)
         } else if let dpadElement = element as? GCControllerDirectionPad {
             handleDirectionPad(profile, dpadElement)
