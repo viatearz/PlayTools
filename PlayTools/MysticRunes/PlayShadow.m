@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 #import <PlayTools/PlayTools-Swift.h>
+#import <AppTrackingTransparency/AppTrackingTransparency.h>
 
 __attribute__((visibility("hidden")))
 @interface PlayShadowLoader : NSObject
@@ -166,6 +167,8 @@ __attribute__((visibility("hidden")))
     // if ([[PlaySettings shared] bypass]) [self loadEnvironmentBypass]; # disabled as it might be too powerful
 
     // Swizzle ATTrackingManager
+    // force load the ATTrackingManager class, prevent objc_getClass("ATTrackingManager") from returning nil.
+    [ATTrackingManager class];
     [objc_getClass("ATTrackingManager") swizzleClassMethod:@selector(requestTrackingAuthorizationWithCompletionHandler:) withMethod:@selector(pm_return_2_with_completion_handler:)];
     [objc_getClass("ATTrackingManager") swizzleClassMethod:@selector(trackingAuthorizationStatus) withMethod:@selector(pm_return_2)];
 
