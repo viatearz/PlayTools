@@ -161,6 +161,11 @@ __attribute__((visibility("hidden")))
     // do nothing
 }
 
+- (unsigned int)hook_applicationShouldTerminate:(id)sender {
+    [self hook_applicationShouldTerminate:sender];
+    return 1; // NSApplication.TerminateReply.terminateNow
+}
+
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
                                                              withTemplate:(NSString *)template
                                                                   options:(NSRegularExpressionOptions)options
@@ -330,6 +335,10 @@ bool menuWasCreated = false;
     // [objc_getClass("UITraitCollection") swizzleInstanceMethod:@selector(userInterfaceIdiom) withMethod:@selector(hook_userInterfaceIdiom)];
 
     [objc_getClass("VSSubscriptionRegistrationCenter") swizzleInstanceMethod:@selector(setCurrentSubscription:) withMethod:@selector(hook_setCurrentSubscription:)];
+
+    if ([[PlaySettings shared] forceQuitOnClose]) {
+        [objc_getClass("UINSApplicationDelegate") swizzleInstanceMethod:NSSelectorFromString(@"applicationShouldTerminate:") withMethod:@selector(hook_applicationShouldTerminate:)];
+    }
 
     if (PlayInfo.isUnrealEngine) {
         // Fix NSRegularExpression crash when system language is set to Chinese
