@@ -9,6 +9,8 @@ let settings = PlaySettings.shared
     let bundleIdentifier = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? ""
     let settingsUrl: URL
     var settingsData: AppSettingsData
+    let extraSettingsUrl: URL
+    var extraSettingsData: ExtraAppSettingsData
 
     override init() {
         settingsUrl = URL(fileURLWithPath: "/Users/\(NSUserName())/Library/Containers/io.playcover.PlayCover")
@@ -21,7 +23,20 @@ let settings = PlaySettings.shared
             settingsData = AppSettingsData()
             print("[PlayTools] PlaySettings decode failed.\n%@")
         }
+
+        extraSettingsUrl = URL(fileURLWithPath: "/Users/\(NSUserName())/Library/Containers/io.playcover.PlayCover")
+            .appendingPathComponent("App Settings")
+            .appendingPathComponent("\(bundleIdentifier).extra.plist")
+        do {
+            let data = try Data(contentsOf: extraSettingsUrl)
+            extraSettingsData = try PropertyListDecoder().decode(ExtraAppSettingsData.self, from: data)
+        } catch {
+            extraSettingsData = ExtraAppSettingsData()
+            print("[PlayTools] PlaySettings decode failed.\n%@")
+        }
     }
+
+    @objc lazy var forceQuitOnClose = extraSettingsData.forceQuitOnClose
 
     lazy var discordActivity = settingsData.discordActivity
 
@@ -105,4 +120,8 @@ struct AppSettingsData: Codable {
     var rootWorkDir = true
     var noKMOnInput = false
     var enableScrollWheel = true
+}
+
+struct ExtraAppSettingsData: Codable {
+    var forceQuitOnClose = false
 }
