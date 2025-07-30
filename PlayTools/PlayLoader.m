@@ -179,77 +179,10 @@ DYLD_INTERPOSE(pt_SecItemAdd, SecItemAdd)
 DYLD_INTERPOSE(pt_SecItemUpdate, SecItemUpdate)
 DYLD_INTERPOSE(pt_SecItemDelete, SecItemDelete)
 
-static uint8_t ue_status = 0;
-
-static char const* ue_fix_filename(char const* filename) {
-    static char UE_PATTERN[1024] = "//Users/";
-    getlogin_r(UE_PATTERN + 8, sizeof(UE_PATTERN) - 8);
-    
-    char const* p = filename;
-    if (ue_status == 2) {
-        char const* last_p = p;
-        while ((p = strstr(p, UE_PATTERN))) {
-            last_p = ++p;
-        }
-        
-        return last_p;
-    }
-
-    return p;
-}
-
-static int pt_open(char const* restrict filename, int oflag, ... ) {
-    filename = ue_fix_filename(filename);
-
-    if (oflag == O_CREAT) {
-        int mod;
-        va_list ap;
-        va_start(ap, oflag);
-        mod = va_arg(ap, int);
-        va_end(ap);
-
-        return open(filename, O_CREAT, mod);
-    }
-
-    return open(filename, oflag);
-}
-
-static int pt_stat(char const* restrict path, struct stat* restrict buf) {
-    return stat(ue_fix_filename(path), buf);
-}
-
-static int pt_access(char const* path, int mode) {
-    return access(ue_fix_filename(path), mode);
-}
-
-static int pt_rename(char const* restrict old_name, char const* restrict new_name) {
-    return rename(ue_fix_filename(old_name), ue_fix_filename(new_name));
-}
-
-static int pt_unlink(char const* path) {
-    return unlink(ue_fix_filename(path));
-}
-
-DYLD_INTERPOSE(pt_open, open)
-DYLD_INTERPOSE(pt_stat, stat)
-DYLD_INTERPOSE(pt_access, access)
-DYLD_INTERPOSE(pt_rename, rename)
-DYLD_INTERPOSE(pt_unlink, unlink)
-
 @implementation PlayLoader
 
 static void __attribute__((constructor)) initialize(void) {
     [PlayCover launch];
-    
-    if (ue_status == 0) {
-        if (PlayInfo.isUnrealEngine) {
-            ue_status = 2;
-        }
-    }
-    
-    if (ue_status == 2) {
-        [PlayKeychain debugLogger: [NSString stringWithFormat:@"UnrealEngine Hooked"]];
-    }
 }
 
 @end
