@@ -40,6 +40,10 @@ let settings = PlaySettings.shared
 
     @objc lazy var forceQuitOnClose = extraSettingsData.forceQuitOnClose
 
+    @objc lazy var disableBuiltinMouse = extraSettingsData.disableBuiltinMouse
+
+    @objc lazy var disableBuiltinKeyboard = extraSettingsData.disableBuiltinKeyboard
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -130,6 +134,8 @@ struct AppSettingsData: Codable {
 struct ExtraAppSettingsData: Codable {
     var cursorSettingData = CursorSettingData()
     var forceQuitOnClose = false
+    var disableBuiltinMouse = false
+    var disableBuiltinKeyboard = false
 }
 
 struct CursorSettingData: Codable {

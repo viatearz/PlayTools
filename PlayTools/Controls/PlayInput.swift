@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import GameController
 
 // This class is a coordinator (and module entrance), coordinating other concrete classes
 
@@ -19,6 +20,14 @@ class PlayInput {
         // drain the dispatch queue every frame for responding to GCController events
         let displaylink = CADisplayLink(target: self, selector: #selector(drainMainDispatchQueue))
         displaylink.add(to: .main, forMode: .common)
+
+        if PlaySettings.shared.disableBuiltinMouse {
+            disableBuiltinMouse()
+        }
+
+        if PlaySettings.shared.disableBuiltinKeyboard {
+            disableBuiltinKeyboard()
+        }
 
         if !PlaySettings.shared.keymapping {
             return
@@ -47,5 +56,42 @@ class PlayInput {
             Toast.initialize()
         }
         mode.initialize()
+    }
+
+    private func disableBuiltinMouse() {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.GCMouseDidConnect,
+            object: nil,
+            queue: .main) { nofitication in
+                guard let mouse = nofitication.object as? GCMouse else {
+                    return
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    NotificationCenter.default.post(name: NSNotification.Name.GCMouseDidDisconnect, object: mouse)
+                    mouse.mouseInput?.leftButton.pressedChangedHandler = nil
+                    mouse.mouseInput?.middleButton?.pressedChangedHandler = nil
+                    mouse.mouseInput?.rightButton?.pressedChangedHandler = nil
+                    mouse.mouseInput?.mouseMovedHandler = nil
+                    mouse.mouseInput?.scroll.valueChangedHandler = nil
+                    mouse.mouseInput?.auxiliaryButtons?.forEach { button in
+                        button.pressedChangedHandler = nil
+                    }
+                }
+            }
+    }
+
+    private func disableBuiltinKeyboard() {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.GCKeyboardDidConnect,
+            object: nil,
+            queue: .main) { nofitication in
+                guard let keyboard = nofitication.object as? GCKeyboard else {
+                    return
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    NotificationCenter.default.post(name: NSNotification.Name.GCKeyboardDidDisconnect, object: keyboard)
+                    keyboard.keyboardInput?.keyChangedHandler = nil
+                }
+            }
     }
 }

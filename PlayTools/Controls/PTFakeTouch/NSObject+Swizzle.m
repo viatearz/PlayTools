@@ -13,6 +13,7 @@
 #import "PTFakeMetaTouch.h"
 #import <VideoSubscriberAccount/VideoSubscriberAccount.h>
 #import <GameKit/GameKit.h>
+#import <GameController/GameController.h>
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -59,6 +60,30 @@ __attribute__((visibility("hidden")))
     Method swizzledMethod = class_getInstanceMethod(cls, newSelector);
     
     method_exchangeImplementations(originalMethod, swizzledMethod);
+}
+
++ (void) swizzleClassMethod:(SEL)origSelector withMethod:(SEL)newSelector {
+    Class cls = object_getClass((id)self);
+    Method originalMethod = class_getClassMethod(cls, origSelector);
+    Method swizzledMethod = class_getClassMethod(cls, newSelector);
+
+    if (class_addMethod(cls,
+                        origSelector,
+                        method_getImplementation(swizzledMethod),
+                        method_getTypeEncoding(swizzledMethod)) ) {
+        class_replaceMethod(cls,
+                            newSelector,
+                            method_getImplementation(originalMethod),
+                            method_getTypeEncoding(originalMethod));
+    } else {
+        class_replaceMethod(cls,
+                            newSelector,
+                            class_replaceMethod(cls,
+                                                origSelector,
+                                                method_getImplementation(swizzledMethod),
+                                                method_getTypeEncoding(swizzledMethod)),
+                            method_getTypeEncoding(originalMethod));
+    }
 }
 
 - (BOOL) hook_prefersPointerLocked {
@@ -141,6 +166,18 @@ __attribute__((visibility("hidden")))
             handler(nil, error);
         }
     });
+}
+
++ (GCMouse*)hook_GCMouse_current {
+    return nil;
+}
+
++ (GCKeyboard*)hook_GCKeyboard_coalescedKeyboard {
+    return nil;
+}
+
+- (NSArray*)hook_UnityView_keyCommands {
+    return nil;
 }
 
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
@@ -286,6 +323,17 @@ bool menuWasCreated = false;
     }
 
     [objc_getClass("GKLocalPlayer") swizzleInstanceMethod:@selector(setAuthenticateHandler:) withMethod:@selector(hook_setAuthenticateHandler:)];
+
+    if (([[PlaySettings shared] disableBuiltinMouse])) {
+        [objc_getClass("GCMouse") swizzleClassMethod:@selector(current) withMethod:@selector(hook_GCMouse_current)];
+    }
+
+    if (([[PlaySettings shared] disableBuiltinKeyboard])) {
+        [objc_getClass("GCKeyboard") swizzleClassMethod:@selector(coalescedKeyboard) withMethod:@selector(hook_GCKeyboard_coalescedKeyboard)];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [objc_getClass("UnityView") swizzleInstanceMethod:@selector(keyCommands) withMethod:@selector(hook_UnityView_keyCommands)];
+        });
+    }
 
     if (PlayInfo.isUnrealEngine) {
         // Fix NSRegularExpression crash when system language is set to Chinese
