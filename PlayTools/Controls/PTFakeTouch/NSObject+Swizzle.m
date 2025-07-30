@@ -12,6 +12,7 @@
 #import <PlayTools/PlayTools-Swift.h>
 #import "PTFakeMetaTouch.h"
 #import <VideoSubscriberAccount/VideoSubscriberAccount.h>
+#import <GameKit/GameKit.h>
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -129,6 +130,17 @@ __attribute__((visibility("hidden")))
 - (unsigned int)hook_applicationShouldTerminate:(id)sender {
     [self hook_applicationShouldTerminate:sender];
     return 1; // NSApplication.TerminateReply.terminateNow
+}
+
+- (void)hook_setAuthenticateHandler:(void (^)(UIViewController *viewController, NSError *error))handler {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if (handler) {
+            NSError *error = [NSError errorWithDomain:GKErrorDomain
+                                                 code:GKErrorCancelled
+                                             userInfo:@{NSLocalizedDescriptionKey: @"the requested operation has been canceled or disabled by the user"}];
+            handler(nil, error);
+        }
+    });
 }
 
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
@@ -272,6 +284,8 @@ bool menuWasCreated = false;
     if ([[PlaySettings shared] forceQuitOnClose]) {
         [objc_getClass("UINSApplicationDelegate") swizzleInstanceMethod:NSSelectorFromString(@"applicationShouldTerminate:") withMethod:@selector(hook_applicationShouldTerminate:)];
     }
+
+    [objc_getClass("GKLocalPlayer") swizzleInstanceMethod:@selector(setAuthenticateHandler:) withMethod:@selector(hook_setAuthenticateHandler:)];
 
     if (PlayInfo.isUnrealEngine) {
         // Fix NSRegularExpression crash when system language is set to Chinese
