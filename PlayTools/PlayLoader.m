@@ -230,11 +230,21 @@ static int pt_unlink(char const* path) {
     return unlink(ue_fix_filename(path));
 }
 
+static int pt_mkdirat(int fd, const char* path, mode_t mode) {
+    return mkdirat(fd, ue_fix_filename(path), mode);
+}
+
+static DIR* pt_opendir(const char* path) {
+    return opendir(ue_fix_filename(path));
+}
+
 DYLD_INTERPOSE(pt_open, open)
 DYLD_INTERPOSE(pt_stat, stat)
 DYLD_INTERPOSE(pt_access, access)
 DYLD_INTERPOSE(pt_rename, rename)
 DYLD_INTERPOSE(pt_unlink, unlink)
+DYLD_INTERPOSE(pt_mkdirat, mkdirat)
+DYLD_INTERPOSE(pt_opendir, opendir)
 
 @implementation PlayLoader
 
