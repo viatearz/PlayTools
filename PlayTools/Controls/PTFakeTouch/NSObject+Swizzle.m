@@ -12,6 +12,7 @@
 #import <PlayTools/PlayTools-Swift.h>
 #import "PTFakeMetaTouch.h"
 #import <VideoSubscriberAccount/VideoSubscriberAccount.h>
+#import <GameController/GameController.h>
 #import <AVFoundation/AVFoundation.h>
 
 __attribute__((visibility("hidden")))
@@ -59,6 +60,30 @@ __attribute__((visibility("hidden")))
     Method swizzledMethod = class_getInstanceMethod(cls, newSelector);
     
     method_exchangeImplementations(originalMethod, swizzledMethod);
+}
+
++ (void) swizzleClassMethod:(SEL)origSelector withMethod:(SEL)newSelector {
+    Class cls = object_getClass((id)self);
+    Method originalMethod = class_getClassMethod(cls, origSelector);
+    Method swizzledMethod = class_getClassMethod(cls, newSelector);
+
+    if (class_addMethod(cls,
+                        origSelector,
+                        method_getImplementation(swizzledMethod),
+                        method_getTypeEncoding(swizzledMethod)) ) {
+        class_replaceMethod(cls,
+                            newSelector,
+                            method_getImplementation(originalMethod),
+                            method_getTypeEncoding(originalMethod));
+    } else {
+        class_replaceMethod(cls,
+                            newSelector,
+                            class_replaceMethod(cls,
+                                                origSelector,
+                                                method_getImplementation(swizzledMethod),
+                                                method_getTypeEncoding(swizzledMethod)),
+                            method_getTypeEncoding(originalMethod));
+    }
 }
 
 - (BOOL) hook_prefersPointerLocked {
@@ -130,6 +155,18 @@ __attribute__((visibility("hidden")))
 - (unsigned int)hook_applicationShouldTerminate:(id)sender {
     [self hook_applicationShouldTerminate:sender];
     return 1; // NSApplication.TerminateReply.terminateNow
+}
+
++ (id)hook_GCMouse_current {
+    return nil;
+}
+
++ (id)hook_GCKeyboard_coalescedKeyboard {
+    return nil;
+}
+
+- (NSArray*)hook_UnityView_keyCommands {
+    return nil;
 }
 
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
@@ -281,6 +318,17 @@ bool menuWasCreated = false;
 
     if ([[PlaySettings shared] forceQuitOnClose]) {
         [objc_getClass("UINSApplicationDelegate") swizzleInstanceMethod:NSSelectorFromString(@"applicationShouldTerminate:") withMethod:@selector(hook_applicationShouldTerminate:)];
+    }
+
+    if (([[PlaySettings shared] disableBuiltinMouse])) {
+        [objc_getClass("GCMouse") swizzleClassMethod:@selector(current) withMethod:@selector(hook_GCMouse_current)];
+    }
+
+    if (([[PlaySettings shared] disableBuiltinKeyboard])) {
+        [objc_getClass("GCKeyboard") swizzleClassMethod:@selector(coalescedKeyboard) withMethod:@selector(hook_GCKeyboard_coalescedKeyboard)];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            [objc_getClass("UnityView") swizzleInstanceMethod:@selector(keyCommands) withMethod:@selector(hook_UnityView_keyCommands)];
+        });
     }
 
     if (PlayInfo.isUnrealEngine) {
