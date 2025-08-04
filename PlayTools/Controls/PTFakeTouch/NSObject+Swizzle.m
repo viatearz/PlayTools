@@ -13,6 +13,7 @@
 #import "PTFakeMetaTouch.h"
 #import <VideoSubscriberAccount/VideoSubscriberAccount.h>
 #import <AVFoundation/AVFoundation.h>
+#import <CoreMotion/CoreMotion.h>
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -125,6 +126,15 @@ __attribute__((visibility("hidden")))
 
 - (void) hook_setCurrentSubscription:(VSSubscription *)currentSubscription {
     // do nothing
+}
+
+- (instancetype)hook_CMMotionManager_init {
+    CMMotionManager* motionManager = (CMMotionManager*)[self hook_CMMotionManager_init];
+    // The default update interval is 0, which may lead to high CPU usage
+    motionManager.accelerometerUpdateInterval = 0.01;
+    motionManager.deviceMotionUpdateInterval = 0.01;
+    motionManager.gyroUpdateInterval = 0.01;
+    return motionManager;
 }
 
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
@@ -273,6 +283,8 @@ bool menuWasCreated = false;
     // [objc_getClass("UITraitCollection") swizzleInstanceMethod:@selector(userInterfaceIdiom) withMethod:@selector(hook_userInterfaceIdiom)];
 
     [objc_getClass("VSSubscriptionRegistrationCenter") swizzleInstanceMethod:@selector(setCurrentSubscription:) withMethod:@selector(hook_setCurrentSubscription:)];
+
+    [objc_getClass("CMMotionManager") swizzleInstanceMethod:@selector(init) withMethod:@selector(hook_CMMotionManager_init)];
 
     if (PlayInfo.isUnrealEngine) {
         // Fix NSRegularExpression crash when system language is set to Chinese
