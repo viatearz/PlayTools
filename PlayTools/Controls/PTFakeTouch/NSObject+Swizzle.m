@@ -188,6 +188,36 @@ __attribute__((visibility("hidden")))
     return keyCommands;
 }
 
++ (BOOL)hook_swizzlingOriginalClass:(Class)originalClass swizzledClass:(Class)swizzledClass originalSEL:(SEL)originalSEL swizzledSEL:(SEL)swizzledSEL {
+    // Prevent swizzling [UIApplication setDelegate:] as it will cause NIKKE to hang
+    if ([NSStringFromSelector(originalSEL) isEqualToString:@"setDelegate:"] &&
+        [NSStringFromSelector(swizzledSEL) isEqualToString:@"webview_setDelegate:"]) {
+        return NO;
+    }
+    return [self hook_swizzlingOriginalClass:originalClass swizzledClass:swizzledClass
+                                 originalSEL:originalSEL swizzledSEL:swizzledSEL];
+}
+
+- (UIViewController*)hook_UnityAppController_createRootViewController {
+    UIViewController* ret = nil;
+    // Dynamically call method:
+    // [UnityAppController createRootViewControllerForOrientation:UIInterfaceOrientationLandscapeLeft]
+    SEL selector = NSSelectorFromString(@"createRootViewControllerForOrientation:");
+    if ([self respondsToSelector:selector]) {
+        UIViewController* (*func)(id, SEL, UIInterfaceOrientation) = (void *)[self methodForSelector:selector];
+        ret = func(self, selector, UIInterfaceOrientationLandscapeLeft);
+    }
+    // If it fails, fall back to the original implementation
+    if (ret == nil) {
+        ret = [self hook_UnityAppController_createRootViewController];
+    }
+    return ret;
+}
+
+- (void)hook_UnityAppController_checkOrientationRequest {
+    // Unity calls this every frame, disable it to prevent restoring to portrait
+}
+
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
                                                              withTemplate:(NSString *)template
                                                                   options:(NSRegularExpressionOptions)options
@@ -349,9 +379,22 @@ bool menuWasCreated = false;
         [objc_getClass("GCKeyboard") swizzleClassMethod:@selector(coalescedKeyboard) withMethod:@selector(hook_GCKeyboard_coalescedKeyboard)];
     }
 
+    NSString* bundleID = [[NSBundle mainBundle] bundleIdentifier];
+
     // Wait for UnityFrameowrk.framework to load
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
+
+        if ([bundleID hasSuffix:@".nikke"]) {
+            // Fix hange issue
+            [objc_getClass("INTLUtilsIOS") swizzleClassMethod:NSSelectorFromString(@"swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:") withMethod:@selector(hook_swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:)];
+
+            // Fix window orientation issue
+            if ([[PlaySettings shared] adaptiveDisplay]) {
+                [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewController") withMethod:@selector(hook_UnityAppController_createRootViewController)];
+                [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
+            }
+        }
     });
 
     if (PlayInfo.isUnrealEngine) {
