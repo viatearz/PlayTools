@@ -5,6 +5,8 @@
 
 #include <errno.h>
 #include <sys/sysctl.h>
+#include <pwd.h>
+#include <unistd.h>
 
 #import "PlayLoader.h"
 #import <PlayTools/PlayTools-Swift.h>
@@ -179,10 +181,87 @@ DYLD_INTERPOSE(pt_SecItemAdd, SecItemAdd)
 DYLD_INTERPOSE(pt_SecItemUpdate, SecItemUpdate)
 DYLD_INTERPOSE(pt_SecItemDelete, SecItemDelete)
 
+static bool is_ue = false;
+
+static inline char const* get_username(void) {
+    struct passwd *pw = getpwuid(getuid());
+    return (pw && pw->pw_name) ? pw->pw_name : "";
+}
+
+static char const* ue_fix_filename(char const* filename) {
+    static char UE_PATTERN[1024] = "";
+    if (UE_PATTERN[0] == '\0') {
+        strcpy(UE_PATTERN, "//Users/");
+        strcat(UE_PATTERN, get_username());
+    }
+
+    char const* p = filename;
+    if (is_ue) {
+        char const* last_p = p;
+        while ((p = strstr(p, UE_PATTERN))) {
+            last_p = ++p;
+        }
+        
+        return last_p;
+    }
+
+    return p;
+}
+
+static int pt_open(char const* restrict filename, int oflag, ... ) {
+    filename = ue_fix_filename(filename);
+
+    if (oflag & O_CREAT) {
+        int mod;
+        va_list ap;
+        va_start(ap, oflag);
+        mod = va_arg(ap, int);
+        va_end(ap);
+
+        return open(filename, oflag, mod);
+    }
+
+    return open(filename, oflag);
+}
+
+static int pt_stat(char const* restrict path, struct stat* restrict buf) {
+    return stat(ue_fix_filename(path), buf);
+}
+
+static int pt_access(char const* path, int mode) {
+    return access(ue_fix_filename(path), mode);
+}
+
+static int pt_rename(char const* restrict old_name, char const* restrict new_name) {
+    return rename(ue_fix_filename(old_name), ue_fix_filename(new_name));
+}
+
+static int pt_unlink(char const* path) {
+    return unlink(ue_fix_filename(path));
+}
+
+static int pt_mkdirat(int fd, const char* path, mode_t mode) {
+    return mkdirat(fd, ue_fix_filename(path), mode);
+}
+
+static DIR* pt_opendir(const char* path) {
+    return opendir(ue_fix_filename(path));
+}
+
+DYLD_INTERPOSE(pt_open, open)
+DYLD_INTERPOSE(pt_stat, stat)
+DYLD_INTERPOSE(pt_access, access)
+DYLD_INTERPOSE(pt_rename, rename)
+DYLD_INTERPOSE(pt_unlink, unlink)
+DYLD_INTERPOSE(pt_mkdirat, mkdirat)
+DYLD_INTERPOSE(pt_opendir, opendir)
+
 @implementation PlayLoader
 
 static void __attribute__((constructor)) initialize(void) {
     [PlayCover launch];
+
+    is_ue = PlayInfo.isUnrealEngine;
 }
 
 @end
