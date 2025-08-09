@@ -22,6 +22,11 @@ public class PlayCover: NSObject {
             FileManager.default.changeCurrentDirectoryPath("/")
         }
 
+        if PlayInfo.isUnrealEngine {
+            // Disable built-in mouse to avoid click conflicts
+            PlayInput.shared.disableBuiltinMouse()
+        }
+
         AppSupport.instance.postLaunch()
     }
 

@@ -14,6 +14,7 @@
 #import <VideoSubscriberAccount/VideoSubscriberAccount.h>
 #import <CoreMotion/CoreMotion.h>
 #import <AVFoundation/AVFoundation.h>
+#import <GameController/GameController.h>
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -60,6 +61,30 @@ __attribute__((visibility("hidden")))
     Method swizzledMethod = class_getInstanceMethod(cls, newSelector);
     
     method_exchangeImplementations(originalMethod, swizzledMethod);
+}
+
++ (void) swizzleClassMethod:(SEL)origSelector withMethod:(SEL)newSelector {
+    Class cls = object_getClass((id)self);
+    Method originalMethod = class_getClassMethod(cls, origSelector);
+    Method swizzledMethod = class_getClassMethod(cls, newSelector);
+
+    if (class_addMethod(cls,
+                        origSelector,
+                        method_getImplementation(swizzledMethod),
+                        method_getTypeEncoding(swizzledMethod))) {
+        class_replaceMethod(cls,
+                            newSelector,
+                            method_getImplementation(originalMethod),
+                            method_getTypeEncoding(originalMethod));
+    } else {
+        class_replaceMethod(cls,
+                            newSelector,
+                            class_replaceMethod(cls,
+                                                origSelector,
+                                                method_getImplementation(swizzledMethod),
+                                                method_getTypeEncoding(swizzledMethod)),
+                            method_getTypeEncoding(originalMethod));
+    }
 }
 
 - (BOOL) hook_prefersPointerLocked {
@@ -165,6 +190,10 @@ bool menuWasCreated = false;
                                                                 withTemplate:template
                                                                      options:options
                                                                        range:range];
+}
+
++ (GCMouse*)hook_GCMouse_current {
+    return nil;
 }
 
 - (void)hook_requestRecordPermission:(void (^)(BOOL))response {
@@ -298,6 +327,9 @@ bool menuWasCreated = false;
             SEL newSelector = @selector(hook_stringByReplacingOccurrencesOfRegularExpressionPattern:withTemplate:options:range:);
             [objc_getClass("NSString") swizzleInstanceMethod:origSelector withMethod:newSelector];
         }
+
+        // Fix click conflicts by disabling built-in mouse
+        [objc_getClass("GCMouse") swizzleClassMethod:@selector(current) withMethod:@selector(hook_GCMouse_current)];
     }
 
     // Wait for UnityFramework.framework to load

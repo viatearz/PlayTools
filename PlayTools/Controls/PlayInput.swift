@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import GameController
 
 // This class is a coordinator (and module entrance), coordinating other concrete classes
 
@@ -40,5 +41,28 @@ class PlayInput {
             Toast.initialize()
         }
         mode.initialize()
+    }
+
+    func disableBuiltinMouse() {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.GCMouseDidConnect,
+            object: nil,
+            queue: .main
+        ) { nofitication in
+            guard let mouse = nofitication.object as? GCMouse else {
+                return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                NotificationCenter.default.post(name: NSNotification.Name.GCMouseDidDisconnect, object: mouse)
+                mouse.mouseInput?.leftButton.pressedChangedHandler = nil
+                mouse.mouseInput?.middleButton?.pressedChangedHandler = nil
+                mouse.mouseInput?.rightButton?.pressedChangedHandler = nil
+                mouse.mouseInput?.mouseMovedHandler = nil
+                mouse.mouseInput?.scroll.valueChangedHandler = nil
+                mouse.mouseInput?.auxiliaryButtons?.forEach { button in
+                    button.pressedChangedHandler = nil
+                }
+            }
+        }
     }
 }
