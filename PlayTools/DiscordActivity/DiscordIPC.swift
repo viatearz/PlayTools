@@ -68,9 +68,10 @@ class DiscordIPC {
 
         activity.timestamps.start = Date()
 
-        activity.buttons[0].label = "Download PlayCover"
-        activity.buttons[0].url = "https://github.com/PlayCover/PlayCover/releases"
-        activity.buttons.removeLast()
+        activity.buttons = [
+            RichPresence.Button(label: "Download PlayCover",
+                                url: "https://github.com/PlayCover/PlayCover/releases")
+        ]
 
         return activity
     }
