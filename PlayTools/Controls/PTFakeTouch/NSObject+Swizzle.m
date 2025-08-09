@@ -62,6 +62,30 @@ __attribute__((visibility("hidden")))
     method_exchangeImplementations(originalMethod, swizzledMethod);
 }
 
++ (void) swizzleClassMethod:(SEL)origSelector withMethod:(SEL)newSelector {
+    Class cls = object_getClass((id)self);
+    Method originalMethod = class_getClassMethod(cls, origSelector);
+    Method swizzledMethod = class_getClassMethod(cls, newSelector);
+
+    if (class_addMethod(cls,
+                        origSelector,
+                        method_getImplementation(swizzledMethod),
+                        method_getTypeEncoding(swizzledMethod)) ) {
+        class_replaceMethod(cls,
+                            newSelector,
+                            method_getImplementation(originalMethod),
+                            method_getTypeEncoding(originalMethod));
+    } else {
+        class_replaceMethod(cls,
+                            newSelector,
+                            class_replaceMethod(cls,
+                                                origSelector,
+                                                method_getImplementation(swizzledMethod),
+                                                method_getTypeEncoding(swizzledMethod)),
+                            method_getTypeEncoding(originalMethod));
+    }
+}
+
 - (BOOL) hook_prefersPointerLocked {
     return false;
 }
@@ -174,6 +198,36 @@ bool menuWasCreated = false;
     } else {
         [self hook_requestRecordPermission:response];
     }
+}
+
++ (BOOL)hook_swizzlingOriginalClass:(Class)originalClass swizzledClass:(Class)swizzledClass originalSEL:(SEL)originalSEL swizzledSEL:(SEL)swizzledSEL {
+    // Prevent swizzling [UIApplication setDelegate:] as it will cause NIKKE to hang
+    if ([NSStringFromSelector(originalSEL) isEqualToString:@"setDelegate:"] &&
+        [NSStringFromSelector(swizzledSEL) isEqualToString:@"webview_setDelegate:"]) {
+        return NO;
+    }
+    return [self hook_swizzlingOriginalClass:originalClass swizzledClass:swizzledClass
+                                 originalSEL:originalSEL swizzledSEL:swizzledSEL];
+}
+
+- (UIViewController*)hook_UnityAppController_createRootViewController {
+    UIViewController* ret = nil;
+    // Dynamically call method:
+    // [UnityAppController createRootViewControllerForOrientation:UIInterfaceOrientationLandscapeLeft]
+    SEL selector = NSSelectorFromString(@"createRootViewControllerForOrientation:");
+    if ([self respondsToSelector:selector]) {
+        UIViewController* (*func)(id, SEL, UIInterfaceOrientation) = (void *)[self methodForSelector:selector];
+        ret = func(self, selector, UIInterfaceOrientationLandscapeLeft);
+    }
+    // If it fails, fall back to the original implementation
+    if (ret == nil) {
+        ret = [self hook_UnityAppController_createRootViewController];
+    }
+    return ret;
+}
+
+- (void)hook_UnityAppController_checkOrientationRequest {
+    // Unity calls this every frame, disable it to prevent restoring to portrait
 }
 
 @end
@@ -301,6 +355,18 @@ bool menuWasCreated = false;
         // Fix Tencent GVoice microphone permission
         if (objc_getClass("GVGCloudVoice") != nil) {
             [objc_getClass("AVAudioSession") swizzleInstanceMethod:@selector(requestRecordPermission:) withMethod:@selector(hook_requestRecordPermission:)];
+        }
+
+        // Specific fixes for NIKKE
+        if ([[[NSBundle mainBundle] bundleIdentifier] hasSuffix:@".nikke"]) {
+            // Fix hange issue
+            [objc_getClass("INTLUtilsIOS") swizzleClassMethod:NSSelectorFromString(@"swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:") withMethod:@selector(hook_swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:)];
+
+            // Fix window orientation issue
+            if ([[PlaySettings shared] adaptiveDisplay]) {
+                [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewController") withMethod:@selector(hook_UnityAppController_createRootViewController)];
+                [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
+            }
         }
     });
 }
