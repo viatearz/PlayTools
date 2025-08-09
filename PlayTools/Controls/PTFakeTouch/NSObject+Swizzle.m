@@ -14,6 +14,7 @@
 #import <VideoSubscriberAccount/VideoSubscriberAccount.h>
 #import <CoreMotion/CoreMotion.h>
 #import <AVFoundation/AVFoundation.h>
+#import <GameController/GameController.h>
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -191,6 +192,10 @@ bool menuWasCreated = false;
                                                                        range:range];
 }
 
++ (GCMouse*)hook_GCMouse_current {
+    return nil;
+}
+
 - (void)hook_requestRecordPermission:(void (^)(BOOL))response {
     BOOL granted = [[AVAudioSession sharedInstance] recordPermission] == AVAudioSessionRecordPermissionGranted;
     if (granted) {
@@ -348,6 +353,9 @@ bool menuWasCreated = false;
             SEL newSelector = @selector(hook_stringByReplacingOccurrencesOfRegularExpressionPattern:withTemplate:options:range:);
             [objc_getClass("NSString") swizzleInstanceMethod:origSelector withMethod:newSelector];
         }
+
+        // Fix click conflicts by disabling built-in mouse
+        [objc_getClass("GCMouse") swizzleClassMethod:@selector(current) withMethod:@selector(hook_GCMouse_current)];
     }
 
     // Wait for UnityFramework.framework to load
