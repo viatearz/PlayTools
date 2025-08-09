@@ -1,3 +1,6 @@
+This branch integrates several fixes into the current stable version(v3.1.0).
+---
+
 # PlayTools
 
 PlayTools is an essential part of [PlayCover](https://github.com/PlayCover/PlayCover). PlayTools implements core functions of PlayCover, including display control, key mapping and bypassing.
