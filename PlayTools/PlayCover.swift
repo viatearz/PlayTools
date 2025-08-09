@@ -79,3 +79,63 @@ public class PlayCover: NSObject {
         DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
     }
 }
+
+class FileUtils {
+    public static func getFileSize(_ url: URL) -> UInt64? {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return nil
+        }
+        do {
+            let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+            return attributes[.size] as? UInt64
+        } catch {
+            return nil
+        }
+    }
+
+    public static func removeFile(_ url: URL) {
+        do {
+            try FileManager.default.removeItem(atPath: url.path)
+        } catch {
+            print("[PlayTools] Failed to remove file \(url.path): \(error)")
+        }
+    }
+
+    public static func directoryExists(at url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) && isDirectory.boolValue
+    }
+
+    public static func createDirectory(at url: URL) {
+        do {
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        } catch {
+            print("[PlayTools] Failed to create directory \(url.path): \(error)")
+        }
+    }
+
+    public static func clearAllFiles(at diretotryURL: URL) {
+        do {
+            let contents = try FileManager.default.contentsOfDirectory(atPath: diretotryURL.path)
+            for file in contents {
+                let fileURL = diretotryURL.appendingPathComponent(file)
+                try FileManager.default.removeItem(atPath: fileURL.path)
+            }
+        } catch {
+            print("[PlayTools] Failed to clear files in directory \(diretotryURL.path): \(error)")
+        }
+    }
+
+    public static func setReadOnly(_ url: URL) {
+        do {
+            let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+            if let currentPermissions = attributes[.posixPermissions] as? NSNumber {
+                let currentMode = currentPermissions.uint16Value
+                let newMode = currentMode & ~0o222
+                try FileManager.default.setAttributes([.posixPermissions: NSNumber(value: newMode)], ofItemAtPath: url.path)
+            }
+        } catch {
+            print("[PlayTools] Failed to set readonly for \(url.path): \(error)")
+        }
+    }
+}
