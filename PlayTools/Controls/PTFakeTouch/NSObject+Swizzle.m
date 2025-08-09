@@ -152,6 +152,20 @@ bool menuWasCreated = false;
     return motionManager;
 }
 
+- (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
+                                                             withTemplate:(NSString *)template
+                                                                  options:(NSRegularExpressionOptions)options
+                                                                    range:(NSRange)range {
+    // If the string is empty, return immediately to prevent a range out-of-bounds error.
+    if ([(NSString*)self isEqualToString:@""]) {
+        return @"";
+    }
+    return [self hook_stringByReplacingOccurrencesOfRegularExpressionPattern:pattern
+                                                                withTemplate:template
+                                                                     options:options
+                                                                       range:range];
+}
+
 @end
 
 /*
@@ -261,6 +275,16 @@ bool menuWasCreated = false;
     [objc_getClass("VSSubscriptionRegistrationCenter") swizzleInstanceMethod:@selector(setCurrentSubscription:) withMethod:@selector(hook_setCurrentSubscription:)];
 
     [objc_getClass("CMMotionManager") swizzleInstanceMethod:@selector(init) withMethod:@selector(hook_CMMotionManager_init)];
+
+    if (PlayInfo.isUnrealEngine) {
+        // Fix NSRegularExpression crash when system language is set to Chinese
+        CFStringEncoding encoding = CFStringGetSystemEncoding();
+        if (encoding == kCFStringEncodingMacChineseSimp || encoding == kCFStringEncodingMacChineseTrad) {
+            SEL origSelector = NSSelectorFromString(@"_stringByReplacingOccurrencesOfRegularExpressionPattern:withTemplate:options:range:");
+            SEL newSelector = @selector(hook_stringByReplacingOccurrencesOfRegularExpressionPattern:withTemplate:options:range:);
+            [objc_getClass("NSString") swizzleInstanceMethod:origSelector withMethod:newSelector];
+        }
+    }
 }
 
 @end
