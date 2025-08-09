@@ -126,6 +126,9 @@ public class ControlMode: Equatable {
 //            Toast.showHint(title: "should hide cursor? \(mouseAdapter.cursorHidden())",
 //                       text: ["current state: " + mode])
         }
+        if mode == .TEXT_INPUT {
+            ActionDispatcher.invalidateActions()
+        }
         if mouseAdapter.cursorHidden() != wasHidden && settings.keymapping {
             if wasHidden {
                 NotificationCenter.default.post(name: NSNotification.Name.playtoolsCursorWillShow,
