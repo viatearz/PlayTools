@@ -13,6 +13,7 @@
 #import "PTFakeMetaTouch.h"
 #import <VideoSubscriberAccount/VideoSubscriberAccount.h>
 #import <CoreMotion/CoreMotion.h>
+#import <AVFoundation/AVFoundation.h>
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -166,6 +167,15 @@ bool menuWasCreated = false;
                                                                        range:range];
 }
 
+- (void)hook_requestRecordPermission:(void (^)(BOOL))response {
+    BOOL granted = [[AVAudioSession sharedInstance] recordPermission] == AVAudioSessionRecordPermissionGranted;
+    if (granted) {
+        response(granted);
+    } else {
+        [self hook_requestRecordPermission:response];
+    }
+}
+
 @end
 
 /*
@@ -285,6 +295,14 @@ bool menuWasCreated = false;
             [objc_getClass("NSString") swizzleInstanceMethod:origSelector withMethod:newSelector];
         }
     }
+
+    // Wait for UnityFramework.framework to load
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        // Fix Tencent GVoice microphone permission
+        if (objc_getClass("GVGCloudVoice") != nil) {
+            [objc_getClass("AVAudioSession") swizzleInstanceMethod:@selector(requestRecordPermission:) withMethod:@selector(hook_requestRecordPermission:)];
+        }
+    });
 }
 
 @end
