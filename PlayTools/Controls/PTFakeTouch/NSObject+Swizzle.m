@@ -205,6 +205,15 @@ bool menuWasCreated = false;
     }
 }
 
++ (void)hook_KeyboardDelegate_Initialize {
+    @try {
+        [self hook_KeyboardDelegate_Initialize];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception: %@, reason: %@", exception.name, exception.reason);
+    }
+}
+
 + (BOOL)hook_swizzlingOriginalClass:(Class)originalClass swizzledClass:(Class)swizzledClass originalSEL:(SEL)originalSEL swizzledSEL:(SEL)swizzledSEL {
     // Prevent swizzling [UIApplication setDelegate:] as it will cause NIKKE to hang
     if ([NSStringFromSelector(originalSEL) isEqualToString:@"setDelegate:"] &&
@@ -367,6 +376,11 @@ bool menuWasCreated = false;
         // Fix Tencent GVoice microphone permission
         if (objc_getClass("GVGCloudVoice") != nil) {
             [objc_getClass("AVAudioSession") swizzleInstanceMethod:@selector(requestRecordPermission:) withMethod:@selector(hook_requestRecordPermission:)];
+        }
+
+        // Fix Unity KeyboardDelegate crash
+        if (objc_getClass("UnityAppController") != nil) {
+            [objc_getClass("KeyboardDelegate") swizzleClassMethod:NSSelectorFromString(@"Initialize") withMethod:@selector(hook_KeyboardDelegate_Initialize)];
         }
 
         // Specific fixes for NIKKE
