@@ -235,6 +235,10 @@ bool menuWasCreated = false;
     // Unity calls this every frame, disable it to prevent restoring to portrait
 }
 
+- (UIInterfaceOrientationMask)hook_jkchess_supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskLandscape;
+}
+
 @end
 
 /*
@@ -375,6 +379,12 @@ bool menuWasCreated = false;
                 [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewController") withMethod:@selector(hook_UnityAppController_createRootViewController)];
                 [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
             }
+        }
+
+        // Specific fixes for 金铲铲之战
+        if ([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.tencent.jkchess"]) {
+            // Fix web view orientation issue
+            [objc_getClass("MSDKBaseWebViewController") swizzleInstanceMethod:@selector(supportedInterfaceOrientations) withMethod:@selector(hook_jkchess_supportedInterfaceOrientations)];
         }
     });
 }
