@@ -10,6 +10,7 @@ class AppSupportRegistry {
         "com.tencent.nikke": NIKKESupport.self,
         "com.papegames.infinitynikki": InfinityNikkiSupport.self,
         "com.infoldgames.infinitynikkien": InfinityNikkiSupport.self,
-        "com.infoldgames.infinitynikkias": InfinityNikkiSupport.self
+        "com.infoldgames.infinitynikkias": InfinityNikkiSupport.self,
+        "com.tencent.jkchess": JinChanChanSupport.self
     ]
 }
