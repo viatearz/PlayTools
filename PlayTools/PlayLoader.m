@@ -12,6 +12,7 @@
 #import <PlayTools/PlayTools-Swift.h>
 #import <sys/utsname.h>
 #import "NSObject+Swizzle.h"
+#import "fishhook.h"
 
 // Get device model from playcover .plist
 // With a null terminator
@@ -181,7 +182,13 @@ DYLD_INTERPOSE(pt_SecItemAdd, SecItemAdd)
 DYLD_INTERPOSE(pt_SecItemUpdate, SecItemUpdate)
 DYLD_INTERPOSE(pt_SecItemDelete, SecItemDelete)
 
-static bool is_ue = false;
+static int (*orig_open)(const char *, int, ...);
+static int (*orig_stat)(const char *, struct stat *);
+static int (*orig_access)(const char *, int);
+static int (*orig_rename)(const char *, const char *);
+static int (*orig_unlink)(const char *);
+static int (*orig_mkdirat)(int, const char *, mode_t);
+static DIR* (*orig_opendir)(const char *);
 
 static inline char const* get_username(void) {
     struct passwd *pw = getpwuid(getuid());
@@ -196,16 +203,12 @@ static char const* ue_fix_filename(char const* filename) {
     }
 
     char const* p = filename;
-    if (is_ue) {
-        char const* last_p = p;
-        while ((p = strstr(p, UE_PATTERN))) {
-            last_p = ++p;
-        }
-        
-        return last_p;
+    char const* last_p = p;
+    while ((p = strstr(p, UE_PATTERN))) {
+        last_p = ++p;
     }
 
-    return p;
+    return last_p;
 }
 
 static int pt_open(char const* restrict filename, int oflag, ... ) {
@@ -218,50 +221,52 @@ static int pt_open(char const* restrict filename, int oflag, ... ) {
         mod = va_arg(ap, int);
         va_end(ap);
 
-        return open(filename, oflag, mod);
+        return orig_open(filename, oflag, mod);
     }
 
-    return open(filename, oflag);
+    return orig_open(filename, oflag);
 }
 
 static int pt_stat(char const* restrict path, struct stat* restrict buf) {
-    return stat(ue_fix_filename(path), buf);
+    return orig_stat(ue_fix_filename(path), buf);
 }
 
 static int pt_access(char const* path, int mode) {
-    return access(ue_fix_filename(path), mode);
+    return orig_access(ue_fix_filename(path), mode);
 }
 
 static int pt_rename(char const* restrict old_name, char const* restrict new_name) {
-    return rename(ue_fix_filename(old_name), ue_fix_filename(new_name));
+    return orig_rename(ue_fix_filename(old_name), ue_fix_filename(new_name));
 }
 
 static int pt_unlink(char const* path) {
-    return unlink(ue_fix_filename(path));
+    return orig_unlink(ue_fix_filename(path));
 }
 
 static int pt_mkdirat(int fd, const char* path, mode_t mode) {
-    return mkdirat(fd, ue_fix_filename(path), mode);
+    return orig_mkdirat(fd, ue_fix_filename(path), mode);
 }
 
 static DIR* pt_opendir(const char* path) {
-    return opendir(ue_fix_filename(path));
+    return orig_opendir(ue_fix_filename(path));
 }
-
-DYLD_INTERPOSE(pt_open, open)
-DYLD_INTERPOSE(pt_stat, stat)
-DYLD_INTERPOSE(pt_access, access)
-DYLD_INTERPOSE(pt_rename, rename)
-DYLD_INTERPOSE(pt_unlink, unlink)
-DYLD_INTERPOSE(pt_mkdirat, mkdirat)
-DYLD_INTERPOSE(pt_opendir, opendir)
 
 @implementation PlayLoader
 
 static void __attribute__((constructor)) initialize(void) {
-    [PlayCover launch];
+    if (PlayInfo.isUnrealEngine) {
+        rebind_symbols((struct rebinding[7]){
+            {"open", pt_open, (void *)&orig_open},
+            {"stat", pt_stat, (void *)&orig_stat},
+            {"access", pt_access, (void *)&orig_access},
+            {"rename", pt_rename, (void *)&orig_rename},
+            {"unlink", pt_unlink, (void *)&orig_unlink},
+            {"mkdirat", pt_mkdirat, (void *)&orig_mkdirat},
+            {"opendir", pt_opendir, (void *)&orig_opendir},
+        }, 7);
+    }
 
-    is_ue = PlayInfo.isUnrealEngine;
+    [PlayCover launch];
 }
 
 @end

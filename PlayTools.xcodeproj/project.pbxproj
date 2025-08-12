@@ -14,6 +14,8 @@
 		6E7663A528D0FEBE00DE4AF9 /* AKPluginLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7663A428D0FEBE00DE4AF9 /* AKPluginLoader.swift */; };
 		6E84A14528D0F94E00BF7495 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA818CBA287ABFD5000BEE9D /* UIKit.framework */; };
 		6E84A15028D0F97500BF7495 /* AKInterface.bundle in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		92CE92CF2E4ADF69005B7678 /* fishhook.h in Headers */ = {isa = PBXBuildFile; fileRef = 92CE92CD2E4ADF69005B7678 /* fishhook.h */; };
+		92CE92D02E4ADF69005B7678 /* fishhook.c in Sources */ = {isa = PBXBuildFile; fileRef = 92CE92CE2E4ADF69005B7678 /* fishhook.c */; };
 		951D8275299D097C00D35B20 /* Playtools.strings in Resources */ = {isa = PBXBuildFile; fileRef = 951D8277299D097C00D35B20 /* Playtools.strings */; };
 		954389C22B38922400B063BB /* MouseArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954389C12B38922400B063BB /* MouseArea.swift */; };
 		954389C42B38968C00B063BB /* Joystick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954389C32B38968C00B063BB /* Joystick.swift */; };
@@ -107,6 +109,8 @@
 		6E7663A028D0FB5300DE4AF9 /* AKPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKPlugin.swift; sourceTree = "<group>"; };
 		6E7663A428D0FEBE00DE4AF9 /* AKPluginLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKPluginLoader.swift; sourceTree = "<group>"; };
 		6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AKInterface.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		92CE92CD2E4ADF69005B7678 /* fishhook.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fishhook.h; sourceTree = "<group>"; };
+		92CE92CE2E4ADF69005B7678 /* fishhook.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = fishhook.c; sourceTree = "<group>"; };
 		951D8276299D097C00D35B20 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Playtools.strings; sourceTree = "<group>"; };
 		951D8278299D098000D35B20 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Playtools.strings"; sourceTree = "<group>"; };
 		954389C12B38922400B063BB /* MouseArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseArea.swift; sourceTree = "<group>"; };
@@ -443,6 +447,8 @@
 				AA719702287A44D200623C15 /* PlayLoader.m */,
 				AA719708287A44D200623C15 /* PlayTools.h */,
 				2847AE47298EFC0F00B0F983 /* PlayScreen.swift */,
+				92CE92CD2E4ADF69005B7678 /* fishhook.h */,
+				92CE92CE2E4ADF69005B7678 /* fishhook.c */,
 			);
 			path = PlayTools;
 			sourceTree = "<group>";
@@ -555,6 +561,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA71986E287A81A000623C15 /* NSObject+Swizzle.h in Headers */,
+				92CE92CF2E4ADF69005B7678 /* fishhook.h in Headers */,
 				AB7DA47729B8A78B0034ACB2 /* PlayShadow.h in Headers */,
 				AA719846287A81A000623C15 /* IOHIDEvent+KIF.h in Headers */,
 				AA719862287A81A000623C15 /* UITouch-KIFAdditions.h in Headers */,
@@ -720,6 +727,7 @@
 				9562D1622AB4FE73002C329D /* CameraControlMouseEventAdapter.swift in Sources */,
 				954389C42B38968C00B063BB /* Joystick.swift in Sources */,
 				9562D1642AB4FEB4002C329D /* TouchscreenMouseEventAdapter.swift in Sources */,
+				92CE92D02E4ADF69005B7678 /* fishhook.c in Sources */,
 				9562D1602AB4FD46002C329D /* TransparentControllerEventAdapter.swift in Sources */,
 				B46C02C72C634AB5007637AB /* BatteryLevel.m in Sources */,
 				9562D1792AB64458002C329D /* ModeAutomaton.swift in Sources */,
