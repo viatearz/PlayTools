@@ -248,6 +248,10 @@ bool menuWasCreated = false;
     return UIInterfaceOrientationMaskLandscape;
 }
 
+- (void)hook_OverField_o0_ooo0o0 {
+    // do nothing
+}
+
 @end
 
 /*
@@ -357,6 +361,8 @@ bool menuWasCreated = false;
     [objc_getClass("VSSubscriptionRegistrationCenter") swizzleInstanceMethod:@selector(setCurrentSubscription:) withMethod:@selector(hook_setCurrentSubscription:)];
 
     [objc_getClass("CMMotionManager") swizzleInstanceMethod:@selector(init) withMethod:@selector(hook_CMMotionManager_init)];
+    
+    NSString* bundleID = [[NSBundle mainBundle] bundleIdentifier];
 
     if (PlayInfo.isUnrealEngine) {
         // Fix NSRegularExpression crash when system language is set to Chinese
@@ -384,7 +390,7 @@ bool menuWasCreated = false;
         }
 
         // Specific fixes for NIKKE
-        if ([[[NSBundle mainBundle] bundleIdentifier] hasSuffix:@".nikke"]) {
+        if ([bundleID hasSuffix:@".nikke"]) {
             // Fix hange issue
             [objc_getClass("INTLUtilsIOS") swizzleClassMethod:NSSelectorFromString(@"swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:") withMethod:@selector(hook_swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:)];
 
@@ -396,9 +402,15 @@ bool menuWasCreated = false;
         }
 
         // Specific fixes for 金铲铲之战
-        if ([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.tencent.jkchess"]) {
+        if ([bundleID isEqualToString:@"com.tencent.jkchess"]) {
             // Fix web view orientation issue
             [objc_getClass("MSDKBaseWebViewController") swizzleInstanceMethod:@selector(supportedInterfaceOrientations) withMethod:@selector(hook_jkchess_supportedInterfaceOrientations)];
+        }
+
+        // Specific fixes for OverField
+        if ([bundleID isEqualToString:@"com.Nekootan.kfkj.apple"]) {
+            // Bypass some detections
+            [objc_getClass("o0_ooo0o0") swizzleInstanceMethod:NSSelectorFromString(@"o0_oaoao0") withMethod:@selector(hook_OverField_o0_ooo0o0)];
         }
     });
 }
