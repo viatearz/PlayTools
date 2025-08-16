@@ -6,6 +6,7 @@
  */
 
 import UIKit
+import GameController
 
 class RotateViewController: UIViewController {
     static let orientationList: [UIInterfaceOrientation] = [
@@ -112,11 +113,58 @@ var keymappingSelectors = [#selector(UIApplication.switchEditorMode(_:)),
     ]
 
 class MenuController {
+    private var originalKeyboardHandler: GCKeyboardValueChangedHandler?
+    private var cmdPressed = false
+
     init(with builder: UIMenuBuilder) {
-        if Toucher.logEnabled {
-            builder.insertSibling(MenuController.debuggingMenu(), afterMenu: .view)
+        if #available(iOS 26.0, *) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.setupShortcutKeys()
+            }
+        } else {
+            if Toucher.logEnabled {
+                builder.insertSibling(MenuController.debuggingMenu(), afterMenu: .view)
+            }
+            builder.insertSibling(MenuController.keymappingMenu(), afterMenu: .view)
         }
-        builder.insertSibling(MenuController.keymappingMenu(), afterMenu: .view)
+    }
+
+    func setupShortcutKeys() {
+        guard let keyboardInput = GCKeyboard.coalesced?.keyboardInput else {
+            return
+        }
+
+        self.originalKeyboardHandler = keyboardInput.keyChangedHandler
+
+        keyboardInput.keyChangedHandler = { keyboard, key, keyCode, pressed in
+            if keyCode == GCKeyCode.leftGUI || keyCode == GCKeyCode.rightGUI {
+                self.cmdPressed = pressed
+            } else if self.cmdPressed && pressed {
+                self.handleShortcutKey(keyCode)
+            }
+            if let handler = self.originalKeyboardHandler {
+                handler(keyboard, key, keyCode, pressed)
+            }
+        }
+    }
+
+    func handleShortcutKey(_ keyCode: GCKeyCode) {
+        switch keyCode {
+        case GCKeyCode.keyK:
+            UIApplication.shared.switchEditorMode(self)
+        case GCKeyCode.deleteOrBackspace:
+            UIApplication.shared.removeElement(self)
+        case GCKeyCode.upArrow:
+            UIApplication.shared.upscaleElement(self)
+        case GCKeyCode.downArrow:
+            UIApplication.shared.downscaleElement(self)
+        case GCKeyCode.keyR:
+            UIApplication.shared.rotateView(self)
+        case GCKeyCode.keyD:
+            UIApplication.shared.toggleDebugOverlay(self)
+        default:
+            break
+        }
     }
 
     static func debuggingMenu() -> UIMenu {
