@@ -11,6 +11,7 @@ class AppSupportRegistry {
         "com.papegames.infinitynikki": InfinityNikkiSupport.self,
         "com.infoldgames.infinitynikkien": InfinityNikkiSupport.self,
         "com.infoldgames.infinitynikkias": InfinityNikkiSupport.self,
-        "com.tencent.jkchess": JinChanChanSupport.self
+        "com.tencent.jkchess": JinChanChanSupport.self,
+        "com.Nekootan.kfkj.apple": OverFieldSupport.self
     ]
 }
