@@ -23,6 +23,7 @@ public class PlayCover: NSObject {
         }
 
         if PlayInfo.isUnrealEngine {
+            setupUnrealEngineEnvironment()
             // Disable built-in mouse to avoid click conflicts
             PlayInput.shared.disableBuiltinMouse()
         }
@@ -76,6 +77,50 @@ public class PlayCover: NSObject {
                 // It may run into infinite loops, end up silently heating the device up.
                 // This actually happens for ToF. Hope future developers can solve this.
             }
+        }
+    }
+
+    static func setupUnrealEngineEnvironment() {
+        guard let executableURL = Bundle.main.executableURL else {
+            return
+        }
+
+        let cookeddataDir = executableURL.deletingLastPathComponent()
+            .appendingPathComponent("cookeddata")
+
+        let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+
+        let libraryDir = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first!
+
+        let appDataDir = documentDir.deletingLastPathComponent()
+
+        for sourceParentDir in [documentDir, libraryDir] {
+            for destDir in [appDataDir, cookeddataDir] {
+                let sourceDir = sourceParentDir.appendingPathComponent(destDir.path)
+                createSymbolicLink(source: sourceDir, destination: destDir)
+            }
+        }
+    }
+
+    static func createSymbolicLink(source: URL, destination: URL) {
+        do {
+            var isDirectory: ObjCBool = false
+            if FileManager.default.fileExists(atPath: source.path, isDirectory: &isDirectory) {
+                let attributes = try FileManager.default.attributesOfItem(atPath: source.path)
+                if let fileType = attributes[.type] as? FileAttributeType, fileType == .typeSymbolicLink {
+                    // Symlink already exists, skip
+                    return
+                } else {
+                    // Delete the non-symlink item
+                    try FileManager.default.removeItem(atPath: source.path)
+                }
+            }
+
+            try FileManager.default.createDirectory(at: source.deletingLastPathComponent(),
+                                                    withIntermediateDirectories: true)
+            try FileManager.default.createSymbolicLink(at: source, withDestinationURL: destination)
+        } catch {
+            NSLog("[PlayTools] create symlink failed: \(source.path) \(destination.path) \(error)")
         }
     }
 
