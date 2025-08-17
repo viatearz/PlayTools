@@ -250,6 +250,10 @@ bool menuWasCreated = false;
     return self;
 }
 
+- (void)hook_OverField_o0_ooo0o0 {
+    // do nothing
+}
+
 @end
 
 /*
@@ -387,9 +391,11 @@ bool menuWasCreated = false;
         }
     }
 
-    if ([[[NSBundle mainBundle] bundleIdentifier] hasSuffix:@".nikke"]) {
-        // Wait UnityFrameowrk.framework to load
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    NSString* bundleID = [[NSBundle mainBundle] bundleIdentifier];
+
+    // Wait for UnityFrameowrk.framework to load
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if ([bundleID hasSuffix:@".nikke"]) {
             // Fix hange issue
             [objc_getClass("INTLUtilsIOS") swizzleClassMethod:NSSelectorFromString(@"swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:") withMethod:@selector(hook_swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:)];
 
@@ -398,8 +404,13 @@ bool menuWasCreated = false;
                 [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewController") withMethod:@selector(hook_UnityAppController_createRootViewController)];
                 [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
             }
-        });
-    }
+        }
+
+        if ([bundleID isEqualToString:@"com.Nekootan.kfkj.apple"]) {
+            // Bypass some detections
+            [objc_getClass("o0_ooo0o0") swizzleInstanceMethod:NSSelectorFromString(@"o0_oaoao0") withMethod:@selector(hook_OverField_o0_ooo0o0)];
+        }
+    });
 }
 
 @end
