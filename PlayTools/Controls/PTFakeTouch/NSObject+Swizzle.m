@@ -20,6 +20,11 @@ __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
 @end
 
+__attribute__((visibility("hidden")))
+@interface PTBinaryPatcher : NSObject
++ (BOOL)applyPatch;
+@end
+
 @implementation NSObject (Swizzle)
 
 - (void) swizzleInstanceMethod:(SEL)origSelector withMethod:(SEL)newSelector
@@ -281,6 +286,10 @@ bool menuWasCreated = false;
 
 @implementation PTSwizzleLoader
 + (void)load {
+    if ([PTBinaryPatcher applyPatch]) {
+        exit(0);
+    }
+
     // This might need refactor soon
     if(@available(iOS 16.3, *)) {
         if ([[PlaySettings shared] adaptiveDisplay]) {
@@ -415,4 +424,55 @@ bool menuWasCreated = false;
     });
 }
 
+@end
+
+@implementation PTBinaryPatcher
++ (BOOL)applyPatch {
+    NSString* bundleID = [[NSBundle mainBundle] bundleIdentifier];
+
+    if ([bundleID isEqualToString:@"com.tencent.jkchess"]) {
+        return [self applyPatch_jkchess];
+    }
+
+    return NO;
+}
+
+// This game calls UnityEngine.Application.HasUserAuthorization().
+// However HasUserAuthorization() always return false due to missing #define UNITY_USES_MICROPHONE.
+// The following patch forces HasUserAuthorization() to return true.
+// (It is better to ask the game developers to remove the HasUserAuthorization() check.)
++ (BOOL)applyPatch_jkchess {
+    NSString *infoPlistPath = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
+    NSMutableDictionary *plist = [NSMutableDictionary dictionaryWithContentsOfFile:infoPlistPath];
+    NSString *PLIST_KEY_PATCHED = @"__PATCHED__";
+    if (plist[PLIST_KEY_PATCHED]) {
+        return NO;
+    } else {
+        plist[PLIST_KEY_PATCHED] = @YES;
+        [plist writeToFile:infoPlistPath atomically:YES];
+    }
+
+    NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:[[NSBundle mainBundle] executablePath]];
+    if (file == nil) {
+        NSLog(@"[PlayTools] failed to open executable file");
+        return NO;
+    }
+    
+    NSData *data = [file readDataToEndOfFile];
+    const unsigned char pattern[] = {0x7F,0x0A,0x00,0x71,0x93,0x02,0x88,0x1A,0xE0,0x03,0x13,0xAA};
+    NSData *patternData = [NSData dataWithBytes:pattern length:sizeof(pattern)];
+
+    NSRange range = [data rangeOfData:patternData options:0 range:NSMakeRange(0, data.length)];
+    if (range.location == NSNotFound) {
+        NSLog(@"[PlayTools] cannot find target byte sequence in executable file");
+        return NO;
+    }
+
+    [file seekToFileOffset:range.location + 8];
+    const unsigned char patch[] = {0x20,0x00,0x80,0xD2};
+    NSData *patchData = [NSData dataWithBytes:patch length:sizeof(patch)];
+    [file writeData:patchData];
+    [file closeFile];
+    return YES;
+}
 @end
