@@ -11,6 +11,18 @@
     @objc func applyPatch() -> Bool { return false }
 
     @objc func applyHooks() { }
+
+    func isPatched() -> Bool {
+        return Bundle.main.infoDictionary?["__PATCHED__"] != nil
+    }
+
+    func setPatched() {
+        if let infoPlistPath = Bundle.main.path(forResource: "Info", ofType: "plist"),
+           let dict = NSMutableDictionary(contentsOfFile: infoPlistPath) {
+            dict["__PATCHED__"] = true
+            dict.write(toFile: infoPlistPath, atomically: true)
+        }
+    }
 }
 
 extension AppSupport {

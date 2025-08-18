@@ -15,6 +15,7 @@
 		6E84A14528D0F94E00BF7495 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA818CBA287ABFD5000BEE9D /* UIKit.framework */; };
 		6E84A15028D0F97500BF7495 /* AKInterface.bundle in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		921000012E9CAD1A0032D9AD /* OverFieldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000002E9CAD170032D9AD /* OverFieldSupport.swift */; };
+		9210000B2E9CCF6B0032D9AD /* Patcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210000A2E9CCF690032D9AD /* Patcher.swift */; };
 		9210FFF22E9BF1940032D9AD /* AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFEF2E9BF1940032D9AD /* AppSupport.swift */; };
 		9210FFF32E9BF1940032D9AD /* AppSupportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF02E9BF1940032D9AD /* AppSupportRegistry.swift */; };
 		9210FFF52E9BF59D0032D9AD /* NIKKESupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */; };
@@ -114,6 +115,7 @@
 		6E7663A428D0FEBE00DE4AF9 /* AKPluginLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKPluginLoader.swift; sourceTree = "<group>"; };
 		6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AKInterface.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		921000002E9CAD170032D9AD /* OverFieldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverFieldSupport.swift; sourceTree = "<group>"; };
+		9210000A2E9CCF690032D9AD /* Patcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Patcher.swift; sourceTree = "<group>"; };
 		9210FFEF2E9BF1940032D9AD /* AppSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupport.swift; sourceTree = "<group>"; };
 		9210FFF02E9BF1940032D9AD /* AppSupportRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupportRegistry.swift; sourceTree = "<group>"; };
 		9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIKKESupport.swift; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				9210FFF92E9CA7000032D9AD /* InfinityNikkiSupport.swift */,
 				9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */,
 				921000002E9CAD170032D9AD /* OverFieldSupport.swift */,
+				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
 			sourceTree = "<group>";
@@ -761,6 +764,7 @@
 				2847AE48298EFC0F00B0F983 /* PlayScreen.swift in Sources */,
 				9210FFF52E9BF59D0032D9AD /* NIKKESupport.swift in Sources */,
 				9562D1532AB484FD002C329D /* EventAdapter.swift in Sources */,
+				9210000B2E9CCF6B0032D9AD /* Patcher.swift in Sources */,
 				AA7197A2287A481500623C15 /* CircleMenu.swift in Sources */,
 				954389CE2B39F26600B063BB /* ElementView.swift in Sources */,
 				9562D15A2AB4FBBB002C329D /* TransparentKeyboardEventAdapter.swift in Sources */,
