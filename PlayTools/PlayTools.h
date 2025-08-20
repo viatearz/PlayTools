@@ -12,6 +12,7 @@ FOUNDATION_EXPORT double PlayToolsVersionNumber;
 //! Project version string for PlayTools.
 FOUNDATION_EXPORT const unsigned char PlayToolsVersionString[];
 
+#import "PlayLoader.h"
 #import "PTFakeMetaTouch.h"
 #import "IOHIDEvent+KIF.h"
 #import "UIApplication+Private.h"
