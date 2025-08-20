@@ -10,6 +10,8 @@
    __attribute__((used)) static struct{ const void* replacement; const void* replacee; } _interpose_##_replacee \
             __attribute__ ((section ("__DATA,__interpose"))) = { (const void*)(unsigned long)&_replacement, (const void*)(unsigned long)&_replacee };
 
+extern void settimedelta(long delta);
+
 @interface PlayLoader : NSObject
 
 @end

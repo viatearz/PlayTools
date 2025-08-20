@@ -214,6 +214,16 @@ bool menuWasCreated = false;
     }
 }
 
+- (NSArray*)hook_UnityView_keyCommands {
+    NSArray *keyCommands = [self hook_UnityView_keyCommands];
+    if (keyCommands) {
+        if ([[PlayInput shared] shouldDisableUnityKeyCommands:(UIView *)self]) {
+            return nil;
+        }
+    }
+    return keyCommands;
+}
+
 @end
 
 /*
@@ -348,9 +358,12 @@ bool menuWasCreated = false;
             [objc_getClass("AVAudioSession") swizzleInstanceMethod:@selector(requestRecordPermission:) withMethod:@selector(hook_requestRecordPermission:)];
         }
 
-        // Fix Unity KeyboardDelegate crash
         if (objc_getClass("UnityAppController") != nil) {
+            // Fix Unity KeyboardDelegate crash
             [objc_getClass("KeyboardDelegate") swizzleClassMethod:NSSelectorFromString(@"Initialize") withMethod:@selector(hook_KeyboardDelegate_Initialize)];
+
+            // Fix Unity built-in keyboard lag
+            [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
         }
     });
 

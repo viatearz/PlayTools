@@ -11,6 +11,23 @@
 #import <sys/utsname.h>
 #import "NSObject+Swizzle.h"
 
+static long time_delta = 0;
+void settimedelta(long sec) {
+    time_delta = sec;
+}
+
+static int pt_gettimeofday(struct timeval *tp, void *tzp) {
+    if (time_delta != 0) {
+        int ret = gettimeofday(tp, tzp);
+        tp->tv_sec += time_delta;
+        return ret;
+    } else {
+        return gettimeofday(tp, tzp);
+    }
+}
+
+DYLD_INTERPOSE(pt_gettimeofday, gettimeofday)
+
 // Get device model from playcover .plist
 // With a null terminator
 #define DEVICE_MODEL [[[PlaySettings shared] deviceModel] cStringUsingEncoding:NSUTF8StringEncoding]
