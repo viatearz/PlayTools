@@ -45,7 +45,13 @@ public class TouchscreenKeyboardEventAdapter: KeyboardEventAdapter {
             modifiedKeys.removeAll(where: {code in code == keycode})
         }
 
-        return ActionDispatcher.dispatch(key: name, pressed: pressed)
+        if ActionDispatcher.dispatch(key: name, pressed: pressed) {
+            return true
+        }
+        if PlayInput.shared.sendKeyEventToUnity(key: name, pressed: pressed) {
+            return true
+        }
+        return false
     }
 
 }

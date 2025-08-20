@@ -186,10 +186,6 @@ __attribute__((visibility("hidden")))
     return nil;
 }
 
-- (NSArray*)hook_UnityView_keyCommands {
-    return nil;
-}
-
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
                                                              withTemplate:(NSString *)template
                                                                   options:(NSRegularExpressionOptions)options
@@ -202,6 +198,19 @@ __attribute__((visibility("hidden")))
                                                                 withTemplate:template
                                                                      options:options
                                                                        range:range];
+}
+
+- (NSArray*)hook_UnityView_keyCommands {
+    if ([[PlaySettings shared] disableBuiltinKeyboard]) {
+        return nil;
+    }
+    NSArray *keyCommands = [self hook_UnityView_keyCommands];
+    if (keyCommands) {
+        if ([[PlayInput shared] shouldDisableUnityKeyCommands:(UIView *)self]) {
+            return nil;
+        }
+    }
+    return keyCommands;
 }
 
 + (BOOL)hook_swizzlingOriginalClass:(Class)originalClass swizzledClass:(Class)swizzledClass originalSEL:(SEL)originalSEL swizzledSEL:(SEL)swizzledSEL {
@@ -376,9 +385,6 @@ bool menuWasCreated = false;
 
     if (([[PlaySettings shared] disableBuiltinKeyboard])) {
         [objc_getClass("GCKeyboard") swizzleClassMethod:@selector(coalescedKeyboard) withMethod:@selector(hook_GCKeyboard_coalescedKeyboard)];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            [objc_getClass("UnityView") swizzleInstanceMethod:@selector(keyCommands) withMethod:@selector(hook_UnityView_keyCommands)];
-        });
     }
 
     if (PlayInfo.isUnrealEngine) {
@@ -395,6 +401,8 @@ bool menuWasCreated = false;
 
     // Wait for UnityFrameowrk.framework to load
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
+
         if ([bundleID hasSuffix:@".nikke"]) {
             // Fix hange issue
             [objc_getClass("INTLUtilsIOS") swizzleClassMethod:NSSelectorFromString(@"swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:") withMethod:@selector(hook_swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:)];
