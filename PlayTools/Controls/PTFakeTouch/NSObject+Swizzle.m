@@ -166,6 +166,16 @@ __attribute__((visibility("hidden")))
     return 1; // NSApplication.TerminateReply.terminateNow
 }
 
+- (NSArray*)hook_UnityView_keyCommands {
+    NSArray *keyCommands = [self hook_UnityView_keyCommands];
+    if (keyCommands) {
+        if ([[PlayInput shared] shouldDisableUnityKeyCommands:(UIView *)self]) {
+            return nil;
+        }
+    }
+    return keyCommands;
+}
+
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
                                                              withTemplate:(NSString *)template
                                                                   options:(NSRegularExpressionOptions)options
@@ -339,6 +349,11 @@ bool menuWasCreated = false;
     if ([[PlaySettings shared] forceQuitOnClose]) {
         [objc_getClass("UINSApplicationDelegate") swizzleInstanceMethod:NSSelectorFromString(@"applicationShouldTerminate:") withMethod:@selector(hook_applicationShouldTerminate:)];
     }
+
+    // Wait for UnityFrameowrk.framework to load
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
+    });
 
     if (PlayInfo.isUnrealEngine) {
         // Fix NSRegularExpression crash when system language is set to Chinese
