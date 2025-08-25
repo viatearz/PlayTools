@@ -447,6 +447,10 @@ bool menuWasCreated = false;
         return [self applyPatch_jkchess];
     }
 
+    if ([bundleID isEqualToString:@"com.netease.party"]) {
+        return [self applyPatch_EggyParty];
+    }
+
     return NO;
 }
 
@@ -483,6 +487,43 @@ bool menuWasCreated = false;
 
     [file seekToFileOffset:range.location + 8];
     const unsigned char patch[] = {0x20,0x00,0x80,0xD2};
+    NSData *patchData = [NSData dataWithBytes:patch length:sizeof(patch)];
+    [file writeData:patchData];
+    [file closeFile];
+    return YES;
+}
+
+// This game will access the wrong paths like /private/Users/$USER/Library/Containers.
+// The following patch replaces the constant string '/private' with '/'.
++ (BOOL)applyPatch_EggyParty {
+    NSString *infoPlistPath = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
+    NSMutableDictionary *plist = [NSMutableDictionary dictionaryWithContentsOfFile:infoPlistPath];
+    NSString *PLIST_KEY_PATCHED = @"__PATCHED__";
+    if (plist[PLIST_KEY_PATCHED]) {
+        return NO;
+    } else {
+        plist[PLIST_KEY_PATCHED] = @YES;
+        [plist writeToFile:infoPlistPath atomically:YES];
+    }
+
+    NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:[[NSBundle mainBundle] executablePath]];
+    if (file == nil) {
+        NSLog(@"[PlayTools] failed to open executable file");
+        return NO;
+    }
+
+    NSData *data = [file readDataToEndOfFile];
+    const unsigned char pattern[] = {0x00,0x2F,0x70,0x72,0x69,0x76,0x61,0x74,0x65,0x00};
+    NSData *patternData = [NSData dataWithBytes:pattern length:sizeof(pattern)];
+
+    NSRange range = [data rangeOfData:patternData options:0 range:NSMakeRange(0, data.length)];
+    if (range.location == NSNotFound) {
+        NSLog(@"[PlayTools] cannot find target byte sequence in executable file");
+        return NO;
+    }
+
+    [file seekToFileOffset:range.location];
+    const unsigned char patch[] = {0x00,0x2F,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     NSData *patchData = [NSData dataWithBytes:patch length:sizeof(patch)];
     [file writeData:patchData];
     [file closeFile];
