@@ -6,6 +6,7 @@
 //
 
 #import "NSObject+Swizzle.h"
+#import "PlayLoader.h"
 #import <objc/runtime.h>
 #import "CoreGraphics/CoreGraphics.h"
 #import "UIKit/UIKit.h"
@@ -451,6 +452,11 @@ bool menuWasCreated = false;
         return [self applyPatch_EggyParty];
     }
 
+    if ([bundleID isEqualToString:@"com.epicgames.FortniteGame"]) {
+        should_fix_available_memory = true;
+        return [self applyPatch_Fortnite];
+    }
+
     return NO;
 }
 
@@ -482,6 +488,7 @@ bool menuWasCreated = false;
     NSRange range = [data rangeOfData:patternData options:0 range:NSMakeRange(0, data.length)];
     if (range.location == NSNotFound) {
         NSLog(@"[PlayTools] cannot find target byte sequence in executable file");
+        [file closeFile];
         return NO;
     }
 
@@ -519,6 +526,7 @@ bool menuWasCreated = false;
     NSRange range = [data rangeOfData:patternData options:0 range:NSMakeRange(0, data.length)];
     if (range.location == NSNotFound) {
         NSLog(@"[PlayTools] cannot find target byte sequence in executable file");
+        [file closeFile];
         return NO;
     }
 
@@ -527,6 +535,86 @@ bool menuWasCreated = false;
     NSData *patchData = [NSData dataWithBytes:patch length:sizeof(patch)];
     [file writeData:patchData];
     [file closeFile];
+    return YES;
+}
+
++ (BOOL)applyPatch_Fortnite {
+    NSString *infoPlistPath = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
+    NSMutableDictionary *plist = [NSMutableDictionary dictionaryWithContentsOfFile:infoPlistPath];
+    NSString *PLIST_KEY_PATCHED = @"__PATCHED__";
+    if (plist[PLIST_KEY_PATCHED]) {
+        return NO;
+    } else {
+        plist[PLIST_KEY_PATCHED] = @YES;
+        [plist writeToFile:infoPlistPath atomically:YES];
+    }
+
+    NSFileHandle *file = [NSFileHandle fileHandleForUpdatingAtPath:[[NSBundle mainBundle] executablePath]];
+    if (file == nil) {
+        NSLog(@"[PlayTools] failed to open executable file");
+        return NO;
+    }
+
+    BOOL ret = false;
+    NSData *data = [file readDataToEndOfFile];
+    if ([self applyPatch_Fortnite_Part1_WithFile:file AndData:data]) {
+        ret = YES;
+    }
+    if ([self applyPatch_Fortnite_Part2_WithFile:file AndData:data]) {
+        ret = YES;
+    }
+    [file closeFile];
+    return ret;
+}
+
+// The following patch forces FIOSPlatformMisc::IsEntitlementEnabled() to return true
+// On macOS, entitlements are not required to allocate large amounts of memory.
++ (BOOL)applyPatch_Fortnite_Part1_WithFile:(NSFileHandle *)file AndData:(NSData *)data {
+    const uint8_t pattern[] = {0xF4,0x03,0x00,0xAA,0xE2,0x03,0x00,0x2A,0xE0,0x03,0x00,0x91,0xE1,0x03,0x13,0xAA,0x03,0x00,0x80,0x52,0x04,0x00,0x80,0x52};
+    NSData *patternData = [NSData dataWithBytes:pattern length:sizeof(pattern)];
+    NSRange range = [data rangeOfData:patternData options:0 range:NSMakeRange(0, data.length)];
+    if (range.location == NSNotFound) {
+        NSLog(@"[PlayTools] cannot find target byte sequence in executable file");
+        return NO;
+    }
+
+    // MOV W0, #0
+    [file seekToFileOffset:range.location + sizeof(pattern)];
+    const uint8_t patch[] = {0x00,0x00,0x80,0x52};
+    NSData *patchData = [NSData dataWithBytes:patch length:sizeof(patch)];
+    [file writeData:patchData];
+
+    // MOV X0, #1
+    [file seekToFileOffset:range.location + sizeof(pattern) + 4 * 16];
+    const uint8_t patch2[] = {0x20,0x00,0x80,0xD2};
+    NSData *patchData2 = [NSData dataWithBytes:patch2 length:sizeof(patch2)];
+    [file writeData:patchData2];
+    return YES;
+}
+
+// os_proc_available_memory() always return zero in FApplePlatformMemory::GetConstants().
+// The following patch assigns the correct value to MemoryConstants.TotalPhysical.
+// And FApplePlatformMemory::GetConstants() is called too early,
+// we have no chance to fix this issue by DYLD_INTERPOSE(os_proc_available_memory).
++ (BOOL)applyPatch_Fortnite_Part2_WithFile:(NSFileHandle *)file AndData:(NSData *)data {
+    const uint8_t pattern[] = {0xF3,0x03,0x00,0xAA,0xE8,0x01,0x80,0x52,0xA8,0xC3,0x1E,0xB8,0xBF,0x03,0x1E,0xF8,0xA1,0x83,0x00,0xD1};
+    NSData *patternData = [NSData dataWithBytes:pattern length:sizeof(pattern)];
+    NSRange range = [data rangeOfData:patternData options:0 range:NSMakeRange(0, data.length)];
+    if (range.location == NSNotFound) {
+        NSLog(@"[PlayTools] cannot find target byte sequence in executable file (2)");
+        return NO;
+    }
+
+    // MOV X0, #0x100000000 * imm16
+    [file seekToFileOffset:range.location + 4 * -23];
+    uint16_t imm16 = [NSProcessInfo processInfo].physicalMemory / (1ull << 32);
+    uint32_t instruction = 0xD2C00000 | (imm16 << 5);
+    uint8_t patch[4] = {0};
+    for (int i = 0; i < 4; i++) {
+        patch[i] = (instruction >> (8 * i)) & 0xFF;
+    }
+    NSData *patchData = [NSData dataWithBytes:patch length:sizeof(patch)];
+    [file writeData:patchData];
     return YES;
 }
 @end

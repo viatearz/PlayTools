@@ -28,6 +28,21 @@ static int pt_gettimeofday(struct timeval *tp, void *tzp) {
 
 DYLD_INTERPOSE(pt_gettimeofday, gettimeofday)
 
+bool should_fix_available_memory = false;
+size_t pt_os_proc_available_memory(void) {
+    size_t ret = os_proc_available_memory();
+    if (ret == 0 && should_fix_available_memory) {
+        vm_statistics_data_t vm_stat;
+        mach_msg_type_number_t count = HOST_VM_INFO_COUNT;
+        if (host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t)&vm_stat, &count) == KERN_SUCCESS) {
+            ret = (vm_stat.free_count + vm_stat.inactive_count) * vm_page_size;
+        }
+    }
+    return ret;
+}
+
+DYLD_INTERPOSE(pt_os_proc_available_memory, os_proc_available_memory)
+
 // Get device model from playcover .plist
 // With a null terminator
 #define DEVICE_MODEL [[[PlaySettings shared] deviceModel] cStringUsingEncoding:NSUTF8StringEncoding]

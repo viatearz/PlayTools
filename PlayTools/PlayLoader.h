@@ -12,6 +12,8 @@
 
 extern void settimedelta(long delta);
 
+extern bool should_fix_available_memory;
+
 @interface PlayLoader : NSObject
 
 @end
