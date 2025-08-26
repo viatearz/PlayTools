@@ -17,6 +17,7 @@
 		921000012E9CAD1A0032D9AD /* OverFieldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000002E9CAD170032D9AD /* OverFieldSupport.swift */; };
 		9210000B2E9CCF6B0032D9AD /* Patcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210000A2E9CCF690032D9AD /* Patcher.swift */; };
 		921000102E9CED1C0032D9AD /* EggyPartySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210000F2E9CED1B0032D9AD /* EggyPartySupport.swift */; };
+		921000122E9CEE820032D9AD /* FortniteSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000112E9CEE810032D9AD /* FortniteSupport.swift */; };
 		9210FFF22E9BF1940032D9AD /* AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFEF2E9BF1940032D9AD /* AppSupport.swift */; };
 		9210FFF32E9BF1940032D9AD /* AppSupportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF02E9BF1940032D9AD /* AppSupportRegistry.swift */; };
 		9210FFF52E9BF59D0032D9AD /* NIKKESupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */; };
@@ -118,6 +119,7 @@
 		921000002E9CAD170032D9AD /* OverFieldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverFieldSupport.swift; sourceTree = "<group>"; };
 		9210000A2E9CCF690032D9AD /* Patcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Patcher.swift; sourceTree = "<group>"; };
 		9210000F2E9CED1B0032D9AD /* EggyPartySupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EggyPartySupport.swift; sourceTree = "<group>"; };
+		921000112E9CEE810032D9AD /* FortniteSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FortniteSupport.swift; sourceTree = "<group>"; };
 		9210FFEF2E9BF1940032D9AD /* AppSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupport.swift; sourceTree = "<group>"; };
 		9210FFF02E9BF1940032D9AD /* AppSupportRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupportRegistry.swift; sourceTree = "<group>"; };
 		9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIKKESupport.swift; sourceTree = "<group>"; };
@@ -241,6 +243,7 @@
 				9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */,
 				921000002E9CAD170032D9AD /* OverFieldSupport.swift */,
 				9210000F2E9CED1B0032D9AD /* EggyPartySupport.swift */,
+				921000112E9CEE810032D9AD /* FortniteSupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -764,6 +767,7 @@
 				954389C82B392D5300B063BB /* Button.swift in Sources */,
 				6E7663A528D0FEBE00DE4AF9 /* AKPluginLoader.swift in Sources */,
 				9562D16F2AB50D34002C329D /* ActionDispatcher.swift in Sources */,
+				921000122E9CEE820032D9AD /* FortniteSupport.swift in Sources */,
 				2847AE48298EFC0F00B0F983 /* PlayScreen.swift in Sources */,
 				9210FFF52E9BF59D0032D9AD /* NIKKESupport.swift in Sources */,
 				9562D1532AB484FD002C329D /* EventAdapter.swift in Sources */,
