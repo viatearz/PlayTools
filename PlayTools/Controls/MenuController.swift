@@ -118,7 +118,7 @@ class MenuController {
 
     init(with builder: UIMenuBuilder) {
         if #available(iOS 26.0, *) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.setupShortcutKeys()
             }
         } else {
