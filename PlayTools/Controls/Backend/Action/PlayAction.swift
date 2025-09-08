@@ -160,12 +160,14 @@ class JoystickAction: Action {
     var touch: CGPoint
     let shift: CGFloat
     var id: Int?
+    let useFloatingJoystick: Bool
     private var keyPressed = [Bool](repeating: false, count: 4)
     init(keys: [Int], center: CGPoint, shift: CGFloat) {
         self.keys = keys
         self.center = center
         self.touch = center
         self.shift = shift / 4
+        self.useFloatingJoystick = PlaySettings.shared.useFloatingJoystick
         for index in 0..<keys.count {
             let key = keys[index]
             ActionDispatcher.register(key: KeyCodeNames.keyCodes[key]!,
@@ -195,7 +197,7 @@ class JoystickAction: Action {
     func getPressedHandler(index: Int) -> (Bool) -> Void {
         // if the size of joystick is large, set control type to free, otherwise fixed.
         // this is a temporary method. ideally should give the user an option.
-        if shift < 200 {
+        if !useFloatingJoystick && shift < 200 {
             return { pressed in
                 self.updateTouch(index: index, pressed: pressed)
                 self.handleFixed()

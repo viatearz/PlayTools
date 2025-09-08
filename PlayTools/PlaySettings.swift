@@ -21,6 +21,10 @@ let settings = PlaySettings.shared
             settingsData = AppSettingsData()
             print("[PlayTools] PlaySettings decode failed.\n%@")
         }
+
+        if bundleIdentifier == "com.netease.id5" {
+            useFloatingJoystick = true
+        }
     }
 
     lazy var discordActivity = settingsData.discordActivity
@@ -79,6 +83,8 @@ let settings = PlaySettings.shared
     @objc lazy var noKMOnInput = settingsData.noKMOnInput
 
     @objc lazy var enableScrollWheel = settingsData.enableScrollWheel
+
+    @objc private(set) var useFloatingJoystick = false
 }
 
 struct AppSettingsData: Codable {

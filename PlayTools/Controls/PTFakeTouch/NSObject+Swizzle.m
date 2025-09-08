@@ -454,8 +454,9 @@ bool menuWasCreated = false;
         return [self applyPatch_jkchess];
     }
 
-    if ([bundleID isEqualToString:@"com.netease.party"]) {
-        return [self applyPatch_EggyParty];
+    if ([bundleID isEqualToString:@"com.netease.party"] ||
+        [bundleID isEqualToString:@"com.netease.id5"]) {
+        return [self applyPatch_NeoX];
     }
 
     if ([bundleID isEqualToString:@"com.epicgames.FortniteGame"]) {
@@ -506,9 +507,9 @@ bool menuWasCreated = false;
     return YES;
 }
 
-// This game will access the wrong paths like /private/Users/$USER/Library/Containers.
+// This game engine will access the wrong paths like /private/Users/$USER/Library/Containers.
 // The following patch replaces the constant string '/private' with '/'.
-+ (BOOL)applyPatch_EggyParty {
++ (BOOL)applyPatch_NeoX {
     NSString *infoPlistPath = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
     NSMutableDictionary *plist = [NSMutableDictionary dictionaryWithContentsOfFile:infoPlistPath];
     NSString *PLIST_KEY_PATCHED = @"__PATCHED__";
