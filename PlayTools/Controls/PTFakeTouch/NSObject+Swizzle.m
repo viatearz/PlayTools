@@ -435,6 +435,12 @@ bool menuWasCreated = false;
             // Bypass some detections
             [objc_getClass("o0_ooo0o0") swizzleInstanceMethod:NSSelectorFromString(@"o0_oaoao0") withMethod:@selector(hook_OverField_o0_ooo0o0)];
         }
+
+        // Specific fixes for 天涯明月刀
+        if ([bundleID isEqualToString:@"com.tencent.wuxia"]) {
+            // Fix window orientation issue
+            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewController") withMethod:@selector(hook_UnityAppController_createRootViewController)];
+        }
     });
 }
 
