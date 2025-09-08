@@ -23,6 +23,8 @@ let settings = PlaySettings.shared
         }
     }
 
+    var useFloatingJoystick = false
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping

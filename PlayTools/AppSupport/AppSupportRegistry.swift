@@ -15,6 +15,7 @@ class AppSupportRegistry {
         "com.Nekootan.kfkj.apple": OverFieldSupport.self,
         "com.netease.party": EggyPartySupport.self,
         "com.epicgames.FortniteGame": FortniteSupport.self,
-        "com.tencent.wuxia": MoonlightBladeSupport.self
+        "com.tencent.wuxia": MoonlightBladeSupport.self,
+        "com.netease.id5": IdentityVSupport.self
     ]
 }
