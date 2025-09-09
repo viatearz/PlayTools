@@ -50,6 +50,16 @@ public class ControlMode: Equatable {
                 ModeAutomaton.onUITextInputBeginEdit()
                 Toucher.writeLog(logMessage: "uitextinput begin edit")
             }
+            centre.addObserver(forName: Notification.Name("UIKeyInputDidEndEditingNotification"),
+                               object: nil, queue: main) { _ in
+                ModeAutomaton.onUITextInputEndEdit()
+                Toucher.writeLog(logMessage: "uitextinput end edit")
+            }
+            centre.addObserver(forName: Notification.Name("UIKeyInputDidBeginEditingNotification"),
+                               object: nil, queue: main) { _ in
+                ModeAutomaton.onUITextInputBeginEdit()
+                Toucher.writeLog(logMessage: "uitextinput begin edit")
+            }
             set(.ARBITRARY_CLICK)
         } else {
             set(.OFF)

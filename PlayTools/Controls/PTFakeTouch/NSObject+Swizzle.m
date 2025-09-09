@@ -178,6 +178,20 @@ bool menuWasCreated = false;
     return motionManager;
 }
 
+- (BOOL)hook_UIKeyInput_becomeFirstResponder {
+    BOOL ret = [self hook_UIKeyInput_becomeFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"UIKeyInputDidBeginEditingNotification"
+                                                        object:nil];
+    return ret;
+}
+
+- (BOOL)hook_UIKeyInput_resignFirstResponder {
+    BOOL ret = [self hook_UIKeyInput_resignFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"UIKeyInputDidEndEditingNotification"
+                                                        object:nil];
+    return ret;
+}
+
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
                                                              withTemplate:(NSString *)template
                                                                   options:(NSRegularExpressionOptions)options
@@ -337,6 +351,15 @@ bool menuWasCreated = false;
     [objc_getClass("VSSubscriptionRegistrationCenter") swizzleInstanceMethod:@selector(setCurrentSubscription:) withMethod:@selector(hook_setCurrentSubscription:)];
 
     [objc_getClass("CMMotionManager") swizzleInstanceMethod:@selector(init) withMethod:@selector(hook_CMMotionManager_init)];
+
+    if ([[PlaySettings shared] noKMOnInput]) {
+        // WebView
+        [objc_getClass("WKContentView") swizzleInstanceMethod:@selector(becomeFirstResponder) withMethod:@selector(hook_UIKeyInput_becomeFirstResponder)];
+        [objc_getClass("WKContentView") swizzleInstanceMethod:@selector(resignFirstResponder) withMethod:@selector(hook_UIKeyInput_resignFirstResponder)];
+        // Unreal Engine (Use Integrated Keyboard)
+        [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(becomeFirstResponder) withMethod:@selector(hook_UIKeyInput_becomeFirstResponder)];
+        [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(resignFirstResponder) withMethod:@selector(hook_UIKeyInput_resignFirstResponder)];
+    }
 
     if (PlayInfo.isUnrealEngine) {
         // Fix NSRegularExpression crash when system language is set to Chinese
