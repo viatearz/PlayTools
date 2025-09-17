@@ -51,7 +51,9 @@ public class PlayKeychain: NSObject {
             return errSecSuccess
         }
 
-        if attributes["class"] as? String == "keys" {
+        if attributes["class"] as? String == "keys"
+            && attributes["type"] != nil
+            && attributes["kcls"] != nil {
             // kSecAttrKeyType is stored as `type` in the dictionary
             // kSecAttrKeyClass is stored as `kcls` in the dictionary
             let keyAttributes = [
@@ -198,7 +200,9 @@ public class PlayKeychain: NSObject {
             debugLogger("Read keychain file from db")
             // Check the class type, if it is a key we need to return the data
             // as SecKeyRef, otherwise we can return it as a CFTypeRef
-            if classType == "keys" {
+            if classType == "keys"
+                && keychainDict[kSecAttrKeyType] != nil
+                && keychainDict[kSecAttrKeyClass] != nil {
                 // kSecAttrKeyType is stored as `type` in the dictionary
                 // kSecAttrKeyClass is stored as `kcls` in the dictionary
                 let keyAttributes = [
