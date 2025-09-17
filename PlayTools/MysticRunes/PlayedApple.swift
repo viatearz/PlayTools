@@ -108,21 +108,48 @@ public class PlayKeychain: NSObject {
     // SecItemCopyMatching(CFDictionaryRef query, CFTypeRef *result)
     @objc static public func copyMatching(_ query: NSDictionary, result: UnsafeMutablePointer<Unmanaged<CFTypeRef>?>?)
     -> OSStatus {
-        guard let keychainDicts = db.query(query),
-              let keychainDict = keychainDicts.first else {
+        guard let keychainDicts = db.query(query), !keychainDicts.isEmpty else {
             debugLogger("Keychain item not found in db")
             return errSecItemNotFound
         }
 
-        if query[kSecMatchLimit as String] as? String ==  kSecMatchLimitAll as String {
-            result?.pointee = Unmanaged.passRetained(keychainDicts.map({
-                $0.removeObject(forKey: kSecValueData)
-                $0.removeObject(forKey: kSecValueRef)
-                $0.removeObject(forKey: kSecValuePersistentRef)
-                return $0
-            }) as CFTypeRef)
-            return errSecSuccess
+        let limit = getMatchLimit(query)
+
+        if limit == 1 {
+            // return single item
+            if let item = copyMatchingItem(query, keychainDicts[0]) {
+                result?.pointee = Unmanaged.passRetained(item)
+                return errSecSuccess
+            }
+        } else {
+            // return an array
+            var items: [CFTypeRef] = []
+            for idx in 0..<min(limit, keychainDicts.count) {
+                if let item = copyMatchingItem(query, keychainDicts[idx]) {
+                    items.append(item)
+                }
+            }
+            if !items.isEmpty {
+                result?.pointee = Unmanaged.passRetained(items as CFTypeRef)
+                return errSecSuccess
+            }
         }
+
+        return errSecItemNotFound
+    }
+
+    static private func getMatchLimit(_ query: NSDictionary) -> Int {
+        if query[kSecMatchLimit as String] as? String == kSecMatchLimitAll as String {
+            return Int.max
+        } else if query[kSecMatchLimit as String] as? String == kSecMatchLimitOne as String {
+            return 1
+        } else {
+            return query[kSecMatchLimit as String] as? Int ?? 1
+        }
+    }
+
+    static private func copyMatchingItem(_ query: NSDictionary,
+                                         _ keychainDict: NSMutableDictionary) -> CFTypeRef? {
         // Check the `r_Attributes` key. If it is set to 1 in the query
         let classType = query[kSecClass as String] as? String ?? ""
 
@@ -134,8 +161,7 @@ public class PlayKeychain: NSObject {
                 dummyDict.removeObject(forKey: kSecValueRef)
                 dummyDict.removeObject(forKey: kSecValuePersistentRef)
             }
-            result?.pointee = Unmanaged.passRetained(dummyDict)
-            return errSecSuccess
+            return dummyDict
         }
 
         // Check for r_Ref
@@ -155,7 +181,7 @@ public class PlayKeychain: NSObject {
 
             if key == nil {
                 debugLogger("Keychain item not found in db")
-                return errSecItemNotFound
+                return nil
             }
 
             let dummyKeyAttrs = [
@@ -164,8 +190,7 @@ public class PlayKeychain: NSObject {
             ] as CFDictionary
 
             let secKey = SecKeyCreateWithData(key as! CFData, dummyKeyAttrs, nil) // swiftlint:disable:this force_cast
-            result?.pointee = Unmanaged.passRetained(secKey!)
-            return errSecSuccess
+            return secKey!
         }
 
         // Return v_Data if it exists
@@ -182,13 +207,11 @@ public class PlayKeychain: NSObject {
                 ]
                 let keyData = vData as! Data // swiftlint:disable:this force_cast
                 let key = SecKeyCreateWithData(keyData as CFData, keyAttributes as CFDictionary, nil)
-                result?.pointee = Unmanaged.passRetained(key!)
-                return errSecSuccess
+                return key!
             }
-            result?.pointee = Unmanaged.passRetained(vData as CFTypeRef)
-            return errSecSuccess
+            return vData as CFTypeRef
         }
 
-        return errSecItemNotFound
+        return nil
     }
 }
