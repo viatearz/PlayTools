@@ -16,6 +16,7 @@
 		6E84A15028D0F97500BF7495 /* AKInterface.bundle in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		921000012E9CAD1A0032D9AD /* OverFieldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000002E9CAD170032D9AD /* OverFieldSupport.swift */; };
 		921000052E9CB5BF0032D9AD /* MoonlightBladeSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000042E9CB5BD0032D9AD /* MoonlightBladeSupport.swift */; };
+		921000072E9CB6A50032D9AD /* LimbusCompanySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000062E9CB6A30032D9AD /* LimbusCompanySupport.swift */; };
 		9210000B2E9CCF6B0032D9AD /* Patcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210000A2E9CCF690032D9AD /* Patcher.swift */; };
 		921000102E9CED1C0032D9AD /* EggyPartySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210000F2E9CED1B0032D9AD /* EggyPartySupport.swift */; };
 		921000122E9CEE820032D9AD /* FortniteSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000112E9CEE810032D9AD /* FortniteSupport.swift */; };
@@ -120,6 +121,7 @@
 		6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AKInterface.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		921000002E9CAD170032D9AD /* OverFieldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverFieldSupport.swift; sourceTree = "<group>"; };
 		921000042E9CB5BD0032D9AD /* MoonlightBladeSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonlightBladeSupport.swift; sourceTree = "<group>"; };
+		921000062E9CB6A30032D9AD /* LimbusCompanySupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimbusCompanySupport.swift; sourceTree = "<group>"; };
 		9210000A2E9CCF690032D9AD /* Patcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Patcher.swift; sourceTree = "<group>"; };
 		9210000F2E9CED1B0032D9AD /* EggyPartySupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EggyPartySupport.swift; sourceTree = "<group>"; };
 		921000112E9CEE810032D9AD /* FortniteSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FortniteSupport.swift; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 				921000112E9CEE810032D9AD /* FortniteSupport.swift */,
 				921000042E9CB5BD0032D9AD /* MoonlightBladeSupport.swift */,
 				921000132E9CF41C0032D9AD /* IdentityVSupport.swift */,
+				921000062E9CB6A30032D9AD /* LimbusCompanySupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -781,6 +784,7 @@
 				AA7197A2287A481500623C15 /* CircleMenu.swift in Sources */,
 				954389CE2B39F26600B063BB /* ElementView.swift in Sources */,
 				9562D15A2AB4FBBB002C329D /* TransparentKeyboardEventAdapter.swift in Sources */,
+				921000072E9CB6A50032D9AD /* LimbusCompanySupport.swift in Sources */,
 				AA71978B287A480D00623C15 /* MenuController.swift in Sources */,
 				9562D1732AB52416002C329D /* EditorKeyboardEventAdapter.swift in Sources */,
 				9562D1752AB52479002C329D /* EditorMouseEventAdapter.swift in Sources */,
