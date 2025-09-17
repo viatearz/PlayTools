@@ -25,6 +25,10 @@ public class PlayKeychain: NSObject {
     // Store the entire dictionary as a plist
     // SecItemAdd(CFDictionaryRef attributes, CFTypeRef *result)
     @objc static public func add(_ attributes: NSDictionary, result: UnsafeMutablePointer<Unmanaged<CFTypeRef>?>?) -> OSStatus {
+        guard db.query(attributes)?.first == nil else {
+            debugLogger("Keychain duplicated item")
+            return errSecDuplicateItem
+        }
         guard let keychainDict = db.insert(attributes) else {
             debugLogger("Failed to write keychain file")
             return errSecIO
