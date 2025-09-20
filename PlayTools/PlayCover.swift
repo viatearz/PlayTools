@@ -23,6 +23,10 @@ public class PlayCover: NSObject {
             FileManager.default.changeCurrentDirectoryPath("/")
         }
 
+        if PlaySettings.shared.isResizableWindow {
+            ResizableWindowManager.shared.initialize()
+        }
+
         if PlayInfo.isUnrealEngine {
             setupUnrealEngineEnvironment()
         }

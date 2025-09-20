@@ -34,6 +34,12 @@ let settings = PlaySettings.shared
             extraSettingsData = ExtraAppSettingsData()
             print("[PlayTools] PlaySettings decode failed.\n%@")
         }
+
+        if bundleIdentifier == "jp.co.bandainamcoent.BNEI0421" {
+            isResizableWindow = true
+            settingsData.resolution = 0
+            settingsData.windowFixMethod = 1
+        }
     }
 
     lazy var cursorSetting = extraSettingsData.cursorSettingData
@@ -43,6 +49,8 @@ let settings = PlaySettings.shared
     @objc lazy var disableBuiltinMouse = extraSettingsData.disableBuiltinMouse
 
     @objc lazy var disableBuiltinKeyboard = extraSettingsData.disableBuiltinKeyboard
+
+    @objc private(set) var isResizableWindow = false
 
     lazy var discordActivity = settingsData.discordActivity
 
