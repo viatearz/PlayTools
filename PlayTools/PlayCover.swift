@@ -22,6 +22,10 @@ public class PlayCover: NSObject {
             FileManager.default.changeCurrentDirectoryPath("/")
         }
 
+        if PlaySettings.shared.isResizableWindow {
+            ResizableWindowManager.shared.initialize()
+        }
+
         if PlayInfo.isUnrealEngine {
             setupUnrealEngineEnvironment()
             // Disable built-in mouse to avoid click conflicts

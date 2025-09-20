@@ -24,6 +24,10 @@ let settings = PlaySettings.shared
 
         if bundleIdentifier == "com.netease.id5" {
             useFloatingJoystick = true
+        } else if bundleIdentifier == "jp.co.bandainamcoent.BNEI0421" {
+            isResizableWindow = true
+            settingsData.resolution = 0
+            settingsData.windowFixMethod = 1
         }
     }
 
@@ -85,6 +89,8 @@ let settings = PlaySettings.shared
     @objc lazy var enableScrollWheel = settingsData.enableScrollWheel
 
     @objc private(set) var useFloatingJoystick = false
+
+    @objc private(set) var isResizableWindow = false
 }
 
 struct AppSettingsData: Codable {

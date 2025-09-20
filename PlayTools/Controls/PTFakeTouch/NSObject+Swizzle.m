@@ -198,6 +198,10 @@ bool menuWasCreated = false;
     return ret;
 }
 
+- (BOOL)hook_UIApplicationInfoParser_requiresFullScreen {
+    return NO;
+}
+
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
                                                              withTemplate:(NSString *)template
                                                                   options:(NSRegularExpressionOptions)options
@@ -403,6 +407,12 @@ bool menuWasCreated = false;
         // Unreal Engine (Use Integrated Keyboard)
         [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(becomeFirstResponder) withMethod:@selector(hook_UIKeyInput_becomeFirstResponder)];
         [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(resignFirstResponder) withMethod:@selector(hook_UIKeyInput_resignFirstResponder)];
+    }
+
+    if ([[PlaySettings shared] isResizableWindow]) {
+        [objc_getClass("_UIApplicationInfoParser") swizzleInstanceMethod:NSSelectorFromString(@"requiresFullScreen") withMethod:@selector(hook_UIApplicationInfoParser_requiresFullScreen)];
+        [objc_getClass("UIScreen") swizzleInstanceMethod:@selector(nativeScale) withMethod:@selector(hook_nativeScale)];
+        [objc_getClass("UIScreen") swizzleInstanceMethod:@selector(scale) withMethod:@selector(hook_scale)];
     }
 
     NSString* bundleID = [[NSBundle mainBundle] bundleIdentifier];
