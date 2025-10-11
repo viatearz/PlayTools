@@ -25,11 +25,13 @@ public class ControlMode: Equatable {
     private var keyboardAdapter: KeyboardEventAdapter!
     private var mouseAdapter: MouseEventAdapter!
     private var controllerAdapter: ControllerEventAdapter!
+    private var keyWindowObserver: NSObjectProtocol?
 
     public func cursorHidden() -> Bool {
         return mouseAdapter?.cursorHidden() ?? false
     }
 
+    // swiftlint:disable:next function_body_length
     public func initialize() {
         let centre = NotificationCenter.default
         let main = OperationQueue.main
@@ -97,7 +99,28 @@ public class ControlMode: Equatable {
             self.mouseAdapter.handleOtherButton(id: id, pressed: pressed)
         })
 
+        if PlaySettings.shared.resizableWindow {
+            initializeResizableWindowSupport()
+        }
+
         ActionDispatcher.build()
+    }
+
+    private func initializeResizableWindowSupport() {
+        // Reactivate keymapping once the key window is initialized
+        keyWindowObserver = NotificationCenter.default.addObserver(forName: UIWindow.didBecomeKeyNotification,
+            object: nil, queue: .main) { _ in
+            ActionDispatcher.build()
+            if let observer = self.keyWindowObserver {
+                NotificationCenter.default.removeObserver(observer)
+                self.keyWindowObserver = nil
+            }
+        }
+        // Reactivate keymapping once the user finishes resizing the window
+        NotificationCenter.default.addObserver(forName: Notification.Name("NSWindowDidEndLiveResizeNotification"),
+            object: nil, queue: .main) { _ in
+            ActionDispatcher.build()
+        }
     }
 
     private func setupMouseMoved(maxPollingRate: Int) {

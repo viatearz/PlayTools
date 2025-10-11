@@ -25,6 +25,8 @@ let settings = PlaySettings.shared
 
     var useFloatingJoystick = false
 
+    @objc var resizableWindow = false
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
