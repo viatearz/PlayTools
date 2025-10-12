@@ -21,6 +21,8 @@ public class PlayCover: NSObject {
             // Change the working directory to / just like iOS
             FileManager.default.changeCurrentDirectoryPath("/")
         }
+
+        AppSupport.instance.postLaunch()
     }
 
     @objc static public func initMenu(menu: NSObject) {

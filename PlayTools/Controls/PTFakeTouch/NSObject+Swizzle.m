@@ -205,6 +205,10 @@ bool menuWasCreated = false;
 
 @implementation PTSwizzleLoader
 + (void)load {
+    if ([[AppSupport instance] applyPatch]) {
+        exit(0);
+    }
+
     // This might need refactor soon
     if(@available(iOS 16.3, *)) {
         if ([[PlaySettings shared] adaptiveDisplay]) {
@@ -303,6 +307,8 @@ bool menuWasCreated = false;
             [objc_getClass("AVAudioSession") swizzleInstanceMethod:@selector(requestRecordPermission:) withMethod:@selector(hook_requestRecordPermission:)];
         }
     });
+
+    [[AppSupport instance] applyHooks];
 }
 
 @end
