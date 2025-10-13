@@ -97,6 +97,10 @@ public class PlayScreen: NSObject {
                 }
             }
         }
+
+        if PlaySettings.shared.supportAutoRotate {
+            ResizableWindowManager.shared.initialize()
+        }
     }
 
     @objc public static func frame(_ rect: CGRect) -> CGRect {
@@ -247,5 +251,158 @@ extension UIWindow {
             }
         }
         return nil
+    }
+
+    var isLandscape: Bool {
+        if let orientationMask = self.rootViewController?.supportedInterfaceOrientations {
+            return orientationMask.contains(.landscapeLeft) || orientationMask.contains(.landscapeRight)
+        }
+        return false
+    }
+}
+
+final class ResizableWindowManager {
+    public static let shared = ResizableWindowManager()
+    private var nsWindow: AnyObject?
+    private var uiWindow: UIWindow?
+    private var timer: Timer?
+    private var isLandscape = false
+    private var autoResize = false
+    private var portraitOrigin = CGPoint()
+    private var portraitSize = CGSize()
+    private var landscapeSize = CGSize()
+
+    func initialize() {
+        landscapeSize = CGSize(width: mainScreenWidth, height: mainScreenHeight)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowDidBecomeKey(_:)),
+            name: Notification.Name("NSWindowDidBecomeKeyNotification"),
+            object: nil
+        )
+    }
+
+    @objc private func windowDidBecomeKey(_ notification: Notification) {
+        // Use NSWindow to change window position
+        nsWindow = notification.object as? AnyObject
+        // Use UIWindow to change window size
+        if let uiWindows = nsWindow?.value(forKey: "uiWindows") as? [UIWindow] {
+            uiWindow = uiWindows.first(where: { $0.isKeyWindow })
+        }
+        isLandscape = uiWindow?.isLandscape ?? false
+        resetUIWindowSizeRestrictions()
+
+        timer = Timer.scheduledTimer(
+            timeInterval: 0.1,
+            target: self,
+            selector: #selector(self.checkOrientation),
+            userInfo: nil,
+            repeats: true
+        )
+
+        NotificationCenter.default.removeObserver(
+            self,
+            name: Notification.Name("NSWindowDidBecomeKeyNotification"),
+            object: nil
+        )
+    }
+
+    @objc private func checkOrientation() {
+        guard let uiWindow = uiWindow else {
+            return
+        }
+        let currentLandscape = uiWindow.isLandscape
+        if isLandscape != currentLandscape {
+            isLandscape = currentLandscape
+            orientationDidChanged()
+        }
+    }
+
+    private func orientationDidChanged() {
+        let isFullScreen = uiWindow?.windowScene?.isFullScreen ?? false
+
+        if isLandscape {
+            // portrait -> landscape
+            let nsWindowFrame = nsWindow?.value(forKey: "frame") as? CGRect ?? CGRect()
+            let uiWindowSize = uiWindow?.bounds.size ?? CGSize()
+            if !isFullScreen && uiWindowSize.width < uiWindowSize.height {
+                autoResize = true
+                portraitSize = uiWindowSize
+                portraitOrigin = nsWindowFrame.origin
+                setUIWindowSize(landscapeSize)
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(50)) {
+                    self.resetUIWindowSizeRestrictions()
+                    self.setNSWindowCenterPoint(CGPoint(x: nsWindowFrame.midX, y: nsWindowFrame.midY))
+                    ActionDispatcher.build()
+                }
+            } else {
+                autoResize = false
+            }
+        } else {
+            // landscape -> portrait
+            if !isFullScreen && autoResize {
+                setUIWindowSize(portraitSize)
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(50)) {
+                    self.resetUIWindowSizeRestrictions()
+                    self.setNSWindowOriginPoint(self.portraitOrigin)
+                    ActionDispatcher.build()
+                }
+            }
+            autoResize = false
+        }
+    }
+
+    private func setUIWindowSize(_ size: CGSize) {
+        if let windowScene = uiWindow?.windowScene {
+            windowScene.sizeRestrictions?.minimumSize = size
+            windowScene.sizeRestrictions?.maximumSize = size
+        }
+    }
+
+    private func resetUIWindowSizeRestrictions() {
+        if let windowScene = uiWindow?.windowScene {
+            windowScene.sizeRestrictions?.minimumSize = CGSize()
+            windowScene.sizeRestrictions?.maximumSize = CGSize(width: 10000, height: 10000)
+        }
+    }
+
+    private func setNSWindowOriginPoint(_ origin: CGPoint) {
+        if let obj = nsWindow {
+            let sel = NSSelectorFromString("setFrameOrigin:")
+            if obj.responds(to: sel) {
+                typealias SetFrameOrigin = @convention(c) (AnyObject, Selector, CGPoint) -> Void
+                let imp = obj.method(for: sel)
+                let function = unsafeBitCast(imp, to: SetFrameOrigin.self)
+                function(obj, sel, origin)
+            }
+        }
+    }
+
+    private func setNSWindowCenterPoint(_ center: CGPoint) {
+        var windowFrame = nsWindow?.value(forKey: "frame") as? CGRect ?? CGRect()
+        windowFrame.origin = CGPoint(
+            x: center.x - windowFrame.size.width / 2,
+            y: center.y - windowFrame.size.height / 2
+        )
+
+        // Aovid overlapping with dock and notch
+        if let screen = nsWindow?.value(forKey: "screen") as? AnyObject,
+           let visibleFrame = screen.value(forKey: "visibleFrame") as? CGRect {
+            if windowFrame.minX < visibleFrame.minX {
+                windowFrame.origin.x = visibleFrame.minX
+            }
+            if windowFrame.maxX > visibleFrame.maxX {
+                windowFrame.origin.x = visibleFrame.maxX - windowFrame.width
+            }
+            if windowFrame.minY < visibleFrame.minY {
+                windowFrame.origin.y = visibleFrame.minY
+            }
+            if windowFrame.maxY > visibleFrame.maxY {
+                windowFrame.origin.y = visibleFrame.maxY - windowFrame.height
+            }
+        }
+
+        setNSWindowOriginPoint(windowFrame.origin)
     }
 }

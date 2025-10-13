@@ -27,6 +27,8 @@ let settings = PlaySettings.shared
 
     @objc var resizableWindow = false
 
+    @objc var supportAutoRotate = false
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
