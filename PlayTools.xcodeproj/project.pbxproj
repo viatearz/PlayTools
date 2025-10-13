@@ -21,6 +21,8 @@
 		921000102E9CED1C0032D9AD /* EggyPartySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210000F2E9CED1B0032D9AD /* EggyPartySupport.swift */; };
 		921000122E9CEE820032D9AD /* FortniteSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000112E9CEE810032D9AD /* FortniteSupport.swift */; };
 		921000142E9CF4220032D9AD /* IdentityVSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000132E9CF41C0032D9AD /* IdentityVSupport.swift */; };
+		921000182E9D02550032D9AD /* GakuenIdolmasterSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000172E9D02530032D9AD /* GakuenIdolmasterSupport.swift */; };
+		9210001A2E9D03690032D9AD /* LoveAndDeepspaceSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000192E9D03680032D9AD /* LoveAndDeepspaceSupport.swift */; };
 		9210FFF22E9BF1940032D9AD /* AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFEF2E9BF1940032D9AD /* AppSupport.swift */; };
 		9210FFF32E9BF1940032D9AD /* AppSupportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF02E9BF1940032D9AD /* AppSupportRegistry.swift */; };
 		9210FFF52E9BF59D0032D9AD /* NIKKESupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */; };
@@ -126,6 +128,8 @@
 		9210000F2E9CED1B0032D9AD /* EggyPartySupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EggyPartySupport.swift; sourceTree = "<group>"; };
 		921000112E9CEE810032D9AD /* FortniteSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FortniteSupport.swift; sourceTree = "<group>"; };
 		921000132E9CF41C0032D9AD /* IdentityVSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityVSupport.swift; sourceTree = "<group>"; };
+		921000172E9D02530032D9AD /* GakuenIdolmasterSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GakuenIdolmasterSupport.swift; sourceTree = "<group>"; };
+		921000192E9D03680032D9AD /* LoveAndDeepspaceSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveAndDeepspaceSupport.swift; sourceTree = "<group>"; };
 		9210FFEF2E9BF1940032D9AD /* AppSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupport.swift; sourceTree = "<group>"; };
 		9210FFF02E9BF1940032D9AD /* AppSupportRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupportRegistry.swift; sourceTree = "<group>"; };
 		9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIKKESupport.swift; sourceTree = "<group>"; };
@@ -253,6 +257,8 @@
 				921000042E9CB5BD0032D9AD /* MoonlightBladeSupport.swift */,
 				921000132E9CF41C0032D9AD /* IdentityVSupport.swift */,
 				921000062E9CB6A30032D9AD /* LimbusCompanySupport.swift */,
+				921000172E9D02530032D9AD /* GakuenIdolmasterSupport.swift */,
+				921000192E9D03680032D9AD /* LoveAndDeepspaceSupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -816,10 +822,12 @@
 				B127172528817C040025112B /* DiscordIPC.swift in Sources */,
 				AA719850287A81A000623C15 /* UITouch-KIFAdditions.m in Sources */,
 				AA71985F287A81A000623C15 /* IOHIDEvent+KIF.m in Sources */,
+				921000182E9D02550032D9AD /* GakuenIdolmasterSupport.swift in Sources */,
 				921000102E9CED1C0032D9AD /* EggyPartySupport.swift in Sources */,
 				921000052E9CB5BF0032D9AD /* MoonlightBladeSupport.swift in Sources */,
 				B1E8CF8A28BBE2AB004340D3 /* Keymapping.swift in Sources */,
 				AB7DA47529B85BFB0034ACB2 /* PlayShadow.m in Sources */,
+				9210001A2E9D03690032D9AD /* LoveAndDeepspaceSupport.swift in Sources */,
 				9562D1662AB5049B002C329D /* KeyboardEventAdapter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -18,6 +18,9 @@ class AppSupportRegistry {
         "com.tencent.wuxia": MoonlightBladeSupport.self,
         "com.netease.id5": IdentityVSupport.self,
         "com.ProjectMoon.LimbusCompany": LimbusCompanySupport.self,
-        "jp.co.bandainamcoent.BNEI0421": GakuenIdolmasterSupport.self
+        "jp.co.bandainamcoent.BNEI0421": GakuenIdolmasterSupport.self,
+        "com.papegames.lysk": LoveAndDeepspaceSupport.self,
+        "com.papegames.lysk.en": LoveAndDeepspaceSupport.self,
+        "com.papegames.lysk.jp": LoveAndDeepspaceSupport.self
     ]
 }
