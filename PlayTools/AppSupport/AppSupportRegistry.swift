@@ -14,6 +14,7 @@ class AppSupportRegistry {
         "com.tencent.jkchess": JinChanChanSupport.self,
         "com.Nekootan.kfkj.apple": OverFieldSupport.self,
         "com.netease.party": EggyPartySupport.self,
-        "com.epicgames.FortniteGame": FortniteSupport.self
+        "com.epicgames.FortniteGame": FortniteSupport.self,
+        "com.tencent.wuxia": MoonlightBladeSupport.self
     ]
 }
