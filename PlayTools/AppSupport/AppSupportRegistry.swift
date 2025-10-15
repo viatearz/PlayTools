@@ -21,6 +21,9 @@ class AppSupportRegistry {
         "jp.co.bandainamcoent.BNEI0421": GakuenIdolmasterSupport.self,
         "com.papegames.lysk": LoveAndDeepspaceSupport.self,
         "com.papegames.lysk.en": LoveAndDeepspaceSupport.self,
-        "com.papegames.lysk.jp": LoveAndDeepspaceSupport.self
+        "com.papegames.lysk.jp": LoveAndDeepspaceSupport.self,
+        "com.netease.rc": RacingMasterSupport.self,
+        "com.netease.dfjssea": RacingMasterSupport.self,
+        "com.netease.dfjsjp": RacingMasterSupport.self
     ]
 }
