@@ -24,6 +24,9 @@ class AppSupportRegistry {
         "com.papegames.lysk.jp": LoveAndDeepspaceSupport.self,
         "com.netease.rc": RacingMasterSupport.self,
         "com.netease.dfjssea": RacingMasterSupport.self,
-        "com.netease.dfjsjp": RacingMasterSupport.self
+        "com.netease.dfjsjp": RacingMasterSupport.self,
+        "com.netease.g108": DestinyRisingSupport.self,
+        "com.netease.g108na": DestinyRisingSupport.self,
+        "com.netease.g108hmt": DestinyRisingSupport.self
     ]
 }
