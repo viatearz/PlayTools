@@ -30,5 +30,6 @@ class AppSupportRegistry {
         "com.netease.g108hmt": DestinyRisingSupport.self,
         "com.netease.g138": UnVEILTheWorldSupport.self,
         "com.netease.g138na": UnVEILTheWorldSupport.self,
+        "jp.konami.pesactionmobile": EFootballSupport.self
     ]
 }
