@@ -18,6 +18,18 @@ class LoveAndDeepspaceSupport: AppSupport {
                 newSelector: #selector(NSObject.hook_LoveAndDeepspace_didTransition(
                     toViewController:fromViewController:))
             )
+
+            // Fix text input issue in login view
+            self.swizzleInstanceMethod(
+                cls: NSClassFromString("PSDKLogin.PSLoginPhoneSigninViewController"),
+                origSelector: #selector(UIViewController.viewWillAppear(_:)),
+                newSelector: #selector(NSObject.hook_LoveAndDeepspace_loginViewWillAppear(_:))
+            )
+            self.swizzleInstanceMethod(
+                cls: NSClassFromString("PSDKLogin.PSLoginPhoneSigninViewController"),
+                origSelector: #selector(UIViewController.viewWillDisappear(_:)),
+                newSelector: #selector(NSObject.hook_LoveAndDeepspace_loginViewWillDisappear(_:))
+            )
         }
     }
 }
@@ -34,5 +46,15 @@ extension NSObject {
         if let value = orientation {
             self.setValue(value, forKey: "_curOrientation")
         }
+    }
+
+    @objc func hook_LoveAndDeepspace_loginViewWillAppear(_ animated: Bool) {
+        PlayInput.shared.shouldProcessMouseClick = false
+        self.hook_LoveAndDeepspace_loginViewWillAppear(animated)
+    }
+
+    @objc func hook_LoveAndDeepspace_loginViewWillDisappear(_ animated: Bool) {
+        self.hook_LoveAndDeepspace_loginViewWillDisappear(animated)
+        PlayInput.shared.shouldProcessMouseClick = true
     }
 }

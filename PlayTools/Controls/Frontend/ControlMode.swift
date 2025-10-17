@@ -88,7 +88,10 @@ public class ControlMode: Equatable {
         setupMouseMoved(maxPollingRate: 125)
 
         AKInterface.shared!.setupMouseButton(left: true, right: false, {_, pressed in
-            self.mouseAdapter.handleLeftButton(pressed: pressed)
+            guard PlayInput.shared.shouldProcessMouseClick else {
+                return false
+            }
+            return self.mouseAdapter.handleLeftButton(pressed: pressed)
         })
 
         AKInterface.shared!.setupMouseButton(left: false, right: false, {id, pressed in

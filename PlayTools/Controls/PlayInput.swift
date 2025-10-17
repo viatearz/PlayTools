@@ -11,6 +11,8 @@ import GameController
                                                qos: .userInteractive,
                                                autoreleaseFrequency: .workItem)
 
+    var shouldProcessMouseClick = true
+
     @objc func drainMainDispatchQueue() {
         _dispatch_main_queue_callback_4CF(nil)
     }
