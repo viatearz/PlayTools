@@ -30,6 +30,11 @@ class AppSupportRegistry {
         "com.netease.g108hmt": DestinyRisingSupport.self,
         "com.netease.g138": UnVEILTheWorldSupport.self,
         "com.netease.g138na": UnVEILTheWorldSupport.self,
-        "jp.konami.pesactionmobile": EFootballSupport.self
+        "jp.konami.pesactionmobile": EFootballSupport.self,
+        "com.s3.sgzzlb.cn": ThreeKingdomsTacticsSupport.self,
+        "com.qookkagame.sgzzlb.jp": ThreeKingdomsTacticsSupport.self,
+        "com.qookkagame.sgzzlb.sea": ThreeKingdomsTacticsSupport.self,
+        "com.qookkagame.sgzzlb.hkmo": ThreeKingdomsTacticsSupport.self,
+        "com.sialiagames.sgzzlb.ios.tw": ThreeKingdomsTacticsSupport.self
     ]
 }
