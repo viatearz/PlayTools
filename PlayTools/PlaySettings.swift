@@ -25,6 +25,8 @@ let settings = PlaySettings.shared
 
     var useFloatingJoystick = false
 
+    var useSpecialJoystick = 0
+
     @objc var resizableWindow = false
 
     @objc var supportAutoRotate = false

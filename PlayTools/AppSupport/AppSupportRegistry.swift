@@ -27,6 +27,8 @@ class AppSupportRegistry {
         "com.netease.dfjsjp": RacingMasterSupport.self,
         "com.netease.g108": DestinyRisingSupport.self,
         "com.netease.g108na": DestinyRisingSupport.self,
-        "com.netease.g108hmt": DestinyRisingSupport.self
+        "com.netease.g108hmt": DestinyRisingSupport.self,
+        "com.netease.g138": UnVEILTheWorldSupport.self,
+        "com.netease.g138na": UnVEILTheWorldSupport.self,
     ]
 }

@@ -28,6 +28,7 @@
 		9210FFF52E9BF59D0032D9AD /* NIKKESupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */; };
 		9210FFFA2E9CA7060032D9AD /* InfinityNikkiSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF92E9CA7000032D9AD /* InfinityNikkiSupport.swift */; };
 		9210FFFE2E9CA9B70032D9AD /* JinChanChanSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */; };
+		922089AC2EA0B5B0009BEF4B /* UnVEILTheWorldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922089AB2EA0B5AF009BEF4B /* UnVEILTheWorldSupport.swift */; };
 		92A15B8A2E9DD5CE00D3BF74 /* RacingMasterSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A15B892E9DD5C800D3BF74 /* RacingMasterSupport.swift */; };
 		92A15B8C2E9DF27700D3BF74 /* DestinyRisingSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A15B8B2E9DF27500D3BF74 /* DestinyRisingSupport.swift */; };
 		951D8275299D097C00D35B20 /* Playtools.strings in Resources */ = {isa = PBXBuildFile; fileRef = 951D8277299D097C00D35B20 /* Playtools.strings */; };
@@ -137,6 +138,7 @@
 		9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIKKESupport.swift; sourceTree = "<group>"; };
 		9210FFF92E9CA7000032D9AD /* InfinityNikkiSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfinityNikkiSupport.swift; sourceTree = "<group>"; };
 		9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JinChanChanSupport.swift; sourceTree = "<group>"; };
+		922089AB2EA0B5AF009BEF4B /* UnVEILTheWorldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnVEILTheWorldSupport.swift; sourceTree = "<group>"; };
 		92A15B892E9DD5C800D3BF74 /* RacingMasterSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RacingMasterSupport.swift; sourceTree = "<group>"; };
 		92A15B8B2E9DF27500D3BF74 /* DestinyRisingSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinyRisingSupport.swift; sourceTree = "<group>"; };
 		951D8276299D097C00D35B20 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Playtools.strings; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 				921000192E9D03680032D9AD /* LoveAndDeepspaceSupport.swift */,
 				92A15B892E9DD5C800D3BF74 /* RacingMasterSupport.swift */,
 				92A15B8B2E9DF27500D3BF74 /* DestinyRisingSupport.swift */,
+				922089AB2EA0B5AF009BEF4B /* UnVEILTheWorldSupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -777,6 +780,7 @@
 				9562D1622AB4FE73002C329D /* CameraControlMouseEventAdapter.swift in Sources */,
 				954389C42B38968C00B063BB /* Joystick.swift in Sources */,
 				9562D1642AB4FEB4002C329D /* TouchscreenMouseEventAdapter.swift in Sources */,
+				922089AC2EA0B5B0009BEF4B /* UnVEILTheWorldSupport.swift in Sources */,
 				9562D1602AB4FD46002C329D /* TransparentControllerEventAdapter.swift in Sources */,
 				B46C02C72C634AB5007637AB /* BatteryLevel.m in Sources */,
 				9562D1792AB64458002C329D /* ModeAutomaton.swift in Sources */,

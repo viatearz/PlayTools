@@ -161,6 +161,7 @@ class JoystickAction: Action {
     let shift: CGFloat
     var id: Int?
     let useFloatingJoystick: Bool
+    let useSpecialJoystick: Int
     private var keyPressed = [Bool](repeating: false, count: 4)
     init(keys: [Int], center: CGPoint, shift: CGFloat) {
         self.keys = keys
@@ -168,6 +169,7 @@ class JoystickAction: Action {
         self.touch = center
         self.shift = shift / 4
         self.useFloatingJoystick = PlaySettings.shared.useFloatingJoystick
+        self.useSpecialJoystick = PlaySettings.shared.useSpecialJoystick
         for index in 0..<keys.count {
             let key = keys[index]
             ActionDispatcher.register(key: KeyCodeNames.keyCodes[key]!,
@@ -195,6 +197,13 @@ class JoystickAction: Action {
     }
 
     func getPressedHandler(index: Int) -> (Bool) -> Void {
+        if useSpecialJoystick == 1 {
+            return { pressed in
+                self.updateTouch(index: index, pressed: pressed)
+                self.handleSpeical_1()
+            }
+        }
+
         // if the size of joystick is large, set control type to free, otherwise fixed.
         // this is a temporary method. ideally should give the user an option.
         if !useFloatingJoystick && shift < 200 {
@@ -272,6 +281,30 @@ class JoystickAction: Action {
         handleCommon {
             Toucher.touchcam(point: self.touch, phase: UITouch.Phase.began, tid: &id,
                              actionName: "KeyboardJoystick", keyName: "Keyboard")
+        }
+    }
+
+    // Speical Joystick (1)
+    // (center.x-5, center.y-5) -> center -> touch
+    func handleSpeical_1() {
+        handleCommon {
+            let point1 = CGPoint(x: self.center.x + 5, y: self.center.y + 5)
+            Toucher.touchcam(point: point1, phase: UITouch.Phase.began, tid: &id,
+                             actionName: "KeyboardJoystick", keyName: "Keyboard")
+            PlayInput.touchQueue.asyncAfter(deadline: .now() + 0.04, qos: .userInitiated) {
+                if self.id == nil {
+                    return
+                }
+                Toucher.touchcam(point: self.center, phase: UITouch.Phase.moved, tid: &self.id,
+                                 actionName: "KeyboardJoystick", keyName: "Keyboard")
+                PlayInput.touchQueue.asyncAfter(deadline: .now() + 0.04, qos: .userInitiated) {
+                    if self.id == nil {
+                        return
+                    }
+                    Toucher.touchcam(point: self.touch, phase: UITouch.Phase.moved, tid: &self.id,
+                                     actionName: "KeyboardJoystick", keyName: "Keyboard")
+                }
+            }
         }
     }
 }
