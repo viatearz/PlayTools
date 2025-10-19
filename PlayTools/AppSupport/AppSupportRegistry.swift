@@ -35,6 +35,10 @@ class AppSupportRegistry {
         "com.qookkagame.sgzzlb.jp": ThreeKingdomsTacticsSupport.self,
         "com.qookkagame.sgzzlb.sea": ThreeKingdomsTacticsSupport.self,
         "com.qookkagame.sgzzlb.hkmo": ThreeKingdomsTacticsSupport.self,
-        "com.sialiagames.sgzzlb.ios.tw": ThreeKingdomsTacticsSupport.self
+        "com.sialiagames.sgzzlb.ios.tw": ThreeKingdomsTacticsSupport.self,
+        "com.bilibili.azurlane": AzurLaneSupport.self,
+        "com.YoStarJP.AzurLane": AzurLaneSupport.self,
+        "com.YoStarEN.AzurLane": AzurLaneSupport.self,
+        "com.hkmanjuu.azurlane.ios1": AzurLaneSupport.self
     ]
 }
