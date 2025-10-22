@@ -46,6 +46,9 @@ class AppSupportRegistry {
         "com.bilibili.azurlane": AzurLaneSupport.self,
         "com.YoStarJP.AzurLane": AzurLaneSupport.self,
         "com.YoStarEN.AzurLane": AzurLaneSupport.self,
-        "com.hkmanjuu.azurlane.ios1": AzurLaneSupport.self
+        "com.hkmanjuu.azurlane.ios1": AzurLaneSupport.self,
+        "com.netmarble.nanatsunotaizai": SevenDeadlySinsSuport.self,
+        "com.netmarble.nanagb": SevenDeadlySinsSuport.self,
+        "com.netmarble.nanakr": SevenDeadlySinsSuport.self
     ]
 }

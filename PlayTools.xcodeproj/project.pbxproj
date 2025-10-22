@@ -29,6 +29,7 @@
 		9210FFFA2E9CA7060032D9AD /* InfinityNikkiSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF92E9CA7000032D9AD /* InfinityNikkiSupport.swift */; };
 		9210FFFE2E9CA9B70032D9AD /* JinChanChanSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */; };
 		922089AC2EA0B5B0009BEF4B /* UnVEILTheWorldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922089AB2EA0B5AF009BEF4B /* UnVEILTheWorldSupport.swift */; };
+		9235E9A32EA87AE0007FE8D8 /* SevenDeadlySinsSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9235E9A22EA87ADC007FE8D8 /* SevenDeadlySinsSupport.swift */; };
 		926AE6FF2EA4E6DC0027B5D4 /* AzurLaneSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926AE6FE2EA4E6D80027B5D4 /* AzurLaneSupport.swift */; };
 		92A15B8A2E9DD5CE00D3BF74 /* RacingMasterSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A15B892E9DD5C800D3BF74 /* RacingMasterSupport.swift */; };
 		92A15B8C2E9DF27700D3BF74 /* DestinyRisingSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A15B8B2E9DF27500D3BF74 /* DestinyRisingSupport.swift */; };
@@ -142,6 +143,7 @@
 		9210FFF92E9CA7000032D9AD /* InfinityNikkiSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfinityNikkiSupport.swift; sourceTree = "<group>"; };
 		9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JinChanChanSupport.swift; sourceTree = "<group>"; };
 		922089AB2EA0B5AF009BEF4B /* UnVEILTheWorldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnVEILTheWorldSupport.swift; sourceTree = "<group>"; };
+		9235E9A22EA87ADC007FE8D8 /* SevenDeadlySinsSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SevenDeadlySinsSupport.swift; sourceTree = "<group>"; };
 		926AE6FE2EA4E6D80027B5D4 /* AzurLaneSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AzurLaneSupport.swift; sourceTree = "<group>"; };
 		92A15B892E9DD5C800D3BF74 /* RacingMasterSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RacingMasterSupport.swift; sourceTree = "<group>"; };
 		92A15B8B2E9DF27500D3BF74 /* DestinyRisingSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinyRisingSupport.swift; sourceTree = "<group>"; };
@@ -277,6 +279,7 @@
 				92EAB0A42EA26E0000090C93 /* EFootballSupport.swift */,
 				92EAB0A82EA2720F00090C93 /* ThreeKingdomsTacticsSupport.swift */,
 				926AE6FE2EA4E6D80027B5D4 /* AzurLaneSupport.swift */,
+				9235E9A22EA87ADC007FE8D8 /* SevenDeadlySinsSupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -833,6 +836,7 @@
 				9562D1772AB52550002C329D /* EditorControllerEventAdapter.swift in Sources */,
 				AA7197A3287A481500623C15 /* CircleMenuButton.swift in Sources */,
 				9562D1582AB4FB9B002C329D /* TouchscreenKeyboardEventAdapter.swift in Sources */,
+				9235E9A32EA87AE0007FE8D8 /* SevenDeadlySinsSupport.swift in Sources */,
 				921000142E9CF4220032D9AD /* IdentityVSupport.swift in Sources */,
 				9555ED312C058E28006E469C /* DebugModel.swift in Sources */,
 				AA7197A9287A481500623C15 /* PlayInfo.swift in Sources */,
