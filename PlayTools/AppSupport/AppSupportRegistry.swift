@@ -54,6 +54,7 @@ class AppSupportRegistry {
         "com.Stargazer.StellaSora": StellaSoraSupport.self,
         "com.YoStarJP.StellaSora": StellaSoraSupport.self,
         "com.YoStarKR.StellaSora": StellaSoraSupport.self,
-        "com.YoStarEN.StellaSora": StellaSoraSupport.self
+        "com.YoStarEN.StellaSora": StellaSoraSupport.self,
+        "com.kiif.huijin": EmbersSupport.self
     ]
 }

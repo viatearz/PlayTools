@@ -28,6 +28,7 @@
 		9210FFF52E9BF59D0032D9AD /* NIKKESupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */; };
 		9210FFFA2E9CA7060032D9AD /* InfinityNikkiSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFF92E9CA7000032D9AD /* InfinityNikkiSupport.swift */; };
 		9210FFFE2E9CA9B70032D9AD /* JinChanChanSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */; };
+		9217969C2EECD708000B653C /* EmbersSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9217969B2EECD702000B653C /* EmbersSupport.swift */; };
 		922089AC2EA0B5B0009BEF4B /* UnVEILTheWorldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922089AB2EA0B5AF009BEF4B /* UnVEILTheWorldSupport.swift */; };
 		9235E9A32EA87AE0007FE8D8 /* SevenDeadlySinsSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9235E9A22EA87ADC007FE8D8 /* SevenDeadlySinsSupport.swift */; };
 		926AE6FF2EA4E6DC0027B5D4 /* AzurLaneSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 926AE6FE2EA4E6D80027B5D4 /* AzurLaneSupport.swift */; };
@@ -143,6 +144,7 @@
 		9210FFF42E9BF5950032D9AD /* NIKKESupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIKKESupport.swift; sourceTree = "<group>"; };
 		9210FFF92E9CA7000032D9AD /* InfinityNikkiSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfinityNikkiSupport.swift; sourceTree = "<group>"; };
 		9210FFFD2E9CA9B50032D9AD /* JinChanChanSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JinChanChanSupport.swift; sourceTree = "<group>"; };
+		9217969B2EECD702000B653C /* EmbersSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbersSupport.swift; sourceTree = "<group>"; };
 		922089AB2EA0B5AF009BEF4B /* UnVEILTheWorldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnVEILTheWorldSupport.swift; sourceTree = "<group>"; };
 		9235E9A22EA87ADC007FE8D8 /* SevenDeadlySinsSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SevenDeadlySinsSupport.swift; sourceTree = "<group>"; };
 		926AE6FE2EA4E6D80027B5D4 /* AzurLaneSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AzurLaneSupport.swift; sourceTree = "<group>"; };
@@ -283,6 +285,7 @@
 				926AE6FE2EA4E6D80027B5D4 /* AzurLaneSupport.swift */,
 				9235E9A22EA87ADC007FE8D8 /* SevenDeadlySinsSupport.swift */,
 				92F28B8E2EEC1E3D005E4A9C /* StellaSoraSupport.swift */,
+				9217969B2EECD702000B653C /* EmbersSupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -803,6 +806,7 @@
 				9210FFF22E9BF1940032D9AD /* AppSupport.swift in Sources */,
 				9210FFF32E9BF1940032D9AD /* AppSupportRegistry.swift in Sources */,
 				AA71970D287A44D200623C15 /* PlaySettings.swift in Sources */,
+				9217969C2EECD708000B653C /* EmbersSupport.swift in Sources */,
 				95D474FB2C0BA77B0072797F /* JoystickElement.swift in Sources */,
 				AA719759287A480D00623C15 /* PlayAction.swift in Sources */,
 				926AE6FF2EA4E6DC0027B5D4 /* AzurLaneSupport.swift in Sources */,
