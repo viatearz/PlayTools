@@ -11,18 +11,6 @@
     @objc func applyPatch() -> Bool { return false }
 
     @objc func applyHooks() { }
-
-    func isPatched() -> Bool {
-        return Bundle.main.infoDictionary?["__PATCHED__"] != nil
-    }
-
-    func setPatched() {
-        if let infoPlistPath = Bundle.main.path(forResource: "Info", ofType: "plist"),
-           let dict = NSMutableDictionary(contentsOfFile: infoPlistPath) {
-            dict["__PATCHED__"] = true
-            dict.write(toFile: infoPlistPath, atomically: true)
-        }
-    }
 }
 
 extension AppSupport {
@@ -33,6 +21,42 @@ extension AppSupport {
         }
         return AppSupport()
     }()
+}
+
+extension AppSupport {
+    // Get patched flag of main executable
+    func isPatched() -> Bool {
+        return Bundle.main.infoDictionary?["__PATCHED__"] != nil
+    }
+
+    // Set patched flag of main executable
+    func setPatched() {
+        if let infoPlistPath = Bundle.main.path(forResource: "Info", ofType: "plist"),
+           let dict = NSMutableDictionary(contentsOfFile: infoPlistPath) {
+            dict["__PATCHED__"] = true
+            dict.write(toFile: infoPlistPath, atomically: true)
+        }
+    }
+
+    // Get patched flag of framework
+    func isFrameworkPatched(_ name: String) -> Bool {
+        let frameworkURL = getFrameworkURL(name)
+        let markerURL = frameworkURL.deletingLastPathComponent().appendingPathComponent("PATCHED")
+        return FileManager.default.fileExists(atPath: markerURL.path)
+    }
+
+    // Set patched flag of framework
+    func setFrameworkPatched(_ name: String) {
+        let frameworkURL = getFrameworkURL(name)
+        let markerURL = frameworkURL.deletingLastPathComponent().appendingPathComponent("PATCHED")
+        FileManager.default.createFile(atPath: markerURL.path, contents: Data())
+    }
+
+    func getFrameworkURL(_ name: String) -> URL {
+        return Bundle.main.privateFrameworksURL!
+            .appendingPathComponent("\(name).framework")
+            .appendingPathComponent(name)
+    }
 }
 
 extension AppSupport {

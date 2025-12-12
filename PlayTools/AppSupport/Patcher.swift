@@ -4,6 +4,7 @@
 //  
 
 class Patcher {
+    private let filePath: String
     private let fileHandle: FileHandle
     private let fileData: Data
 
@@ -18,6 +19,7 @@ class Patcher {
             try? fileHandle.close()
             return nil
         }
+        self.filePath = path
         self.fileHandle = fileHandle
         self.fileData = data
     }
@@ -36,6 +38,20 @@ class Patcher {
             return true
         } catch {
             return false
+        }
+    }
+
+    func sign() {
+        guard let cls: AnyClass = NSClassFromString("NSTask") else {
+            return
+        }
+        let task = cls.alloc() as AnyObject
+        task.setValue("/usr/bin/codesign", forKey: "launchPath")
+        task.setValue(["-fs-", filePath], forKey: "arguments")
+        if task.responds(to: NSSelectorFromString("launch")) {
+            _ = task.perform(NSSelectorFromString("launch"))
+        } else {
+            print("[PlayTools] Patcher sign failed: \(filePath)")
         }
     }
 
