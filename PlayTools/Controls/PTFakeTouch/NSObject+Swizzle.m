@@ -273,10 +273,45 @@ bool menuWasCreated = false;
  of code and complexity. I'm not sure this trade-off is "worth it", at least at the time of writing.
  */
 
+static void showPatchedAlert(void) {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserverForName:UIWindowDidBecomeKeyNotification
+                    object:nil
+                     queue:[NSOperationQueue mainQueue]
+                usingBlock:^(NSNotification *notify) {
+        
+        UIWindow *window = notify.object;
+        if (!window) { return; }
+        
+        UIViewController *vc = window.rootViewController;
+        if (!vc) { return; }
+        
+        NSString *title = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.title" value:@"" table:@"Playtools"];
+        NSString *message = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.message" value:@"" table:@"Playtools"];
+        NSString *exitText = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.exit" value:@"" table:@"Playtools"];
+        
+        UIAlertController *alert =
+                [UIAlertController alertControllerWithTitle:title
+                                                    message:message
+                                             preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *exitAction =
+            [UIAlertAction actionWithTitle:exitText
+                                     style:UIAlertActionStyleDefault
+                                   handler:^(UIAlertAction *action) {
+                                       exit(0);
+                                   }];
+        
+        [alert addAction:exitAction];
+        
+        [vc presentViewController:alert animated:YES completion:nil];
+    }];
+}
+
 @implementation PTSwizzleLoader
 + (void)load {
     if ([[AppSupport instance] applyPatch]) {
-        exit(0);
+        showPatchedAlert();
     }
 
     // This might need refactor soon
