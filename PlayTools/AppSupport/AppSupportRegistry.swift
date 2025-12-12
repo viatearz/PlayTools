@@ -49,6 +49,11 @@ class AppSupportRegistry {
         "com.hkmanjuu.azurlane.ios1": AzurLaneSupport.self,
         "com.netmarble.nanatsunotaizai": SevenDeadlySinsSuport.self,
         "com.netmarble.nanagb": SevenDeadlySinsSuport.self,
-        "com.netmarble.nanakr": SevenDeadlySinsSuport.self
+        "com.netmarble.nanakr": SevenDeadlySinsSuport.self,
+        "com.RoamingStar.StellaSora": StellaSoraSupport.self,
+        "com.Stargazer.StellaSora": StellaSoraSupport.self,
+        "com.YoStarJP.StellaSora": StellaSoraSupport.self,
+        "com.YoStarKR.StellaSora": StellaSoraSupport.self,
+        "com.YoStarEN.StellaSora": StellaSoraSupport.self
     ]
 }
