@@ -117,54 +117,30 @@ class MenuController {
     private var cmdPressed = false
 
     init(with builder: UIMenuBuilder) {
+    #if canImport(UIKit.UIMainMenuSystem)
         if #available(iOS 26.0, *) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.setupShortcutKeys()
+            // Delay to avoid error
+            // Cannot set a main menu system configuration while the main menu system is building.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                let configuration = UIMainMenuSystem.Configuration()
+                configuration.sidebarPreference = .included
+                UIMainMenuSystem.shared.setBuildConfiguration(configuration) { builder in
+                    self.setupMenu(with: builder)
+                }
             }
         } else {
-            if Toucher.logEnabled {
-                builder.insertSibling(MenuController.debuggingMenu(), afterMenu: .view)
-            }
-            builder.insertSibling(MenuController.keymappingMenu(), afterMenu: .view)
+            setupMenu(with: builder)
         }
+    #else
+        setupMenu(with: builder)
+    #endif
     }
 
-    func setupShortcutKeys() {
-        guard let keyboardInput = GCKeyboard.coalesced?.keyboardInput else {
-            return
+    func setupMenu(with builder: UIMenuBuilder) {
+        if Toucher.logEnabled {
+            builder.insertSibling(MenuController.debuggingMenu(), afterMenu: .view)
         }
-
-        self.originalKeyboardHandler = keyboardInput.keyChangedHandler
-
-        keyboardInput.keyChangedHandler = { keyboard, key, keyCode, pressed in
-            if keyCode == GCKeyCode.leftGUI || keyCode == GCKeyCode.rightGUI {
-                self.cmdPressed = pressed
-            } else if self.cmdPressed && pressed {
-                self.handleShortcutKey(keyCode)
-            }
-            if let handler = self.originalKeyboardHandler {
-                handler(keyboard, key, keyCode, pressed)
-            }
-        }
-    }
-
-    func handleShortcutKey(_ keyCode: GCKeyCode) {
-        switch keyCode {
-        case GCKeyCode.keyK:
-            UIApplication.shared.switchEditorMode(self)
-        case GCKeyCode.deleteOrBackspace:
-            UIApplication.shared.removeElement(self)
-        case GCKeyCode.upArrow:
-            UIApplication.shared.upscaleElement(self)
-        case GCKeyCode.downArrow:
-            UIApplication.shared.downscaleElement(self)
-        case GCKeyCode.keyR:
-            UIApplication.shared.rotateView(self)
-        case GCKeyCode.keyD:
-            UIApplication.shared.toggleDebugOverlay(self)
-        default:
-            break
-        }
+        builder.insertSibling(MenuController.keymappingMenu(), afterMenu: .view)
     }
 
     static func debuggingMenu() -> UIMenu {
