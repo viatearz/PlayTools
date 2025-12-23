@@ -130,7 +130,9 @@ public class ControlMode: Equatable {
         // Reactivate keymapping once the key window is initialized
         keyWindowObserver = NotificationCenter.default.addObserver(forName: UIWindow.didBecomeKeyNotification,
             object: nil, queue: .main) { _ in
-            ActionDispatcher.build()
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+                ActionDispatcher.build()
+            }
             if let observer = self.keyWindowObserver {
                 NotificationCenter.default.removeObserver(observer)
                 self.keyWindowObserver = nil
