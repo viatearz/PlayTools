@@ -407,6 +407,8 @@ bool menuWasCreated = false;
         [objc_getClass("GCMouse") swizzleClassMethod:@selector(current) withMethod:@selector(hook_GCMouse_current)];
         [objc_getClass("GCMouse") swizzleClassMethod:@selector(mice) withMethod:@selector(hook_GCMouse_mice)];
     }
+
+    [[AppSupport instance] applyHooks];
 }
 
 @end
