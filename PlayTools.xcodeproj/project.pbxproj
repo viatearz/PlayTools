@@ -20,6 +20,7 @@
 		92A3D6342EFAF26E001D8BC2 /* AppSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A3D6332EFAF26D001D8BC2 /* AppSupport.swift */; };
 		92A3D6362EFAF277001D8BC2 /* AppSupportRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A3D6352EFAF275001D8BC2 /* AppSupportRegistry.swift */; };
 		92A3D63C2EFAF4B4001D8BC2 /* NIKKESupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A3D63B2EFAF4B2001D8BC2 /* NIKKESupport.swift */; };
+		92A3D6402EFAF596001D8BC2 /* DuetNightAbyssSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A3D63F2EFAF595001D8BC2 /* DuetNightAbyssSupport.swift */; };
 		951D8275299D097C00D35B20 /* Playtools.strings in Resources */ = {isa = PBXBuildFile; fileRef = 951D8277299D097C00D35B20 /* Playtools.strings */; };
 		954389C22B38922400B063BB /* MouseArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954389C12B38922400B063BB /* MouseArea.swift */; };
 		954389C42B38968C00B063BB /* Joystick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954389C32B38968C00B063BB /* Joystick.swift */; };
@@ -120,6 +121,7 @@
 		92A3D6332EFAF26D001D8BC2 /* AppSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupport.swift; sourceTree = "<group>"; };
 		92A3D6352EFAF275001D8BC2 /* AppSupportRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSupportRegistry.swift; sourceTree = "<group>"; };
 		92A3D63B2EFAF4B2001D8BC2 /* NIKKESupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIKKESupport.swift; sourceTree = "<group>"; };
+		92A3D63F2EFAF595001D8BC2 /* DuetNightAbyssSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuetNightAbyssSupport.swift; sourceTree = "<group>"; };
 		951D8276299D097C00D35B20 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Playtools.strings; sourceTree = "<group>"; };
 		951D8278299D098000D35B20 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Playtools.strings"; sourceTree = "<group>"; };
 		954389C12B38922400B063BB /* MouseArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseArea.swift; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				92A3D6332EFAF26D001D8BC2 /* AppSupport.swift */,
 				92A3D6352EFAF275001D8BC2 /* AppSupportRegistry.swift */,
 				92A3D63B2EFAF4B2001D8BC2 /* NIKKESupport.swift */,
+				92A3D63F2EFAF595001D8BC2 /* DuetNightAbyssSupport.swift */,
 			);
 			path = AppSupport;
 			sourceTree = "<group>";
@@ -742,6 +745,7 @@
 				AA7197A1287A481500623C15 /* CircleMenuLoader.swift in Sources */,
 				6E76639B28D0FAE700DE4AF9 /* Plugin.swift in Sources */,
 				B1271729288284BE0025112B /* DiscordActivity.swift in Sources */,
+				92A3D6402EFAF596001D8BC2 /* DuetNightAbyssSupport.swift in Sources */,
 				EEB248592B81D074000C230A /* PlayedAppleDB.swift in Sources */,
 				954389CC2B39F03D00B063BB /* EditorView.swift in Sources */,
 				954389C22B38922400B063BB /* MouseArea.swift in Sources */,

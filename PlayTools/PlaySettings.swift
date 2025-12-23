@@ -42,6 +42,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var forceSetUnrealEngineScaleFactor = extraSettingsData.forceSetUnrealEngineScaleFactor
 
+    @objc var consumeAllKeyEvents = false
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping

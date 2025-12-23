@@ -51,7 +51,7 @@ public class TouchscreenKeyboardEventAdapter: KeyboardEventAdapter {
         if PlayInput.shared.sendKeyEventToUnity(key: name, pressed: pressed) {
             return true
         }
-        return false
+        return PlaySettings.shared.consumeAllKeyEvents
     }
 
 }
