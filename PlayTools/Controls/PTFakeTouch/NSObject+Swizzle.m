@@ -283,28 +283,30 @@ static void showPatchedAlert(void) {
         UIWindow *window = notify.object;
         if (!window) { return; }
         
-        UIViewController *vc = window.rootViewController;
-        if (!vc) { return; }
-        
-        NSString *title = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.title" value:@"" table:@"Playtools"];
-        NSString *message = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.message" value:@"" table:@"Playtools"];
-        NSString *exitText = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.exit" value:@"" table:@"Playtools"];
-        
-        UIAlertController *alert =
-                [UIAlertController alertControllerWithTitle:title
-                                                    message:message
-                                             preferredStyle:UIAlertControllerStyleAlert];
-        
-        UIAlertAction *exitAction =
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            UIViewController *vc = window.rootViewController;
+            if (!vc) { return; }
+            
+            NSString *title = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.title" value:@"" table:@"Playtools"];
+            NSString *message = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.message" value:@"" table:@"Playtools"];
+            NSString *exitText = [[NSBundle mainBundle] localizedStringForKey:@"alert.patched.exit" value:@"" table:@"Playtools"];
+            
+            UIAlertController *alert =
+            [UIAlertController alertControllerWithTitle:title
+                                                message:message
+                                         preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction *exitAction =
             [UIAlertAction actionWithTitle:exitText
                                      style:UIAlertActionStyleDefault
                                    handler:^(UIAlertAction *action) {
-                                       exit(0);
-                                   }];
-        
-        [alert addAction:exitAction];
-        
-        [vc presentViewController:alert animated:YES completion:nil];
+                exit(0);
+            }];
+            
+            [alert addAction:exitAction];
+            
+            [vc presentViewController:alert animated:YES completion:nil];
+        });
     }];
 }
 
