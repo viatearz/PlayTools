@@ -176,6 +176,29 @@ __attribute__((visibility("hidden")))
     return keyCommands;
 }
 
+- (bool)hook_UE4_createFramebuffer:(bool) bIsForOnDevice {
+    UIView *view = (UIView *)self;
+    float oldScaleFactor = view.contentScaleFactor;
+    bool ret = [self hook_UE4_createFramebuffer:bIsForOnDevice];
+    float newScaleFactor = view.contentScaleFactor;
+
+    if (oldScaleFactor != newScaleFactor) {
+        view.contentScaleFactor = [[PlaySettings shared] customScaler];
+        CAMetalLayer* MetalLayer = (CAMetalLayer *)view.layer;
+        if (MetalLayer != nil) {
+            CGSize DrawableSize = view.bounds.size;
+            DrawableSize.width *= view.contentScaleFactor;
+            DrawableSize.height *= view.contentScaleFactor;
+            MetalLayer.drawableSize = DrawableSize;
+        }
+    }
+    return ret;
+}
+
+- (float)hook_UE5_presetContentScaleFactor {
+    return 0;
+}
+
 - (NSString *)hook_stringByReplacingOccurrencesOfRegularExpressionPattern:(NSString *)pattern
                                                              withTemplate:(NSString *)template
                                                                   options:(NSRegularExpressionOptions)options
@@ -362,6 +385,13 @@ bool menuWasCreated = false;
             SEL origSelector = NSSelectorFromString(@"_stringByReplacingOccurrencesOfRegularExpressionPattern:withTemplate:options:range:");
             SEL newSelector = @selector(hook_stringByReplacingOccurrencesOfRegularExpressionPattern:withTemplate:options:range:);
             [objc_getClass("NSString") swizzleInstanceMethod:origSelector withMethod:newSelector];
+        }
+
+        // Force Unreal Engine to use the scale factor we provided
+        if ([[PlaySettings shared] forceSetUnrealEngineScaleFactor]) {
+            NSLog(@"[PlayTools] forceSetUnrealEngineScaleFactor");
+            [objc_getClass("FIOSView") swizzleInstanceMethod:NSSelectorFromString(@"CreateFramebuffer:") withMethod:@selector(hook_UE4_createFramebuffer:)];
+            [objc_getClass("IOSAppDelegate") swizzleInstanceMethod:NSSelectorFromString(@"MobileContentScaleFactor") withMethod:@selector(hook_UE5_presetContentScaleFactor)];
         }
     }
 
