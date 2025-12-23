@@ -31,6 +31,8 @@ let settings = PlaySettings.shared
 
     @objc var supportAutoRotate = false
 
+    @objc var consumeAllKeyEvents = false
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping

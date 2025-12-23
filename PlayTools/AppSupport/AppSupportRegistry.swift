@@ -58,6 +58,8 @@ class AppSupportRegistry {
         "com.YoStarKR.StellaSora": StellaSoraSupport.self,
         "com.YoStarEN.StellaSora": StellaSoraSupport.self,
         "com.kiif.huijin": EmbersSupport.self,
-        "com.dimcroon.hh": RingOfFireSupport.self
+        "com.dimcroon.hh": RingOfFireSupport.self,
+        "com.hero.dna.ios": DuetNightAbyssSupport.self,
+        "com.panstudio.duetnightabyss.arpg.global": DuetNightAbyssSupport.self
     ]
 }
