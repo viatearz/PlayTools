@@ -60,6 +60,8 @@ class AppSupportRegistry {
         "com.kiif.huijin": EmbersSupport.self,
         "com.dimcroon.hh": RingOfFireSupport.self,
         "com.hero.dna.ios": DuetNightAbyssSupport.self,
-        "com.panstudio.duetnightabyss.arpg.global": DuetNightAbyssSupport.self
+        "com.panstudio.duetnightabyss.arpg.global": DuetNightAbyssSupport.self,
+        "com.kurogame.mingchao": WutheringWavesSupport.self,
+        "com.kurogame.wutheringwaves.global": WutheringWavesSupport.self
     ]
 }
