@@ -300,7 +300,7 @@ static void showPatchedAlert(void) {
             [UIAlertAction actionWithTitle:exitText
                                      style:UIAlertActionStyleDefault
                                    handler:^(UIAlertAction *action) {
-                exit(0);
+                _Exit(0);
             }];
             
             [alert addAction:exitAction];
