@@ -3,6 +3,8 @@
 //  PlayTools
 //
 
+import WebKit
+
 class ThreeKingdomsTacticsSupport: AppSupport {
     override func applyPatch() -> Bool {
         if isPatched() {
@@ -25,5 +27,24 @@ class ThreeKingdomsTacticsSupport: AppSupport {
             patcher.close()
         }
         return modified
+    }
+
+    override func applyHooks() {
+        // Fix captcha not showing issue
+        self.swizzleInstanceMethod(
+            cls: NSClassFromString("WKWebView"),
+            origSelector: NSSelectorFromString("initWithFrame:configuration:"),
+            newSelector: #selector(NSObject.hook_ThreeKingdomsTactics_initWKWebView(frame:configuration:)))
+    }
+}
+
+extension NSObject {
+    @objc func hook_ThreeKingdomsTactics_initWKWebView(
+        frame: CGRect,
+        configuration: WKWebViewConfiguration
+    ) -> WKWebView {
+        let webView = self.hook_ThreeKingdomsTactics_initWKWebView(frame: frame, configuration: configuration)
+        webView.configuration.defaultWebpagePreferences.preferredContentMode = .mobile
+        return webView
     }
 }
