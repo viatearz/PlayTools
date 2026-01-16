@@ -14,6 +14,7 @@
 		6E7663A528D0FEBE00DE4AF9 /* AKPluginLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E7663A428D0FEBE00DE4AF9 /* AKPluginLoader.swift */; };
 		6E84A14528D0F94E00BF7495 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA818CBA287ABFD5000BEE9D /* UIKit.framework */; };
 		6E84A15028D0F97500BF7495 /* AKInterface.bundle in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		920234C72F191A130017B15C /* NizhanFutureSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920234C62F191A120017B15C /* NizhanFutureSupport.swift */; };
 		921000012E9CAD1A0032D9AD /* OverFieldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000002E9CAD170032D9AD /* OverFieldSupport.swift */; };
 		921000052E9CB5BF0032D9AD /* MoonlightBladeSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000042E9CB5BD0032D9AD /* MoonlightBladeSupport.swift */; };
 		921000072E9CB6A50032D9AD /* LimbusCompanySupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921000062E9CB6A30032D9AD /* LimbusCompanySupport.swift */; };
@@ -133,6 +134,7 @@
 		6E7663A028D0FB5300DE4AF9 /* AKPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKPlugin.swift; sourceTree = "<group>"; };
 		6E7663A428D0FEBE00DE4AF9 /* AKPluginLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AKPluginLoader.swift; sourceTree = "<group>"; };
 		6E84A14C28D0F96D00BF7495 /* AKInterface.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AKInterface.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		920234C62F191A120017B15C /* NizhanFutureSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NizhanFutureSupport.swift; sourceTree = "<group>"; };
 		921000002E9CAD170032D9AD /* OverFieldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverFieldSupport.swift; sourceTree = "<group>"; };
 		921000042E9CB5BD0032D9AD /* MoonlightBladeSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonlightBladeSupport.swift; sourceTree = "<group>"; };
 		921000062E9CB6A30032D9AD /* LimbusCompanySupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimbusCompanySupport.swift; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 				9217969D2EECD94D000B653C /* RingOfFireSupport.swift */,
 				92A3D62D2EFAC6CA001D8BC2 /* DuetNightAbyssSupport.swift */,
 				921725692EFFCD7000DCBA69 /* WutheringWavesSupport.swift */,
+				920234C62F191A120017B15C /* NizhanFutureSupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -874,6 +877,7 @@
 				921000102E9CED1C0032D9AD /* EggyPartySupport.swift in Sources */,
 				921000052E9CB5BF0032D9AD /* MoonlightBladeSupport.swift in Sources */,
 				B1E8CF8A28BBE2AB004340D3 /* Keymapping.swift in Sources */,
+				920234C72F191A130017B15C /* NizhanFutureSupport.swift in Sources */,
 				AB7DA47529B85BFB0034ACB2 /* PlayShadow.m in Sources */,
 				9210001A2E9D03690032D9AD /* LoveAndDeepspaceSupport.swift in Sources */,
 				9562D1662AB5049B002C329D /* KeyboardEventAdapter.swift in Sources */,
