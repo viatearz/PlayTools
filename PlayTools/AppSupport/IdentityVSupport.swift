@@ -23,6 +23,12 @@ class IdentityVSupport: AppSupport {
                              dataToWrite: Data([0x00, 0x2F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])) {
                 modified = true
             }
+            if patcher.patch(dataToFind: Data([0xF4, 0x05, 0x8E, 0xD2, 0x54, 0x2E, 0xAD, 0xF2,
+                                               0xD4, 0x2E, 0xCC, 0xF2, 0x94, 0xAE, 0xEC, 0xF2]),
+                             dataToWrite: Data([0x08, 0x00, 0x80, 0xD2]),
+                             offset: 48) {
+                modified = true
+            }
             patcher.close()
         }
         return modified
