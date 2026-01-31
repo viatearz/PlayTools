@@ -63,6 +63,8 @@ class AppSupportRegistry {
         "com.panstudio.duetnightabyss.arpg.global": DuetNightAbyssSupport.self,
         "com.kurogame.mingchao": WutheringWavesSupport.self,
         "com.kurogame.wutheringwaves.global": WutheringWavesSupport.self,
-        "com.tencent.tmgp.nz": NizhanFutureSupport.self
+        "com.tencent.tmgp.nz": NizhanFutureSupport.self,
+        "com.hypergryph.endfield": EndfieldSupport.self,
+        "com.gryphline.endfield.ios": EndfieldSupport.self
     ]
 }

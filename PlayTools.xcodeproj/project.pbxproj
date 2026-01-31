@@ -38,6 +38,7 @@
 		92A15B8A2E9DD5CE00D3BF74 /* RacingMasterSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A15B892E9DD5C800D3BF74 /* RacingMasterSupport.swift */; };
 		92A15B8C2E9DF27700D3BF74 /* DestinyRisingSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A15B8B2E9DF27500D3BF74 /* DestinyRisingSupport.swift */; };
 		92A3D62E2EFAC6CC001D8BC2 /* DuetNightAbyssSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A3D62D2EFAC6CA001D8BC2 /* DuetNightAbyssSupport.swift */; };
+		92AA0A7C2F2E4551001F2371 /* EndfieldSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AA0A7B2F2E4541001F2371 /* EndfieldSupport.swift */; };
 		92EAB0A52EA26E0200090C93 /* EFootballSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92EAB0A42EA26E0000090C93 /* EFootballSupport.swift */; };
 		92EAB0A92EA2721000090C93 /* ThreeKingdomsTacticsSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92EAB0A82EA2720F00090C93 /* ThreeKingdomsTacticsSupport.swift */; };
 		92F28B8F2EEC1E40005E4A9C /* StellaSoraSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F28B8E2EEC1E3D005E4A9C /* StellaSoraSupport.swift */; };
@@ -158,6 +159,7 @@
 		92A15B892E9DD5C800D3BF74 /* RacingMasterSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RacingMasterSupport.swift; sourceTree = "<group>"; };
 		92A15B8B2E9DF27500D3BF74 /* DestinyRisingSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinyRisingSupport.swift; sourceTree = "<group>"; };
 		92A3D62D2EFAC6CA001D8BC2 /* DuetNightAbyssSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuetNightAbyssSupport.swift; sourceTree = "<group>"; };
+		92AA0A7B2F2E4541001F2371 /* EndfieldSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndfieldSupport.swift; sourceTree = "<group>"; };
 		92EAB0A42EA26E0000090C93 /* EFootballSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EFootballSupport.swift; sourceTree = "<group>"; };
 		92EAB0A82EA2720F00090C93 /* ThreeKingdomsTacticsSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeKingdomsTacticsSupport.swift; sourceTree = "<group>"; };
 		92F28B8E2EEC1E3D005E4A9C /* StellaSoraSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StellaSoraSupport.swift; sourceTree = "<group>"; };
@@ -298,6 +300,7 @@
 				92A3D62D2EFAC6CA001D8BC2 /* DuetNightAbyssSupport.swift */,
 				921725692EFFCD7000DCBA69 /* WutheringWavesSupport.swift */,
 				920234C62F191A120017B15C /* NizhanFutureSupport.swift */,
+				92AA0A7B2F2E4541001F2371 /* EndfieldSupport.swift */,
 				9210000A2E9CCF690032D9AD /* Patcher.swift */,
 			);
 			path = AppSupport;
@@ -864,6 +867,7 @@
 				AA7197A9287A481500623C15 /* PlayInfo.swift in Sources */,
 				AA71986A287A81A000623C15 /* PTFakeMetaTouch.m in Sources */,
 				9562D15E2AB4FCB8002C329D /* TouchscreenControllerEventAdapter.swift in Sources */,
+				92AA0A7C2F2E4551001F2371 /* EndfieldSupport.swift in Sources */,
 				954389C62B3896E600B063BB /* ChildButton.swift in Sources */,
 				ABCECEE629750BA600746595 /* PlayedApple.swift in Sources */,
 				AA71986C287A81A000623C15 /* NSObject+Swizzle.m in Sources */,
