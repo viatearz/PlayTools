@@ -89,6 +89,8 @@ let settings = PlaySettings.shared
     @objc lazy var noKMOnInput = settingsData.noKMOnInput
 
     @objc lazy var enableScrollWheel = settingsData.enableScrollWheel
+
+    @objc var blockSleepSpamming = false
 }
 
 struct AppSettingsData: Codable {

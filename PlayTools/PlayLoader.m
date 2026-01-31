@@ -3,6 +3,7 @@
 //  PlayTools
 //
 
+#include <Foundation/Foundation.h>
 #include <errno.h>
 #include <sys/sysctl.h>
 
@@ -211,10 +212,72 @@ DYLD_INTERPOSE(pt_SecItemAdd, SecItemAdd)
 DYLD_INTERPOSE(pt_SecItemUpdate, SecItemUpdate)
 DYLD_INTERPOSE(pt_SecItemDelete, SecItemDelete)
 
+static NSMutableDictionary *thread_sleep_counters = nil;
+static NSMutableDictionary *last_sleep_attempts = nil;
+static dispatch_once_t thread_sleep_once;
+static NSLock *thread_sleep_lock = nil;
+
+static int pt_usleep(useconds_t time) {
+    dispatch_once(&thread_sleep_once, ^{
+        thread_sleep_counters = [NSMutableDictionary dictionary];
+        last_sleep_attempts = [NSMutableDictionary dictionary];
+        thread_sleep_lock = [[NSLock alloc] init];
+        [thread_sleep_lock lock];
+    });
+    
+    if ([[PlaySettings shared] blockSleepSpamming]) {
+        int thread_id = pthread_mach_thread_np(pthread_self());
+        NSNumber *threadKey = @(thread_id);
+        
+        int thread_sleep_counter = [thread_sleep_counters[threadKey] intValue];
+        int last_sleep_attempt = [last_sleep_attempts[threadKey] intValue];
+        
+        if (time == 100000) {
+            int timestamp = (int)[[NSDate date] timeIntervalSince1970];
+            // If it sleeps too fast, increase counter
+            if (timestamp - last_sleep_attempt < 2) {
+                thread_sleep_counter++;
+            } else {
+                thread_sleep_counter = 1;
+            }
+            last_sleep_attempt = timestamp;
+            thread_sleep_counters[threadKey] = @(thread_sleep_counter);
+            last_sleep_attempts[threadKey] = @(last_sleep_attempt);
+            
+        }
+        
+        if (thread_sleep_counter > 100) {
+            // Stop this thread from spamming usleep calls
+            NSLog(@"[PC] Thread %i exceeded usleep limit. Seem sus, stopping this "
+                  @"thread FOREVER",
+                  thread_id);
+            
+            [thread_sleep_lock lock];
+            [thread_sleep_lock unlock];
+            
+            return 0;
+        }
+    }
+    
+    return usleep(time);
+}
+
+DYLD_INTERPOSE(pt_usleep, usleep)
+
 @implementation PlayLoader
 
 static void __attribute__((constructor)) initialize(void) {
     [PlayCover launch];
+
+    if ([[PlaySettings shared] blockSleepSpamming]) {
+        // Add an observer so we can unlock threads on app termination
+        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillTerminateNotification
+                                                          object:nil
+                                                           queue:[NSOperationQueue mainQueue]
+                                                      usingBlock:^(NSNotification * _Nonnull note) {
+            [thread_sleep_lock unlock];
+        }];
+    }
 }
 
 @end
