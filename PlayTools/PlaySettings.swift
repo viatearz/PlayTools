@@ -38,6 +38,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var forceQuitAppOnClose = extraSettingsData.forceQuitAppOnClose
 
+    @objc lazy var unrealEngineSetScaleFactor = extraSettingsData.unrealEngineSetScaleFactor
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -147,4 +149,5 @@ struct AppSettingsData: Codable {
 
 struct ExtraAppSettingsData: Codable {
     var forceQuitAppOnClose = false
+    var unrealEngineSetScaleFactor = false
 }

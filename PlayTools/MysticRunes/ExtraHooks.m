@@ -50,12 +50,35 @@ __attribute__((visibility("hidden")))
     return 1; // NSTerminateNow
 }
 
+- (bool) hook_UE4_FIOSView_CreateFramebuffer:(bool)bIsForOnDevice {
+    bool ret = [self hook_UE4_FIOSView_CreateFramebuffer:bIsForOnDevice];
+
+    UIView *view = (UIView *)self;
+    view.contentScaleFactor = [[PlaySettings shared] customScaler];
+    CAMetalLayer* MetalLayer = (CAMetalLayer *)view.layer;
+    CGSize DrawableSize = view.bounds.size;
+    DrawableSize.width *= view.contentScaleFactor;
+    DrawableSize.height *= view.contentScaleFactor;
+    MetalLayer.drawableSize = DrawableSize;
+
+    return ret;
+}
+
+- (float) hook_UE5_IOSAppDelegate_MobileContentScaleFactor {
+    return 0;
+}
+
 @end
 
 @implementation ExtraHooksLoader
 + (void)load {
     if ([[PlaySettings shared] forceQuitAppOnClose]) {
         [objc_getClass("UINSApplicationDelegate") swizzleInstanceMethod:NSSelectorFromString(@"applicationShouldTerminate:") withMethod:@selector(hook_applicationShouldTerminate:)];
+    }
+
+    if ([[PlaySettings shared] unrealEngineSetScaleFactor]) {
+        [objc_getClass("FIOSView") swizzleInstanceMethod:NSSelectorFromString(@"CreateFramebuffer:") withMethod:@selector(hook_UE4_FIOSView_CreateFramebuffer:)];
+        [objc_getClass("IOSAppDelegate") swizzleInstanceMethod:NSSelectorFromString(@"MobileContentScaleFactor") withMethod:@selector(hook_UE5_IOSAppDelegate_MobileContentScaleFactor)];
     }
 }
 @end
