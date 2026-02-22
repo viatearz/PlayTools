@@ -24,7 +24,7 @@ class AKInterface {
         guard let bundle = Bundle(url: bundleURL) else { return nil }
 
         // 3. Load the bundle and our plugin class
-        guard let pluginClass = bundle.principalClass as? Plugin.Type else { return nil }
+        guard let pluginClass = bundle.classNamed("AKInterface.AKPlugin") as? Plugin.Type else { return nil }
 
         // 4. Create an instance of the plugin class
         return pluginClass.init()

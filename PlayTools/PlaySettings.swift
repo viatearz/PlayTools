@@ -150,4 +150,9 @@ struct AppSettingsData: Codable {
 struct ExtraAppSettingsData: Codable {
     var forceQuitAppOnClose = false
     var unrealEngineSetScaleFactor = false
+    var enableCustomCursor = false
+    var customCursorWidth = 32
+    var customCursorHeight = 32
+    var customCursorHotSpotX = 0
+    var customCursorHotSpotY = 0
 }

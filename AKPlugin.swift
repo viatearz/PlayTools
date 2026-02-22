@@ -70,6 +70,8 @@ class AKPlugin: NSObject, Plugin {
                     win.contentAspectRatio = aspectRatio
                 }
         }
+
+        PlayCursor.shared.initialize()
     }
 
     var screenCount: Int {
