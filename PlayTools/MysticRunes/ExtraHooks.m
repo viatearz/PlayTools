@@ -44,10 +44,18 @@ __attribute__((visibility("hidden")))
                             method_getTypeEncoding(originalMethod));
     }
 }
+
+- (NSUInteger) hook_applicationShouldTerminate:(id)sender {
+    [self hook_applicationShouldTerminate:sender];
+    return 1; // NSTerminateNow
+}
+
 @end
 
 @implementation ExtraHooksLoader
 + (void)load {
-
+    if ([[PlaySettings shared] forceQuitAppOnClose]) {
+        [objc_getClass("UINSApplicationDelegate") swizzleInstanceMethod:NSSelectorFromString(@"applicationShouldTerminate:") withMethod:@selector(hook_applicationShouldTerminate:)];
+    }
 }
 @end

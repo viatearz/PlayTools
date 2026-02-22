@@ -36,6 +36,8 @@ let settings = PlaySettings.shared
         }
     }
 
+    @objc lazy var forceQuitAppOnClose = extraSettingsData.forceQuitAppOnClose
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -144,5 +146,5 @@ struct AppSettingsData: Codable {
 }
 
 struct ExtraAppSettingsData: Codable {
-
+    var forceQuitAppOnClose = false
 }
