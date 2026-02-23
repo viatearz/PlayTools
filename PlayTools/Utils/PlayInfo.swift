@@ -21,6 +21,13 @@ class PlayInfo: NSObject {
         for ueFile in ueFiles where FileManager.default.fileExists(atPath: ueFile.path) {
             return true
         }
+
+        let ueCookedData = appFolder.appendingPathComponent("cookeddata")
+        var isDirectory: ObjCBool = false
+        if FileManager.default.fileExists(atPath: ueCookedData.path, isDirectory: &isDirectory), isDirectory.boolValue {
+            return true
+        }
+
         return false
     }
 }
