@@ -11,6 +11,8 @@ class PlayInput {
                                                qos: .userInteractive,
                                                autoreleaseFrequency: .workItem)
 
+    var shouldProcessMouseClick = true
+
     @objc func drainMainDispatchQueue() {
         _dispatch_main_queue_callback_4CF(nil)
     }
@@ -33,8 +35,18 @@ class PlayInput {
 
         centre.addObserver(forName: NSNotification.Name(rawValue: "NSWindowDidBecomeKeyNotification"), object: nil,
             queue: main) { _ in
+            if PlaySettings.shared.ignoreClicksWhenNotFocused {
+                self.shouldProcessMouseClick = true
+            }
             if mode.cursorHidden() {
                 AKInterface.shared!.warpCursor()
+            }
+        }
+
+        centre.addObserver(forName: NSNotification.Name(rawValue: "NSWindowDidResignKeyNotification"), object: nil,
+            queue: main) { _ in
+            if PlaySettings.shared.ignoreClicksWhenNotFocused {
+                self.shouldProcessMouseClick = false
             }
         }
 

@@ -40,6 +40,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var unrealEngineSetScaleFactor = extraSettingsData.unrealEngineSetScaleFactor
 
+    @objc lazy var ignoreClicksWhenNotFocused = extraSettingsData.ignoreClicksWhenNotFocused
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -155,4 +157,5 @@ struct ExtraAppSettingsData: Codable {
     var customCursorHeight = 32
     var customCursorHotSpotX = 0
     var customCursorHotSpotY = 0
+    var ignoreClicksWhenNotFocused = true
 }

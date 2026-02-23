@@ -110,7 +110,10 @@ public class ControlMode: Equatable {
 
     private func setupMouseButtons() {
         AKInterface.shared!.setupMouseButton(left: true, right: false, { _, pressed in
-            self.mouseAdapter.handleLeftButton(pressed: pressed)
+            if PlayInput.shared.shouldProcessMouseClick {
+                return self.mouseAdapter.handleLeftButton(pressed: pressed)
+            }
+            return false
         })
 
         AKInterface.shared!.setupMouseButton(left: false, right: false, { id, pressed in
