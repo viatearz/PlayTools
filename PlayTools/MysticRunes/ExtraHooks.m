@@ -138,6 +138,20 @@ __attribute__((visibility("hidden")))
     return ret;
 }
 
+- (BOOL) hook_WKContentView_becomeFirstResponder {
+    BOOL ret = [self hook_WKContentView_becomeFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification
+                                                        object:nil];
+    return ret;
+}
+
+- (BOOL) hook_WKContentView_resignFirstResponder {
+    BOOL ret = [self hook_WKContentView_resignFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification
+                                                        object:nil];
+    return ret;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -155,6 +169,12 @@ __attribute__((visibility("hidden")))
         [[PlaySettings shared] unrealEngineSmartTextInput]) {
         [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(becomeFirstResponder) withMethod:@selector(hook_UE_FIOSView_becomeFirstResponder)];
         [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(resignFirstResponder) withMethod:@selector(hook_UE_FIOSView_resignFirstResponder)];
+    }
+    
+    if ([[PlaySettings shared] noKMOnInput] &&
+        [[PlaySettings shared] webViewSmartTextInput]) {
+        [objc_getClass("WKContentView") swizzleInstanceMethod:@selector(becomeFirstResponder) withMethod:@selector(hook_WKContentView_becomeFirstResponder)];
+        [objc_getClass("WKContentView") swizzleInstanceMethod:@selector(resignFirstResponder) withMethod:@selector(hook_WKContentView_resignFirstResponder)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
