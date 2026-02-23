@@ -124,6 +124,20 @@ __attribute__((visibility("hidden")))
     // do nothing
 }
 
+- (BOOL) hook_UE_FIOSView_becomeFirstResponder {
+    BOOL ret = [self hook_UE_FIOSView_becomeFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidBeginEditingNotification
+                                                        object:nil];
+    return ret;
+}
+
+- (BOOL) hook_UE_FIOSView_resignFirstResponder {
+    BOOL ret = [self hook_UE_FIOSView_resignFirstResponder];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UITextFieldTextDidEndEditingNotification
+                                                        object:nil];
+    return ret;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -135,6 +149,12 @@ __attribute__((visibility("hidden")))
     if ([[PlaySettings shared] unrealEngineSetScaleFactor]) {
         [objc_getClass("FIOSView") swizzleInstanceMethod:NSSelectorFromString(@"CreateFramebuffer:") withMethod:@selector(hook_UE4_FIOSView_CreateFramebuffer:)];
         [objc_getClass("IOSAppDelegate") swizzleInstanceMethod:NSSelectorFromString(@"MobileContentScaleFactor") withMethod:@selector(hook_UE5_IOSAppDelegate_MobileContentScaleFactor)];
+    }
+
+    if ([[PlaySettings shared] noKMOnInput] &&
+        [[PlaySettings shared] unrealEngineSmartTextInput]) {
+        [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(becomeFirstResponder) withMethod:@selector(hook_UE_FIOSView_becomeFirstResponder)];
+        [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(resignFirstResponder) withMethod:@selector(hook_UE_FIOSView_resignFirstResponder)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{

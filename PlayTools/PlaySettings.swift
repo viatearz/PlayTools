@@ -58,6 +58,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var unityEngineForceLandscape = extraSettingsData.unityEngineForceLandscape
 
+    @objc lazy var unrealEngineSmartTextInput = extraSettingsData.unrealEngineSmartTextInput
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -180,4 +182,5 @@ struct ExtraAppSettingsData: Codable {
     var unityEngineFixKeyboardInput = false
     var disableINTLUtilsSwizzling = false
     var unityEngineForceLandscape = false
+    var unrealEngineSmartTextInput = false
 }
