@@ -48,6 +48,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var enhanceBuiltinMouse = extraSettingsData.enhanceBuiltinMouse
 
+    @objc lazy var preventKeyboardBeepSound = extraSettingsData.preventKeyboardBeepSound
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -165,4 +167,5 @@ struct ExtraAppSettingsData: Codable {
     var customCursorHotSpotY = 0
     var ignoreClicksWhenNotFocused = true
     var enhanceBuiltinMouse = false
+    var preventKeyboardBeepSound = false
 }
