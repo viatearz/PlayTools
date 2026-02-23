@@ -50,6 +50,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var preventKeyboardBeepSound = extraSettingsData.preventKeyboardBeepSound
 
+    @objc lazy var fixPlayChainMatchLimit = extraSettingsData.fixPlayChainMatchLimit
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -168,4 +170,5 @@ struct ExtraAppSettingsData: Codable {
     var ignoreClicksWhenNotFocused = true
     var enhanceBuiltinMouse = false
     var preventKeyboardBeepSound = false
+    var fixPlayChainMatchLimit = true
 }
