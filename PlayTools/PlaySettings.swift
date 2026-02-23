@@ -54,6 +54,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var unityEngineFixKeyboardInput = extraSettingsData.unityEngineFixKeyboardInput
 
+    @objc lazy var disableINTLUtilsSwizzling = extraSettingsData.disableINTLUtilsSwizzling
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -174,4 +176,5 @@ struct ExtraAppSettingsData: Codable {
     var preventKeyboardBeepSound = false
     var fixPlayChainMatchLimit = true
     var unityEngineFixKeyboardInput = false
+    var disableINTLUtilsSwizzling = false
 }

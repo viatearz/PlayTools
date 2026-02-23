@@ -45,6 +45,31 @@ __attribute__((visibility("hidden")))
     }
 }
 
+
++ (void) swizzleClassMethod:(SEL)origSelector withMethod:(SEL)newSelector {
+    Class cls = object_getClass((id)self);
+    Method originalMethod = class_getClassMethod(cls, origSelector);
+    Method swizzledMethod = class_getClassMethod(cls, newSelector);
+
+    if (class_addMethod(cls,
+                        origSelector,
+                        method_getImplementation(swizzledMethod),
+                        method_getTypeEncoding(swizzledMethod)) ) {
+        class_replaceMethod(cls,
+                            newSelector,
+                            method_getImplementation(originalMethod),
+                            method_getTypeEncoding(originalMethod));
+    } else {
+        class_replaceMethod(cls,
+                            newSelector,
+                            class_replaceMethod(cls,
+                                                origSelector,
+                                                method_getImplementation(swizzledMethod),
+                                                method_getTypeEncoding(swizzledMethod)),
+                            method_getTypeEncoding(originalMethod));
+    }
+}
+
 - (NSUInteger) hook_applicationShouldTerminate:(id)sender {
     [self hook_applicationShouldTerminate:sender];
     return 1; // NSTerminateNow
@@ -81,6 +106,11 @@ __attribute__((visibility("hidden")))
     return keyCommands;
 }
 
++ (BOOL) hook_swizzlingOriginalClass:(Class)arg1 swizzledClass:(Class)arg2
+                         originalSEL:(SEL)arg3 swizzledSEL:(SEL)arg4 {
+    return false;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -97,6 +127,10 @@ __attribute__((visibility("hidden")))
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         if ([[PlaySettings shared] unityEngineFixKeyboardInput]) {
             [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
+        }
+
+        if ([[PlaySettings shared] disableINTLUtilsSwizzling]) {
+            [objc_getClass("INTLUtilsIOS") swizzleClassMethod:NSSelectorFromString(@"swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:") withMethod:@selector(hook_swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:)];
         }
     });
 }
