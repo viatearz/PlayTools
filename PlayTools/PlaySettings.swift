@@ -62,6 +62,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var webViewSmartTextInput = extraSettingsData.webViewSmartTextInput
 
+    @objc lazy var unityEngineIgnoreKeyboardDelegateCrash = extraSettingsData.unityEngineIgnoreKeyboardDelegateCrash
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -186,4 +188,5 @@ struct ExtraAppSettingsData: Codable {
     var unityEngineForceLandscape = false
     var unrealEngineSmartTextInput = false
     var webViewSmartTextInput = true
+    var unityEngineIgnoreKeyboardDelegateCrash = false
 }

@@ -152,6 +152,15 @@ __attribute__((visibility("hidden")))
     return ret;
 }
 
++ (void) hook_Unity_KeyboardDelegate_Initialize {
+    @try {
+        [self hook_Unity_KeyboardDelegate_Initialize];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"Caught exception: %@, reason: %@", exception.name, exception.reason);
+    }
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -186,6 +195,10 @@ __attribute__((visibility("hidden")))
             [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createUnityViewControllerDefault") withMethod:@selector(hook_UnityAppController_createUnityViewControllerDefault)];
             [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewControllerForOrientation:") withMethod:@selector(hook_UnityAppController_createRootViewControllerForOrientation:)];
             [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
+        }
+
+        if ([[PlaySettings shared] unityEngineIgnoreKeyboardDelegateCrash]) {
+            [objc_getClass("KeyboardDelegate") swizzleClassMethod:NSSelectorFromString(@"Initialize") withMethod:@selector(hook_Unity_KeyboardDelegate_Initialize)];
         }
 
         if ([[PlaySettings shared] disableINTLUtilsSwizzling]) {
