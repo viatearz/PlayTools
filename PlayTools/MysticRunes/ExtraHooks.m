@@ -68,6 +68,19 @@ __attribute__((visibility("hidden")))
     return 0;
 }
 
+- (NSArray*) hook_UnityView_keyCommands {
+    NSArray *keyCommands = [self hook_UnityView_keyCommands];
+    if (keyCommands) {
+        if (![[UnityEngineKeyboardSupport shared] isIntialized]) {
+            [[UnityEngineKeyboardSupport shared] initialize:(UIView *)self];
+        }
+        if ([[UnityEngineKeyboardSupport shared] isActive]) {
+            return nil;
+        }
+    }
+    return keyCommands;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -80,5 +93,11 @@ __attribute__((visibility("hidden")))
         [objc_getClass("FIOSView") swizzleInstanceMethod:NSSelectorFromString(@"CreateFramebuffer:") withMethod:@selector(hook_UE4_FIOSView_CreateFramebuffer:)];
         [objc_getClass("IOSAppDelegate") swizzleInstanceMethod:NSSelectorFromString(@"MobileContentScaleFactor") withMethod:@selector(hook_UE5_IOSAppDelegate_MobileContentScaleFactor)];
     }
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        if ([[PlaySettings shared] unityEngineFixKeyboardInput]) {
+            [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
+        }
+    });
 }
 @end

@@ -48,6 +48,9 @@ public class TouchscreenKeyboardEventAdapter: KeyboardEventAdapter {
         if ActionDispatcher.dispatch(key: name, pressed: pressed) {
             return true
         }
+        if UnityEngineKeyboardSupport.shared.sendEvent(key: name, pressed: pressed) {
+            return true
+        }
         if PlaySettings.shared.preventKeyboardBeepSound {
             return true
         }

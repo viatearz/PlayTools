@@ -21,3 +21,5 @@ FOUNDATION_EXPORT const unsigned char PlayToolsVersionString[];
 // This is the function that CFRunLoop calls to serve main dispatch queue
 // Used by PlayInput to manually drain the queue
 extern void _dispatch_main_queue_callback_4CF(void *);
+
+extern void pt_set_time_delta(long delta);

@@ -52,6 +52,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var fixPlayChainMatchLimit = extraSettingsData.fixPlayChainMatchLimit
 
+    @objc lazy var unityEngineFixKeyboardInput = extraSettingsData.unityEngineFixKeyboardInput
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -171,4 +173,5 @@ struct ExtraAppSettingsData: Codable {
     var enhanceBuiltinMouse = false
     var preventKeyboardBeepSound = false
     var fixPlayChainMatchLimit = true
+    var unityEngineFixKeyboardInput = false
 }

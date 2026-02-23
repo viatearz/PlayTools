@@ -161,3 +161,107 @@ class EnhancedBuiltinMouseSupport {
         }
     }
 }
+
+@objc class UnityEngineKeyboardSupport: NSObject {
+    @objc static let shared = UnityEngineKeyboardSupport()
+    private var unityView: UIView?
+    @objc var isIntialized = false
+    @objc var isActive = false
+
+    @objc func initialize(_ unityView: UIView) {
+        self.isIntialized = true
+
+        if !PlaySettings.shared.keymapping {
+            return
+        }
+
+        if unityView.responds(to: NSSelectorFromString("handleCommand:")) {
+            self.unityView = unityView
+            self.isActive = true
+        }
+    }
+
+    func sendEvent(key: String, pressed: Bool) -> Bool {
+        guard self.isActive else {
+            return false
+        }
+        guard let unityView = self.unityView else {
+            return false
+        }
+        guard let keyCommand = buildUIKeyCommand(key: key) else {
+            return false
+        }
+
+        // The following code is tightly related to UnityView+Keyboard.mm.
+        // It's an ugly workaround, but the only way to fix the keyboard lag issue.
+        if pressed {
+            // Force Unity to remeber the press time as (RealTime + 100000000),
+            // so [UnityView processKeyboard] will not fire the KeyUp event
+            pt_set_time_delta(100000000)
+            unityView.perform(NSSelectorFromString("handleCommand:"), with: keyCommand)
+            pt_set_time_delta(0)
+        } else {
+            // Force Unity to update the press time to (RealTime - 1),
+            // then [UnityView processKeyboard] will fire the KeyUp event immediately (elapsed > 0.5s)
+            pt_set_time_delta(-1)
+            unityView.perform(NSSelectorFromString("handleCommand:"), with: keyCommand)
+            pt_set_time_delta(0)
+        }
+        return true
+    }
+
+    private func buildUIKeyCommand(key: String) -> UIKeyCommand? {
+        if key == "Btn" {
+            return nil
+        }
+
+        if let modifierFlags = UnityEngineKeyboardSupport.keyToModifierFlags[key] {
+            return UIKeyCommand(input: "", modifierFlags: modifierFlags, action: #selector(doNothing))
+        }
+
+        let input = UnityEngineKeyboardSupport.keyToCommandInput[key] ?? key.lowercased()
+        return UIKeyCommand(input: input, modifierFlags: UIKeyModifierFlags(rawValue: 0), action: #selector(doNothing))
+    }
+
+    @objc private func doNothing() {}
+
+    private static let keyToCommandInput: [String: String] = [
+        "Spc": " ",
+        "Tab": "\t",
+        "Enter": "\r",
+        "Del": UIKeyCommand.inputDelete,
+        "Page Up": UIKeyCommand.inputPageUp,
+        "Page Down": UIKeyCommand.inputPageDown,
+        "Up": UIKeyCommand.inputUpArrow,
+        "Down": UIKeyCommand.inputDownArrow,
+        "Left": UIKeyCommand.inputLeftArrow,
+        "Right": UIKeyCommand.inputRightArrow,
+        "Esc": UIKeyCommand.inputEscape,
+        "Home": UIKeyCommand.inputHome,
+        "End": UIKeyCommand.inputEnd,
+        "F1": UIKeyCommand.f1,
+        "F2": UIKeyCommand.f2,
+        "F3": UIKeyCommand.f3,
+        "F4": UIKeyCommand.f4,
+        "F5": UIKeyCommand.f5,
+        "F6": UIKeyCommand.f6,
+        "F7": UIKeyCommand.f7,
+        "F8": UIKeyCommand.f8,
+        "F9": UIKeyCommand.f9,
+        "F10": UIKeyCommand.f10,
+        "F11": UIKeyCommand.f11,
+        "F12": UIKeyCommand.f12
+    ]
+
+    private static let keyToModifierFlags: [String: UIKeyModifierFlags] = [
+        "Caps": .alphaShift,
+        "Lshft": .shift,
+        "Rshft": .shift,
+        "LCtrl": .control,
+        "RCtrl": .control,
+        "LOpt": .alternate,
+        "ROpt": .alternate,
+        "LCmd": .command,
+        "RCmd": .command
+    ]
+}
