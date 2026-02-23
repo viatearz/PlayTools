@@ -26,6 +26,10 @@ class PlayInput {
             simulateGCMouseDisconnect()
         }
 
+        if PlaySettings.shared.enhanceBuiltinMouse {
+            EnhancedBuiltinMouseSupport.shared.initialize()
+        }
+
         if !PlaySettings.shared.keymapping {
             return
         }
@@ -83,6 +87,77 @@ class PlayInput {
                 mouse.mouseInput?.scroll.valueChangedHandler = nil
                 mouse.mouseInput?.mouseMovedHandler = nil
             }
+        }
+    }
+}
+
+class EnhancedBuiltinMouseSupport {
+    static let shared = EnhancedBuiltinMouseSupport()
+    private var timer: DispatchSourceTimer?
+
+    func initialize() {
+        // Always use the Option key to hide the cursor
+        let timer = DispatchSource.makeTimerSource(queue: .main)
+        timer.schedule(deadline: .now(), repeating: 0.1)
+        timer.setEventHandler {
+            ActionDispatcher.cursorHideNecessary = true
+        }
+        timer.resume()
+        self.timer = timer
+
+        // Forward mouse events to the app only when the cursor is hidden
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
+            if let mouse = GCMouse.current {
+                self.wrapMouseEventHandlers(mouse)
+            }
+
+            NotificationCenter.default.addObserver(
+                forName: .GCMouseDidConnect,
+                object: nil,
+                queue: .main
+            ) { nofitication in
+                if let mouse = nofitication.object as? GCMouse {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
+                        self.wrapMouseEventHandlers(mouse)
+                    }
+                }
+            }
+        }
+    }
+
+    private func wrapMouseEventHandlers(_ currentMouse: GCMouse) {
+        let leftButtonHandler = currentMouse.mouseInput?.leftButton.pressedChangedHandler
+        let rightButtonHandler = currentMouse.mouseInput?.rightButton?.pressedChangedHandler
+        let middleButtonHandler = currentMouse.mouseInput?.middleButton?.pressedChangedHandler
+        let mouseMovedHandler = currentMouse.mouseInput?.mouseMovedHandler
+        let scrollWheelHandler = currentMouse.mouseInput?.scroll.valueChangedHandler
+
+        for mouse in GCMouse.mice() {
+            mouse.mouseInput?.leftButton.pressedChangedHandler = { button, value, pressed in
+                if ControlMode.mode.cursorHidden() {
+                    leftButtonHandler?(button, value, pressed)
+                }
+            }
+
+            mouse.mouseInput?.rightButton?.pressedChangedHandler = { button, value, pressed in
+                if ControlMode.mode.cursorHidden() {
+                    rightButtonHandler?(button, value, pressed)
+                }
+            }
+
+            mouse.mouseInput?.middleButton?.pressedChangedHandler = { button, value, pressed in
+                if ControlMode.mode.cursorHidden() {
+                    middleButtonHandler?(button, value, pressed)
+                }
+            }
+
+            mouse.mouseInput?.mouseMovedHandler = { mouse, deltaX, deltaY in
+                if ControlMode.mode.cursorHidden() {
+                    mouseMovedHandler?(mouse, deltaX, deltaY)
+                }
+            }
+
+            mouse.mouseInput?.scroll.valueChangedHandler = scrollWheelHandler
         }
     }
 }

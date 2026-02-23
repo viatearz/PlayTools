@@ -34,6 +34,10 @@ let settings = PlaySettings.shared
            extraSettingsData = ExtraAppSettingsData()
            print("[PlayTools] Extra PlaySettings decode failed.\n%@")
         }
+
+        if extraSettingsData.enhanceBuiltinMouse {
+            settingsData.disableBuiltinMouse = false
+        }
     }
 
     @objc lazy var forceQuitAppOnClose = extraSettingsData.forceQuitAppOnClose
@@ -41,6 +45,8 @@ let settings = PlaySettings.shared
     @objc lazy var unrealEngineSetScaleFactor = extraSettingsData.unrealEngineSetScaleFactor
 
     @objc lazy var ignoreClicksWhenNotFocused = extraSettingsData.ignoreClicksWhenNotFocused
+
+    @objc lazy var enhanceBuiltinMouse = extraSettingsData.enhanceBuiltinMouse
 
     lazy var discordActivity = settingsData.discordActivity
 
@@ -158,4 +164,5 @@ struct ExtraAppSettingsData: Codable {
     var customCursorHotSpotX = 0
     var customCursorHotSpotY = 0
     var ignoreClicksWhenNotFocused = true
+    var enhanceBuiltinMouse = false
 }
