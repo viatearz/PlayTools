@@ -111,6 +111,19 @@ __attribute__((visibility("hidden")))
     return false;
 }
 
+- (UIViewController*) hook_UnityAppController_createUnityViewControllerDefault {
+    return nil;
+}
+
+- (UIViewController*) hook_UnityAppController_createRootViewControllerForOrientation:(UIInterfaceOrientation)orientation {
+    orientation = UIInterfaceOrientationLandscapeLeft;
+    return [self hook_UnityAppController_createRootViewControllerForOrientation:orientation];
+}
+
+- (void) hook_UnityAppController_checkOrientationRequest {
+    // do nothing
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -127,6 +140,12 @@ __attribute__((visibility("hidden")))
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         if ([[PlaySettings shared] unityEngineFixKeyboardInput]) {
             [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
+        }
+
+        if ([[PlaySettings shared] unityEngineForceLandscape]) {
+            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createUnityViewControllerDefault") withMethod:@selector(hook_UnityAppController_createUnityViewControllerDefault)];
+            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewControllerForOrientation:") withMethod:@selector(hook_UnityAppController_createRootViewControllerForOrientation:)];
+            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
         }
 
         if ([[PlaySettings shared] disableINTLUtilsSwizzling]) {

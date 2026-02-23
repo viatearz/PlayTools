@@ -56,6 +56,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var disableINTLUtilsSwizzling = extraSettingsData.disableINTLUtilsSwizzling
 
+    @objc lazy var unityEngineForceLandscape = extraSettingsData.unityEngineForceLandscape
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -177,4 +179,5 @@ struct ExtraAppSettingsData: Codable {
     var fixPlayChainMatchLimit = true
     var unityEngineFixKeyboardInput = false
     var disableINTLUtilsSwizzling = false
+    var unityEngineForceLandscape = false
 }
