@@ -214,6 +214,9 @@ __attribute__((visibility("hidden")))
 
         if ([[PlaySettings shared] unityEngineForceLandscape]) {
             [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewController") withMethod:@selector(hook_UnityAppController_createRootViewController)];
+        }
+
+        if ([[PlaySettings shared] unityEngineDisableOrientationCheck]) {
             [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
         }
 

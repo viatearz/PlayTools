@@ -68,6 +68,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var skipGameCenterLogin = extraSettingsData.skipGameCenterLogin
 
+    @objc lazy var unityEngineDisableOrientationCheck = extraSettingsData.unityEngineDisableOrientationCheck
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -195,4 +197,5 @@ struct ExtraAppSettingsData: Codable {
     var unityEngineIgnoreKeyboardDelegateCrash = false
     var preloadAppTrackingFramework = false
     var skipGameCenterLogin = false
+    var unityEngineDisableOrientationCheck = false
 }
