@@ -183,6 +183,13 @@ __attribute__((visibility("hidden")))
     }
     // if ([[PlaySettings shared] bypass]) [self loadEnvironmentBypass]; # disabled as it might be too powerful
 
+    if ([[PlaySettings shared] preloadAppTrackingFramework]) {
+        NSBundle *bundle = [NSBundle bundleWithPath:@"/System/Library/Frameworks/AppTrackingTransparency.framework"];
+        if (![bundle isLoaded]) {
+            [bundle load];
+        }
+    }
+
     // Swizzle ATTrackingManager
     [objc_getClass("ATTrackingManager") swizzleClassMethod:@selector(requestTrackingAuthorizationWithCompletionHandler:) withMethod:@selector(pm_return_2_with_completion_handler:)];
     [objc_getClass("ATTrackingManager") swizzleClassMethod:@selector(trackingAuthorizationStatus) withMethod:@selector(pm_return_2)];

@@ -64,6 +64,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var unityEngineIgnoreKeyboardDelegateCrash = extraSettingsData.unityEngineIgnoreKeyboardDelegateCrash
 
+    @objc lazy var preloadAppTrackingFramework = extraSettingsData.preloadAppTrackingFramework
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -189,4 +191,5 @@ struct ExtraAppSettingsData: Codable {
     var unrealEngineSmartTextInput = false
     var webViewSmartTextInput = true
     var unityEngineIgnoreKeyboardDelegateCrash = false
+    var preloadAppTrackingFramework = false
 }
