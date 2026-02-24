@@ -161,6 +161,19 @@ __attribute__((visibility("hidden")))
     }
 }
 
+- (void) hook_GKLocalPlayer_setAuthenticateHandler:(void (^)(UIViewController *, NSError *))handler {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        NSError *error = [NSError errorWithDomain:@"GKErrorDomain"
+                                             code:2 // GKErrorCancelled
+                                         userInfo:@{
+            NSLocalizedDescriptionKey: @"The requested operation has been cancelled or disabled by the user."
+        }];
+        if (handler != nil) {
+            handler(nil, error);
+        }
+    });
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -184,6 +197,10 @@ __attribute__((visibility("hidden")))
         [[PlaySettings shared] webViewSmartTextInput]) {
         [objc_getClass("WKContentView") swizzleInstanceMethod:@selector(becomeFirstResponder) withMethod:@selector(hook_WKContentView_becomeFirstResponder)];
         [objc_getClass("WKContentView") swizzleInstanceMethod:@selector(resignFirstResponder) withMethod:@selector(hook_WKContentView_resignFirstResponder)];
+    }
+
+    if ([[PlaySettings shared] skipGameCenterLogin]) {
+        [objc_getClass("GKLocalPlayer") swizzleInstanceMethod:NSSelectorFromString(@"setAuthenticateHandler:") withMethod:@selector(hook_GKLocalPlayer_setAuthenticateHandler:)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{

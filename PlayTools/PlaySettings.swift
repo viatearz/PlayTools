@@ -66,6 +66,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var preloadAppTrackingFramework = extraSettingsData.preloadAppTrackingFramework
 
+    @objc lazy var skipGameCenterLogin = extraSettingsData.skipGameCenterLogin
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -192,4 +194,5 @@ struct ExtraAppSettingsData: Codable {
     var webViewSmartTextInput = true
     var unityEngineIgnoreKeyboardDelegateCrash = false
     var preloadAppTrackingFramework = false
+    var skipGameCenterLogin = false
 }
