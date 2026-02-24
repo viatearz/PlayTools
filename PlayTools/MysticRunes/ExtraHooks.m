@@ -111,13 +111,17 @@ __attribute__((visibility("hidden")))
     return false;
 }
 
-- (UIViewController*) hook_UnityAppController_createUnityViewControllerDefault {
-    return nil;
-}
-
-- (UIViewController*) hook_UnityAppController_createRootViewControllerForOrientation:(UIInterfaceOrientation)orientation {
-    orientation = UIInterfaceOrientationLandscapeLeft;
-    return [self hook_UnityAppController_createRootViewControllerForOrientation:orientation];
+- (UIViewController *) hook_UnityAppController_createRootViewController {
+    SEL selector = NSSelectorFromString(@"createUnityViewControllerForOrientation:");
+    if ([self respondsToSelector:selector]) {
+        IMP imp = [self methodForSelector:selector];
+        if (imp) {
+            typedef UIViewController *(*Function)(id, SEL, UIInterfaceOrientation);
+            Function function = (Function)imp;
+            return function(self, selector, UIInterfaceOrientationLandscapeLeft);
+        }
+    }
+    return [self hook_UnityAppController_createRootViewController];
 }
 
 - (void) hook_UnityAppController_checkOrientationRequest {
@@ -209,8 +213,7 @@ __attribute__((visibility("hidden")))
         }
 
         if ([[PlaySettings shared] unityEngineForceLandscape]) {
-            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createUnityViewControllerDefault") withMethod:@selector(hook_UnityAppController_createUnityViewControllerDefault)];
-            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewControllerForOrientation:") withMethod:@selector(hook_UnityAppController_createRootViewControllerForOrientation:)];
+            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"createRootViewController") withMethod:@selector(hook_UnityAppController_createRootViewController)];
             [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"checkOrientationRequest") withMethod:@selector(hook_UnityAppController_checkOrientationRequest)];
         }
 
