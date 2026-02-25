@@ -178,6 +178,12 @@ __attribute__((visibility("hidden")))
     });
 }
 
+- (instancetype) hook_ARCoachingOverlayView_initWithFrame:(CGRect)frame {
+    UIView *view = (UIView *)[self hook_ARCoachingOverlayView_initWithFrame:frame];
+    view.userInteractionEnabled = false;
+    return view;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -226,6 +232,10 @@ __attribute__((visibility("hidden")))
 
         if ([[PlaySettings shared] disableINTLUtilsSwizzling]) {
             [objc_getClass("INTLUtilsIOS") swizzleClassMethod:NSSelectorFromString(@"swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:") withMethod:@selector(hook_swizzlingOriginalClass:swizzledClass:originalSEL:swizzledSEL:)];
+        }
+
+        if ([[PlaySettings shared] unityEngineDisableAROverlayTouches]) {
+            [objc_getClass("ARCoachingOverlayView") swizzleInstanceMethod:NSSelectorFromString(@"initWithFrame:") withMethod:@selector(hook_ARCoachingOverlayView_initWithFrame:)];
         }
     });
 }
