@@ -293,11 +293,11 @@ static int pt_usleep(useconds_t time) {
     return usleep(time);
 }
 
-DYLD_INTERPOSE(pt_open, open)
-DYLD_INTERPOSE(pt_stat, stat)
-DYLD_INTERPOSE(pt_access, access)
-DYLD_INTERPOSE(pt_rename, rename)
-DYLD_INTERPOSE(pt_unlink, unlink)
+//DYLD_INTERPOSE(pt_open, open)
+//DYLD_INTERPOSE(pt_stat, stat)
+//DYLD_INTERPOSE(pt_access, access)
+//DYLD_INTERPOSE(pt_rename, rename)
+//DYLD_INTERPOSE(pt_unlink, unlink)
 DYLD_INTERPOSE(pt_usleep, usleep)
 
 @implementation PlayLoader
