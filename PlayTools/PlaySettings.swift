@@ -72,6 +72,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var unityEngineDisableAROverlayTouches = extraSettingsData.unityEngineDisableAROverlayTouches
 
+    @objc lazy var forceWebViewUseMobileContentMode = extraSettingsData.forceWebViewUseMobileContentMode
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -201,4 +203,5 @@ struct ExtraAppSettingsData: Codable {
     var skipGameCenterLogin = false
     var unityEngineDisableOrientationCheck = false
     var unityEngineDisableAROverlayTouches = false
+    var forceWebViewUseMobileContentMode = false
 }

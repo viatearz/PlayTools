@@ -7,6 +7,7 @@
 #import <objc/runtime.h>
 #import <PlayTools/PlayTools-Swift.h>
 #import "ExtraHooks.h"
+#import <WebKit/WebKit.h>
 
 __attribute__((visibility("hidden")))
 @interface ExtraHooksLoader : NSObject
@@ -184,6 +185,13 @@ __attribute__((visibility("hidden")))
     return view;
 }
 
+- (WKWebView *) hook_WKWebView_initWithFrame:(CGRect) frame
+                               configuration:(WKWebViewConfiguration *) config {
+    WKWebView *webView = [self hook_WKWebView_initWithFrame:frame configuration:config];
+    webView.configuration.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
+    return webView;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -211,6 +219,10 @@ __attribute__((visibility("hidden")))
 
     if ([[PlaySettings shared] skipGameCenterLogin]) {
         [objc_getClass("GKLocalPlayer") swizzleInstanceMethod:NSSelectorFromString(@"setAuthenticateHandler:") withMethod:@selector(hook_GKLocalPlayer_setAuthenticateHandler:)];
+    }
+
+    if ([[PlaySettings shared] forceWebViewUseMobileContentMode]) {
+        [objc_getClass("WKWebView") swizzleInstanceMethod:NSSelectorFromString(@"initWithFrame:configuration:") withMethod:@selector(hook_WKWebView_initWithFrame:configuration:)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
