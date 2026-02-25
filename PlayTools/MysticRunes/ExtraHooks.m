@@ -192,6 +192,10 @@ __attribute__((visibility("hidden")))
     return webView;
 }
 
+- (void) hook_o0_ooo0o0_o0_oaoao0 {
+    // do nothing
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -248,6 +252,10 @@ __attribute__((visibility("hidden")))
 
         if ([[PlaySettings shared] unityEngineDisableAROverlayTouches]) {
             [objc_getClass("ARCoachingOverlayView") swizzleInstanceMethod:NSSelectorFromString(@"initWithFrame:") withMethod:@selector(hook_ARCoachingOverlayView_initWithFrame:)];
+        }
+
+        if ([[PlaySettings shared] bypassUnknownDetectionA]) {
+            [objc_getClass("o0_ooo0o0") swizzleInstanceMethod:NSSelectorFromString(@"o0_oaoao0") withMethod:@selector(hook_o0_ooo0o0_o0_oaoao0)];
         }
     });
 }
