@@ -76,6 +76,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var bypassUnknownDetectionA = extraSettingsData.bypassUnknownDetectionA
 
+    @objc lazy var enableAutoRotate = extraSettingsData.enableAutoRotate
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -207,4 +209,5 @@ struct ExtraAppSettingsData: Codable {
     var unityEngineDisableAROverlayTouches = false
     var forceWebViewUseMobileContentMode = false
     var bypassUnknownDetectionA = false
+    var enableAutoRotate = false
 }

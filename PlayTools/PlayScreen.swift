@@ -5,6 +5,8 @@
 import Foundation
 import UIKit
 
+// swiftlint:disable file_length
+
 let screen = PlayScreen.shared
 let isInvertFixEnabled = PlaySettings.shared.inverseScreenValues && PlaySettings.shared.adaptiveDisplay
 let mainScreenWidth =  !isInvertFixEnabled ? PlaySettings.shared.windowSizeWidth : PlaySettings.shared.windowSizeHeight
@@ -96,6 +98,9 @@ public class PlayScreen: NSObject {
                     windowScene.sizeRestrictions?.maximumSize = CGSize(width: .max, height: .max)
                 }
             }
+        }
+        if resizable && PlaySettings.shared.enableAutoRotate {
+            AutoRotateSupport.shared.initialize()
         }
     }
 
@@ -247,5 +252,221 @@ extension UIWindow {
             }
         }
         return nil
+    }
+}
+
+class NSWindowProxy {
+    typealias SetFrame = @convention(c) (AnyObject, Selector, CGRect, Bool, Bool) -> Void
+
+    private var nsWindow: AnyObject
+    private var uiWindow: UIWindow?
+    private var setFrameSelector: Selector?
+    private var setFrameFunc: SetFrame?
+
+    init(nsWindow: AnyObject) {
+        self.nsWindow = nsWindow
+        if let uiWindows = nsWindow.value(forKey: "uiWindows") as? [UIWindow] {
+            self.uiWindow = uiWindows.first(where: { $0.isKeyWindow })
+        }
+    }
+
+    var frame: CGRect {
+        get {
+            return nsWindow.value(forKey: "frame") as? CGRect ?? CGRect()
+        }
+        set {
+            if setFrameSelector == nil {
+                setFrameSelector = NSSelectorFromString("setFrame:display:animate:")
+            }
+            if setFrameFunc == nil {
+                if let methodIMP = nsWindow.method(for: setFrameSelector) {
+                    setFrameFunc = unsafeBitCast(methodIMP, to: SetFrame.self)
+                }
+            }
+            if let selector = setFrameSelector,
+               let function = setFrameFunc {
+                function(nsWindow, selector, newValue, true, false)
+            }
+        }
+    }
+
+    var backingScaleFactor: Float {
+        if let screen = nsWindow.value(forKey: "screen") as? AnyObject,
+           let backingScaleFactor = screen.value(forKey: "backingScaleFactor") as? Float {
+            return backingScaleFactor
+        }
+        return 1.0
+    }
+
+    var isLandscape: Bool {
+        if let orientationMask = uiWindow?.rootViewController?.supportedInterfaceOrientations {
+            return orientationMask.contains(.landscapeLeft) || orientationMask.contains(.landscapeRight)
+        }
+        return false
+    }
+
+    var isFullScreen: Bool {
+        uiWindow?.windowScene?.isFullScreen ?? false
+    }
+}
+
+class AutoRotateSupport {
+    public static let shared = AutoRotateSupport()
+    private let defaultSize = CGSize(width: 1920, height: 1080)
+    private var nsWindow: NSWindowProxy?
+    private var checkOrientationTimer: Timer?
+    private var isLandscape = false
+    private var lastPortraitFrame: CGRect?
+    private var lastLandscapeFrame: CGRect?
+    private var pendingSaveAction: DispatchWorkItem?
+
+    func initialize() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowDidBecomeKey(_:)),
+            name: Notification.Name("NSWindowDidBecomeKeyNotification"),
+            object: nil
+        )
+    }
+
+    @objc private func windowDidBecomeKey(_ notification: Notification) {
+        guard let nsWindow = notification.object as? AnyObject else {
+            return
+        }
+
+        let nsWindowProxy = NSWindowProxy(nsWindow: nsWindow)
+        self.nsWindow = nsWindowProxy
+        self.isLandscape = nsWindowProxy.isLandscape
+        self.checkOrientationTimer = Timer.scheduledTimer(
+            timeInterval: 0.1,
+            target: self,
+            selector: #selector(self.checkOrientation),
+            userInfo: nil,
+            repeats: true
+        )
+
+        updateWindow()
+
+        NotificationCenter.default.removeObserver(
+            self,
+            name: Notification.Name("NSWindowDidBecomeKeyNotification"),
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowDidMoveOrResize),
+            name: Notification.Name("NSWindowDidMoveNotification"),
+            object: nsWindow
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowDidMoveOrResize),
+            name: Notification.Name("NSWindowDidResizeNotification"),
+            object: nsWindow
+        )
+    }
+
+    @objc private func checkOrientation() {
+        let newIsLandscape = nsWindow?.isLandscape ?? false
+        if isLandscape != newIsLandscape {
+            isLandscape = newIsLandscape
+            orientationDidChange()
+        }
+    }
+
+    private func orientationDidChange() {
+        guard let nsWindow = self.nsWindow, !nsWindow.isFullScreen else {
+            return
+        }
+        if isLandscape {
+            lastPortraitFrame = nsWindow.frame
+        } else {
+            lastLandscapeFrame = nsWindow.frame
+        }
+        updateWindow()
+    }
+
+    private func updateWindow() {
+        if isLandscape {
+            if let frame = lastLandscapeFrame {
+                setWindowFrame(frame: frame)
+            } else if let frame = loadFrameFromPerferences() {
+                setWindowFrame(frame: frame)
+            } else {
+                let scaleFactor = CGFloat(nsWindow?.backingScaleFactor ?? 1.0)
+                let width = defaultSize.width / scaleFactor * 2 * 0.77
+                let height = defaultSize.height / scaleFactor * 2 * 0.77
+                resizeWindow(to: CGSize(width: width, height: height))
+            }
+        } else {
+            if let frame = lastPortraitFrame {
+                setWindowFrame(frame: frame)
+            } else if let frame = loadFrameFromPerferences() {
+                setWindowFrame(frame: frame)
+            } else {
+                let scaleFactor = CGFloat(nsWindow?.backingScaleFactor ?? 1.0)
+                let width = defaultSize.height / scaleFactor
+                let height = defaultSize.width / scaleFactor
+                resizeWindow(to: CGSize(width: width, height: height))
+            }
+        }
+    }
+
+    private func resizeWindow(to size: CGSize) {
+        if let origin = nsWindow?.frame.origin {
+            setWindowFrame(frame: CGRect(origin: origin, size: size))
+        }
+    }
+
+    private func setWindowFrame(frame: CGRect) {
+        nsWindow?.frame = frame
+
+        // Reactivate keymapping
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
+            ActionDispatcher.build()
+        }
+    }
+
+    @objc private func windowDidMoveOrResize(_ notification: Notification) {
+        guard let nsWindow = self.nsWindow, !nsWindow.isFullScreen else {
+            return
+        }
+
+        pendingSaveAction?.cancel()
+
+        let saveAction = DispatchWorkItem { [weak self] in
+            self?.saveFrameToPerferences()
+        }
+
+        pendingSaveAction = saveAction
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(200), execute: saveAction)
+    }
+
+    private func saveFrameToPerferences() {
+        guard let frame = nsWindow?.frame else {
+            return
+        }
+        let key = isLandscape ? "PTWindowFrameLandscape" : "PTWindowFramePortrait"
+        let frameString = "\(Int(frame.origin.x)),\(Int(frame.origin.y)),\(Int(frame.width)),\(Int(frame.height))"
+        UserDefaults.standard.set(frameString, forKey: key)
+    }
+
+    private func loadFrameFromPerferences() -> CGRect? {
+        let key = isLandscape ? "PTWindowFrameLandscape" : "PTWindowFramePortrait"
+        guard let frameString = UserDefaults.standard.string(forKey: key) else {
+            return nil
+        }
+        let parts = frameString.split(separator: ",")
+        guard parts.count == 4,
+              let originX = Int(parts[0]),
+              let originY = Int(parts[1]),
+              let width = Int(parts[2]),
+              let height = Int(parts[3]) else {
+            return nil
+        }
+        return CGRect(x: originX, y: originY, width: width, height: height)
     }
 }
