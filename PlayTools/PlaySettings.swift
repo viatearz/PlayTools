@@ -78,6 +78,10 @@ let settings = PlaySettings.shared
 
     @objc lazy var enableAutoRotate = extraSettingsData.enableAutoRotate
 
+    @objc lazy var forceUIViewLandscape = extraSettingsData.forceUIViewLandscape
+
+    @objc lazy var forceUIViewLandscapeArgs = extraSettingsData.forceUIViewLandscapeArgs
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -210,4 +214,6 @@ struct ExtraAppSettingsData: Codable {
     var forceWebViewUseMobileContentMode = false
     var bypassUnknownDetectionA = false
     var enableAutoRotate = false
+    var forceUIViewLandscape = false
+    var forceUIViewLandscapeArgs: [String] = []
 }

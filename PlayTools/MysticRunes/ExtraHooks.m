@@ -196,6 +196,10 @@ __attribute__((visibility("hidden")))
     // do nothing
 }
 
+- (UIInterfaceOrientationMask) hook_UIViewController_supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskLandscapeLeft;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -256,6 +260,12 @@ __attribute__((visibility("hidden")))
 
         if ([[PlaySettings shared] bypassUnknownDetectionA]) {
             [objc_getClass("o0_ooo0o0") swizzleInstanceMethod:NSSelectorFromString(@"o0_oaoao0") withMethod:@selector(hook_o0_ooo0o0_o0_oaoao0)];
+        }
+
+        if ([[PlaySettings shared] forceUIViewLandscape]) {
+            for (NSString *UIViewControllerName in [[PlaySettings shared] forceUIViewLandscapeArgs]) {
+                [NSClassFromString(UIViewControllerName) swizzleInstanceMethod:NSSelectorFromString(@"supportedInterfaceOrientations") withMethod:@selector(hook_UIViewController_supportedInterfaceOrientations)];
+            }
         }
     });
 }
