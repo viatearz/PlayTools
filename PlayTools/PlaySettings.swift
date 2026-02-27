@@ -88,6 +88,10 @@ let settings = PlaySettings.shared
 
     @objc lazy var disableAllAlertDialogs = extraSettingsData.disableAllAlertDialogs
 
+    @objc lazy var loveAndDeepspaceFixLoginTextInput = extraSettingsData.loveAndDeepspaceFixLoginTextInput
+
+    @objc lazy var unityEngineFixAutoRotate = extraSettingsData.unityEngineFixAutoRotate
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -225,4 +229,6 @@ struct ExtraAppSettingsData: Codable {
     var useBuiltinPointerLock = false
     var clearLastTouchesWhenEnterTextInput = false
     var disableAllAlertDialogs = false
+    var loveAndDeepspaceFixLoginTextInput = false
+    var unityEngineFixAutoRotate = false
 }

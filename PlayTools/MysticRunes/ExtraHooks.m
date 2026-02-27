@@ -200,6 +200,33 @@ __attribute__((visibility("hidden")))
     return UIInterfaceOrientationMaskLandscapeLeft;
 }
 
+- (void) hook_LoveAndDeepspace_PSDKLogin_viewWillAppear:(BOOL) animated {
+    [self hook_LoveAndDeepspace_PSDKLogin_viewWillAppear:animated];
+    [[PlayInput shared] setShouldProcessMouseClick:NO];
+}
+
+- (void) hook_LoveAndDeepspace_PSDKLogin_viewWillDisappear:(BOOL) animated {
+    [self hook_LoveAndDeepspace_PSDKLogin_viewWillDisappear:animated];
+    [[PlayInput shared] setShouldProcessMouseClick:YES];
+}
+
+- (void) hook_UnityAppController_didTransitionToViewController:(UIViewController*)toController fromViewController:(UIViewController*)fromController {
+    [self hook_UnityAppController_didTransitionToViewController:toController fromViewController:fromController];
+
+    UIInterfaceOrientation newOrientation = UIInterfaceOrientationLandscapeLeft;
+    UIInterfaceOrientationMask mask = toController.supportedInterfaceOrientations;
+    if (mask & UIInterfaceOrientationMaskLandscapeLeft) {
+        newOrientation = UIInterfaceOrientationLandscapeLeft;
+    } else if (mask & UIInterfaceOrientationMaskLandscapeRight) {
+        newOrientation = UIInterfaceOrientationLandscapeRight;
+    } else if (mask & UIInterfaceOrientationMaskPortrait) {
+        newOrientation = UIInterfaceOrientationPortrait;
+    } else if (mask & UIInterfaceOrientationMaskPortraitUpsideDown) {
+        newOrientation = UIInterfaceOrientationPortraitUpsideDown;
+    }
+    [self setValue:@(newOrientation) forKey:@"_curOrientation"];
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -266,6 +293,22 @@ __attribute__((visibility("hidden")))
             for (NSString *UIViewControllerName in [[PlaySettings shared] forceUIViewLandscapeArgs]) {
                 [NSClassFromString(UIViewControllerName) swizzleInstanceMethod:NSSelectorFromString(@"supportedInterfaceOrientations") withMethod:@selector(hook_UIViewController_supportedInterfaceOrientations)];
             }
+        }
+
+        if ([[PlaySettings shared] loveAndDeepspaceFixLoginTextInput]) {
+            NSArray *UIViewControllerNames = @[
+                @"PSDKLogin.PSLoginPhoneSigninViewController",
+                @"PSDKLogin.PSLoginSigninViewController",
+                @"PSDKLogin.PSLoginGetBackPasswordInputAccountViewController"
+            ];
+            for (NSString *UIViewControllerName in UIViewControllerNames) {
+                [NSClassFromString(UIViewControllerName) swizzleInstanceMethod:NSSelectorFromString(@"viewWillAppear:") withMethod:@selector(hook_LoveAndDeepspace_PSDKLogin_viewWillAppear:)];
+                [NSClassFromString(UIViewControllerName) swizzleInstanceMethod:NSSelectorFromString(@"viewWillDisappear:") withMethod:@selector(hook_LoveAndDeepspace_PSDKLogin_viewWillDisappear:)];
+            }
+        }
+
+        if ([[PlaySettings shared] unityEngineFixAutoRotate]) {
+            [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"didTransitionToViewController:fromViewController:") withMethod:@selector(hook_UnityAppController_didTransitionToViewController:fromViewController:)];
         }
     });
 }

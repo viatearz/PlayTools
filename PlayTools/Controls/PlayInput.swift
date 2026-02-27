@@ -4,14 +4,14 @@ import GameController
 
 // This class is a coordinator (and module entrance), coordinating other concrete classes
 
-class PlayInput {
-    static let shared = PlayInput()
+@objc class PlayInput: NSObject {
+    @objc static let shared = PlayInput()
 
     static var touchQueue = DispatchQueue.init(label: "playcover.toucher",
                                                qos: .userInteractive,
                                                autoreleaseFrequency: .workItem)
 
-    var shouldProcessMouseClick = true
+    @objc var shouldProcessMouseClick = true
 
     @objc func drainMainDispatchQueue() {
         _dispatch_main_queue_callback_4CF(nil)
