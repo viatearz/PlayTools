@@ -84,6 +84,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var useBuiltinPointerLock = extraSettingsData.useBuiltinPointerLock
 
+    @objc lazy var clearLastTouchesWhenEnterTextInput = extraSettingsData.clearLastTouchesWhenEnterTextInput
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -219,4 +221,5 @@ struct ExtraAppSettingsData: Codable {
     var forceUIViewLandscape = false
     var forceUIViewLandscapeArgs: [String] = []
     var useBuiltinPointerLock = false
+    var clearLastTouchesWhenEnterTextInput = false
 }
