@@ -82,6 +82,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var forceUIViewLandscapeArgs = extraSettingsData.forceUIViewLandscapeArgs
 
+    @objc lazy var useBuiltinPointerLock = extraSettingsData.useBuiltinPointerLock
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -216,4 +218,5 @@ struct ExtraAppSettingsData: Codable {
     var enableAutoRotate = false
     var forceUIViewLandscape = false
     var forceUIViewLandscapeArgs: [String] = []
+    var useBuiltinPointerLock = false
 }
