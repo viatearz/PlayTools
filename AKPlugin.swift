@@ -18,6 +18,7 @@ private struct AKAppSettingsData: Codable {
     var resizableAspectRatioHeight: Int?
 }
 
+// swiftlint:disable:next type_body_length
 class AKPlugin: NSObject, Plugin {
     required override init() {
         super.init()

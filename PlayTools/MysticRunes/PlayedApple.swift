@@ -112,7 +112,6 @@ public class PlayKeychain: NSObject {
     }
 
     // SecItemCopyMatching(CFDictionaryRef query, CFTypeRef *result)
-    // swiftlint:disable:next function_body_length
     @objc static public func copyMatching(_ query: NSDictionary,
                                           result: UnsafeMutablePointer<Unmanaged<CFTypeRef>?>?) -> OSStatus {
         if PlaySettings.shared.fixPlayChainMatchLimit {
@@ -122,6 +121,7 @@ public class PlayKeychain: NSObject {
         }
     }
 
+    // swiftlint:disable:next function_body_length
     @objc static public func oldCopyMatching(_ query: NSDictionary,
                                              result: UnsafeMutablePointer<Unmanaged<CFTypeRef>?>?) -> OSStatus {
         guard let keychainDicts = playChainDB.query(query),
