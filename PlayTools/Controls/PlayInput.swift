@@ -11,7 +11,13 @@ import GameController
                                                qos: .userInteractive,
                                                autoreleaseFrequency: .workItem)
 
-    @objc var shouldProcessMouseClick = true
+    var shouldProcessMouseClick: Bool {
+        !disbleMouseClickWhenNotFocused && !disableMouseClickInCertainViews
+    }
+
+    private var disbleMouseClickWhenNotFocused = false
+
+    @objc var disableMouseClickInCertainViews = false
 
     @objc func drainMainDispatchQueue() {
         _dispatch_main_queue_callback_4CF(nil)
@@ -40,7 +46,7 @@ import GameController
         centre.addObserver(forName: NSNotification.Name(rawValue: "NSWindowDidBecomeKeyNotification"), object: nil,
             queue: main) { _ in
             if PlaySettings.shared.ignoreClicksWhenNotFocused {
-                self.shouldProcessMouseClick = true
+                self.disbleMouseClickWhenNotFocused = false
             }
             if mode.cursorHidden() {
                 AKInterface.shared!.warpCursor()
@@ -50,7 +56,7 @@ import GameController
         centre.addObserver(forName: NSNotification.Name(rawValue: "NSWindowDidResignKeyNotification"), object: nil,
             queue: main) { _ in
             if PlaySettings.shared.ignoreClicksWhenNotFocused {
-                self.shouldProcessMouseClick = false
+                self.disbleMouseClickWhenNotFocused = true
             }
         }
 

@@ -88,7 +88,9 @@ let settings = PlaySettings.shared
 
     @objc lazy var disableAllAlertDialogs = extraSettingsData.disableAllAlertDialogs
 
-    @objc lazy var loveAndDeepspaceFixLoginTextInput = extraSettingsData.loveAndDeepspaceFixLoginTextInput
+    @objc lazy var dontInterceptClicksInUIViews = extraSettingsData.dontInterceptClicksInUIViews
+
+    @objc lazy var dontInterceptClicksInUIViewsArgs = extraSettingsData.dontInterceptClicksInUIViewsArgs
 
     @objc lazy var unityEngineFixAutoRotate = extraSettingsData.unityEngineFixAutoRotate
 
@@ -229,6 +231,7 @@ struct ExtraAppSettingsData: Codable {
     var useBuiltinPointerLock = false
     var clearLastTouchesWhenEnterTextInput = false
     var disableAllAlertDialogs = false
-    var loveAndDeepspaceFixLoginTextInput = false
+    var dontInterceptClicksInUIViews = false
+    var dontInterceptClicksInUIViewsArgs: [String] = []
     var unityEngineFixAutoRotate = false
 }
