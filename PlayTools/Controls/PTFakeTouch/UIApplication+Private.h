@@ -11,5 +11,6 @@
 @interface UIApplication (Private)
 
 - (UIEvent *)_touchesEvent;
+- (UIEvent *)_touchesEventForWindow:(UIWindow *)window;
 
 @end

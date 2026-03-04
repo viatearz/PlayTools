@@ -27,6 +27,12 @@ void eventSendCallback(void* info) {
     // Step1: copy touches and record began touches and mark recyclable touches
     NSMutableArray *begunTouchAry = [[NSMutableArray alloc] init];
     [lock lock];
+    if (event == nil) {
+        if (livingTouchAry.count > 0) {
+            UITouch *touch = (UITouch *)livingTouchAry[0];
+            event = [[UIApplication sharedApplication] _touchesEventForWindow:touch.window];
+        }
+    }
     [livingTouchAry enumerateObjectsUsingBlock:^(UITouch *aTouch, NSUInteger idx, BOOL *stop) {
         switch (aTouch.phase) {
             case UITouchPhaseEnded:

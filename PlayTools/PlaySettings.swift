@@ -94,6 +94,10 @@ let settings = PlaySettings.shared
 
     @objc lazy var unityEngineFixAutoRotate = extraSettingsData.unityEngineFixAutoRotate
 
+    @objc lazy var useNewHitTestMethodWhenNilWindow = extraSettingsData.useNewHitTestMethodWhenNilWindow
+
+    @objc lazy var useNewHitTestMethodAlways = extraSettingsData.useNewHitTestMethodAlways
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -234,4 +238,6 @@ struct ExtraAppSettingsData: Codable {
     var dontInterceptClicksInUIViews = false
     var dontInterceptClicksInUIViewsArgs: [String] = []
     var unityEngineFixAutoRotate = false
+    var useNewHitTestMethodWhenNilWindow = true
+    var useNewHitTestMethodAlways = false
 }

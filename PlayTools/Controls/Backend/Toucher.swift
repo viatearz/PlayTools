@@ -15,6 +15,9 @@ class Toucher {
     NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] + "/toucher.log"
     static private var logCount = 0
     static var logFile: FileHandle?
+    static var useNewHitTestMethodWhenNilWindow = PlaySettings.shared.useNewHitTestMethodWhenNilWindow
+    static var useNewHitTestMethodAlways = PlaySettings.shared.useNewHitTestMethodAlways
+
     /**
      on invocations with phase "began", an int id is allocated, which can be used later to refer to this touch point.
      on invocations with phase "ended", id is set to nil representing the touch point is no longer valid.
@@ -27,8 +30,18 @@ class Toucher {
                 return
             }
             tid = -1
-            keyWindow = screen.keyWindow
-            keyView = keyWindow!.hitTest(point, with: nil)
+            if useNewHitTestMethodAlways {
+                keyView = newHitTest(point)
+                keyWindow = keyView?.window
+            } else {
+                keyWindow = screen.keyWindow
+                keyView = keyWindow?.hitTest(point, with: nil)
+
+                if keyWindow == nil && useNewHitTestMethodWhenNilWindow {
+                    keyView = newHitTest(point)
+                    keyWindow = keyView?.window
+                }
+            }
         } else if tid == nil {
             return
         }
@@ -43,6 +56,24 @@ class Toucher {
         }
         DebugModel.instance.record(point: point, phase: phase, tid: recordId,
                                    description: actionName + "(" + keyName + ")")
+    }
+
+    static func newHitTest(_ point: CGPoint) -> UIView? {
+        guard let windowScene = UIApplication.shared.connectedScenes
+                .filter({$0.activationState == .foregroundActive})
+                .compactMap({ $0 as? UIWindowScene })
+                .first
+        else {
+            return nil
+        }
+
+        for window in windowScene.windows.reversed() {
+            if let view = window.hitTest(point, with: nil) {
+                return view
+            }
+        }
+
+        return nil
     }
 
     static func setupLogfile() {
