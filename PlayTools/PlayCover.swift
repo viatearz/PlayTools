@@ -22,6 +22,10 @@ public class PlayCover: NSObject {
             // Change the working directory to / just like iOS
             FileManager.default.changeCurrentDirectoryPath("/")
         }
+
+        if PlaySettings.shared.racingMasterFixFilePath {
+            racingMasterFixFilePath()
+        }
     }
 
     @objc static public func initMenu(menu: NSObject) {
@@ -76,5 +80,50 @@ public class PlayCover: NSObject {
     static func delay(_ delay: Double, closure: @escaping () -> Void) {
         let when = DispatchTime.now() + delay
         DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
+    }
+
+    static func createSymbolicLink(source: URL, dest: URL) {
+        do {
+            if FileManager.default.fileExists(atPath: source.path) {
+                let attributes = try FileManager.default.attributesOfItem(atPath: source.path)
+                if let type = attributes[.type] as? FileAttributeType,
+                   type == .typeSymbolicLink {
+                    // Symlink already exists, skip
+                    return
+                } else {
+                    // Delete the non-symlink item
+                    try FileManager.default.removeItem(atPath: source.path)
+                }
+            }
+
+            try FileManager.default.createDirectory(at: source.deletingLastPathComponent(),
+                                                    withIntermediateDirectories: true)
+            try FileManager.default.createSymbolicLink(at: source,
+                                                       withDestinationURL: dest)
+        } catch {
+            print(error)
+        }
+    }
+
+    static func racingMasterFixFilePath() {
+        guard let bundleID = Bundle.main.bundleIdentifier else {
+            return
+        }
+
+        let userName = NSUserName()
+
+        let srcPaths = [
+            "/Users/\(userName)/Library/Containers/\(bundleID)/Data/Library" +
+            "/Users/\(userName)/Library/Containers/\(bundleID)/Data",
+            "/Users/\(userName)/Library/Containers/\(bundleID)/Data/Library" +
+            "/Users/\(userName)/Documents/Containers/\(bundleID)/Data"
+        ]
+
+        let destPath = "/Users/\(userName)/Library/Containers/\(bundleID)/Data"
+
+        for srcPath in srcPaths {
+            createSymbolicLink(source: URL(fileURLWithPath: srcPath),
+                               dest: URL(fileURLWithPath: destPath))
+        }
     }
 }

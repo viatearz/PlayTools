@@ -98,6 +98,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var useNewHitTestMethodAlways = extraSettingsData.useNewHitTestMethodAlways
 
+    @objc lazy var racingMasterFixFilePath = extraSettingsData.racingMasterFixFilePath
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -240,4 +242,5 @@ struct ExtraAppSettingsData: Codable {
     var unityEngineFixAutoRotate = false
     var useNewHitTestMethodWhenNilWindow = true
     var useNewHitTestMethodAlways = false
+    var racingMasterFixFilePath = false
 }
