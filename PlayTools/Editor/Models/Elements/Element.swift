@@ -20,6 +20,85 @@ struct Button: BaseElement {
     var transform: KeyModelTransform
 }
 
+enum DraggableMode: Int, CaseIterable {
+    case mouseCursorHidden = 1
+    case mouseCursorVisible = 2
+    case mouseTypeMax
+    case thumbstick = 1000
+
+    var isMouseType: Bool {
+        self.rawValue >= DraggableMode.mouseCursorHidden.rawValue &&
+        self.rawValue < DraggableMode.mouseTypeMax.rawValue
+    }
+
+    var isThumbstickType: Bool {
+        self == .thumbstick
+    }
+}
+
+struct DraggableButton: BaseElement {
+    var keyCode: Int
+    var keyName: String
+    var transform: KeyModelTransform
+    var movementKeyName: String
+    var mode: DraggableMode
+
+    enum CodingKeys: String, CodingKey {
+        case keyCode
+        case keyName
+        case transform
+    }
+
+    init(keyCode: Int, keyName: String, transform: KeyModelTransform,
+         movementKeyName: String, mode: DraggableMode) {
+        self.keyCode = keyCode
+        self.keyName = keyName
+        self.transform = transform
+        self.movementKeyName = movementKeyName
+        self.mode = mode
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.keyCode = try container.decode(Int.self, forKey: .keyCode)
+        let serializedString = try container.decode(String.self, forKey: .keyName)
+        self.transform = try container.decode(KeyModelTransform.self, forKey: .transform)
+
+        let parts = serializedString.split(separator: "$")
+        if parts.count == 1 {
+            self.keyName = KeyCodeNames.keyCodes[keyCode] ?? "Btn"
+            self.movementKeyName = String(parts[0])
+            self.mode = .mouseCursorHidden
+        } else {
+            self.keyName = String(parts[1])
+            self.movementKeyName = String(parts[0])
+            self.mode = DraggableButton.parseMode(from: String(parts[2]))
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var serializedString = ""
+        if mode == .mouseCursorHidden {
+            serializedString = movementKeyName
+        } else {
+            serializedString = "\(movementKeyName)$\(keyName)$\(mode.rawValue)"
+        }
+
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(keyCode, forKey: .keyCode)
+        try container.encode(serializedString, forKey: .keyName)
+        try container.encode(transform, forKey: .transform)
+    }
+
+    private static func parseMode(from str: String) -> DraggableMode {
+        if let value = Int(str),
+           let mode = DraggableMode(rawValue: value) {
+            return mode
+        }
+        return .mouseCursorHidden
+    }
+}
+
 enum JoystickMode: Int, Codable {
     case FIXED
     case FLOATING

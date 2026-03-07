@@ -157,7 +157,7 @@ class Keymapping {
 
 struct KeymappingData: Codable {
     var buttonModels: [Button] = []
-    var draggableButtonModels: [Button] = []
+    var draggableButtonModels: [DraggableButton] = []
     var joystickModel: [Joystick] = []
     var mouseAreaModel: [MouseArea] = []
     var bundleIdentifier: String

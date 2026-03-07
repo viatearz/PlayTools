@@ -20,7 +20,7 @@ class EditorCircleMenu: CircleMenuDelegate {
             frame: CGRect(x: 0, y: 0, width: 50, height: 50),
             normalIcon: "xmark.circle.fill",
             selectedIcon: "xmark.circle.fill",
-            buttonsCount: 3,
+            buttonsCount: items.count,
             duration: 0.25,
             distance: 80)
         menu?.delegate = self
@@ -55,6 +55,8 @@ class EditorCircleMenu: CircleMenuDelegate {
         case 1:
             EditorController.shared.addJoystick(globalPoint!)
         case 2:
+            EditorController.shared.addDraggableButton(globalPoint!)
+        case 3:
             EditorController.shared.addMouseArea(globalPoint!)
         default:
             Toast.showHint(title: "item \(atIndex) is not recognizable")
@@ -74,6 +76,7 @@ class EditorCircleMenu: CircleMenuDelegate {
     private let items: [String] = [
           "circle.circle",
           "dpad",
+          "timer",
 //          "arrow.up.and.down.and.arrow.left.and.right",
 //          "rb.rectangle.roundedbottom.fill",
 //          "lb.rectangle.roundedbottom",

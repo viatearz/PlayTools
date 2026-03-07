@@ -18,6 +18,9 @@ public class CameraControlMouseEventAdapter: MouseEventAdapter {
     }
 
     public func handleMove(deltaX: CGFloat, deltaY: CGFloat) -> Bool {
+        if ActionDispatcher.getDispatchPriority(key: KeyCodeNames.mouseMove) == .DRAGGABLE {
+            return ActionDispatcher.dispatch(key: KeyCodeNames.mouseMove, valueX: deltaX, valueY: -deltaY)
+        }
         let sensy = CGFloat(PlaySettings.shared.sensitivity * 0.6)
         let cgDx = deltaX * sensy,
             cgDy = -deltaY * sensy

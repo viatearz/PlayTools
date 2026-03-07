@@ -53,7 +53,7 @@ public class TouchscreenControllerEventAdapter: ControllerEventAdapter {
         let dispatchType = ActionDispatcher.getDispatchPriority(key: name)
         if dispatchType == nil {
             return
-        } else if dispatchType == .DEFAULT {
+        } else if dispatchType == .DEFAULT || dispatchType == .DRAGGABLE {
             _ = ActionDispatcher.dispatch(key: name, valueX: cgDx, valueY: cgDy)
         } else {
             if TouchscreenControllerEventAdapter.thumbstickCursorControl[name] == nil {

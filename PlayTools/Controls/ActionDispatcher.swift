@@ -72,7 +72,11 @@ public class ActionDispatcher {
         }
 
         for draggableButton in keymap.currentKeymap.draggableButtonModels {
-            actions.append(DraggableButtonAction(data: draggableButton))
+            if draggableButton.mode.isThumbstickType {
+                actions.append(ThumbstickDraggableButtonAction(data: draggableButton))
+            } else {
+                actions.append(DraggableButtonAction(data: draggableButton))
+            }
         }
 
         for mouse in keymap.currentKeymap.mouseAreaModel {

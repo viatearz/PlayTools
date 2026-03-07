@@ -55,10 +55,30 @@ class ButtonAction: Action {
 
 class DraggableButtonAction: ButtonAction {
     var releasePoint: CGPoint
+    var movementKeyName: String
+    var sensitivity: CGFloat = 1.0
+    var draggableMode = DraggableMode.mouseCursorHidden
+    var isFirstMove = false
 
-    override init(keyCode: Int, keyName: String, point: CGPoint) {
+    init(keyCode: Int, keyName: String, point: CGPoint, movementKeyName: String,
+         sensitivity: CGFloat, draggableMode: DraggableMode) {
         self.releasePoint = point
+        self.movementKeyName = movementKeyName
+        self.sensitivity = sensitivity
+        self.draggableMode = draggableMode
         super.init(keyCode: keyCode, keyName: keyName, point: point)
+    }
+
+    convenience init(data: DraggableButton) {
+        self.init(
+            keyCode: data.keyCode,
+            keyName: data.keyName,
+            point: CGPoint(
+                x: data.transform.xCoord.absoluteX,
+                y: data.transform.yCoord.absoluteY),
+            movementKeyName: data.movementKeyName,
+            sensitivity: data.transform.size / 15, // 15 is the default size of editor elements
+            draggableMode: data.mode)
     }
 
     override func update(pressed: Bool) {
@@ -66,20 +86,17 @@ class DraggableButtonAction: ButtonAction {
             Toucher.touchcam(point: point, phase: UITouch.Phase.began, tid: &id,
                              actionName: "DraggableButton", keyName: keyName)
             self.releasePoint = point
+            self.isFirstMove = true
             ActionDispatcher.register(key: KeyCodeNames.mouseMove,
                                       handler: self.onMouseMoved,
                                       priority: .DRAGGABLE)
-            if !mode.cursorHidden() {
-                AKInterface.shared!.hideCursor()
-            }
+            mouseMoveDidBegin()
         } else {
             Toucher.touchcam(point: releasePoint, phase: UITouch.Phase.ended, tid: &id,
                              actionName: "DraggableButton", keyName: keyName)
             if id == nil {
                 ActionDispatcher.unregister(key: KeyCodeNames.mouseMove)
-                if !mode.cursorHidden() {
-                    AKInterface.shared!.unhideCursor()
-                }
+                mouseMoveDidEnd()
             }
         }
     }
@@ -89,11 +106,126 @@ class DraggableButtonAction: ButtonAction {
         super.invalidate()
     }
 
+    func mouseMoveDidBegin() {
+        switch draggableMode {
+        case .mouseCursorHidden:
+            if !mode.cursorHidden() {
+                AKInterface.shared!.hideCursor()
+            }
+        case .mouseCursorVisible:
+            if mode.cursorHidden() {
+                AKInterface.shared!.unhideCursor()
+            } else {
+                AKInterface.shared!.warpCursor()
+            }
+        default:
+            print("unsupported mode: \(draggableMode)")
+        }
+    }
+
+    func mouseMoveDidEnd() {
+        switch draggableMode {
+        case .mouseCursorHidden:
+            if !mode.cursorHidden() {
+                AKInterface.shared!.unhideCursor()
+            }
+        case .mouseCursorVisible:
+            if mode.cursorHidden() {
+                AKInterface.shared!.hideCursor()
+            }
+        default:
+            print("unsupported mode: \(draggableMode)")
+        }
+    }
+
     func onMouseMoved(deltaX: CGFloat, deltaY: CGFloat) {
-        self.releasePoint.x += deltaX
-        self.releasePoint.y -= deltaY
+        // CGWarpMouseCursorPosition() changes the mouse position, but does not immediately
+        // trigger a MouseMoved event. Instead, the event is delayed until the user moves
+        // the mouse next time. So ignore the first MouseMoved event here, as it may contain
+        // an abnormally large value.
+        if self.isFirstMove {
+            self.isFirstMove = false
+            return
+        }
+        self.releasePoint.x += deltaX * sensitivity
+        self.releasePoint.y -= deltaY * sensitivity
         Toucher.touchcam(point: self.releasePoint, phase: UITouch.Phase.moved, tid: &id,
                          actionName: "DraggableButton", keyName: keyName)
+    }
+}
+
+class ThumbstickDraggableButtonAction: ButtonAction {
+    let activateThreshold: CGFloat = 0.8
+    let releaseThreshold: CGFloat = 0.3
+    var currentPoint: CGPoint
+    var releasePoint: CGPoint?
+    var movementKeyName: String
+    var sensitivity: CGFloat = 1.0
+
+    init(keyCode: Int, keyName: String, point: CGPoint, movementKeyName: String,
+         sensitivity: CGFloat) {
+        self.currentPoint = point
+        self.movementKeyName = movementKeyName
+        self.sensitivity = sensitivity
+        super.init(keyCode: keyCode, keyName: keyName, point: point)
+    }
+
+    convenience init(data: DraggableButton) {
+        self.init(
+            keyCode: data.keyCode,
+            keyName: data.keyName,
+            point: CGPoint(
+                x: data.transform.xCoord.absoluteX,
+                y: data.transform.yCoord.absoluteY),
+            movementKeyName: data.movementKeyName,
+            sensitivity: data.transform.size.absoluteSize / 2)
+    }
+
+    override func update(pressed: Bool) {
+        if pressed {
+            Toucher.touchcam(point: point, phase: UITouch.Phase.began, tid: &id,
+                             actionName: "DraggableButton", keyName: keyName)
+            self.currentPoint = point
+            self.releasePoint = nil
+            ActionDispatcher.register(key: self.movementKeyName,
+                                      handler: self.thumbstickUpdate,
+                                      priority: .DRAGGABLE)
+        } else {
+            Toucher.touchcam(point: currentPoint, phase: UITouch.Phase.ended, tid: &id,
+                             actionName: "DraggableButton", keyName: keyName)
+            if id == nil {
+                ActionDispatcher.unregister(key: self.movementKeyName)
+            }
+        }
+    }
+
+    override func invalidate() {
+        ActionDispatcher.unregister(key: self.movementKeyName)
+        super.invalidate()
+    }
+
+    func thumbstickUpdate(_ deltaX: CGFloat, _ deltaY: CGFloat) {
+        let dist = deltaX * deltaX + deltaY * deltaY
+        if dist < releaseThreshold * releaseThreshold {
+            if let releasePoint = releasePoint {
+                Toucher.touchcam(point: releasePoint, phase: UITouch.Phase.ended, tid: &id,
+                                 actionName: "DraggableButton", keyName: keyName)
+                if id == nil {
+                    ActionDispatcher.unregister(key: self.movementKeyName)
+                }
+                return
+            }
+        }
+
+        self.currentPoint.x = point.x + deltaX * sensitivity
+        self.currentPoint.y = point.y - deltaY * sensitivity
+
+        Toucher.touchcam(point: currentPoint, phase: UITouch.Phase.moved, tid: &id,
+                         actionName: "DraggableButton", keyName: keyName)
+
+        if dist > activateThreshold * activateThreshold {
+            self.releasePoint = currentPoint
+        }
     }
 }
 

@@ -204,14 +204,20 @@ class EditorController {
         }
     }
 
+    public func addDraggableButton(_ center: CGPoint) {
+        self.addDraggableButton(center, GCKeyCode.tab.rawValue)
+    }
+
     public func addDraggableButton(_ center: CGPoint, _ keyCode: Int) {
         if editorMode {
-            addControlToView(control: DraggableButtonModel(data: Button(
+            addControlToView(control: DraggableButtonModel(data: DraggableButton(
                 keyCode: keyCode,
-                keyName: "Mouse",
+                keyName: KeyCodeNames.keyCodes[keyCode] ?? "Btn",
                 transform: KeyModelTransform(
                     size: 15, xCoord: center.x.relativeX, yCoord: center.y.relativeY
-                )
+                ),
+                movementKeyName: "Mouse",
+                mode: .mouseCursorHidden
             )))
         }
     }
