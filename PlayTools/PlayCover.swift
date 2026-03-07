@@ -64,10 +64,12 @@ public class PlayCover: NSObject {
                 // There is an expiration handler, but idk how to invoke it. Skip for now.
 
                 // Step 3: Terminate
-                for scene in UIApplication.shared.connectedScenes {
-                    scene.delegate?.sceneDidDisconnect?(scene)
-                    NotificationCenter.default.post(name: UIScene.didDisconnectNotification,
-                                                    object: scene)
+                if !PlaySettings.shared.forceQuitAppOnClose {
+                    for scene in UIApplication.shared.connectedScenes {
+                        scene.delegate?.sceneDidDisconnect?(scene)
+                        NotificationCenter.default.post(name: UIScene.didDisconnectNotification,
+                                                        object: scene)
+                    }
                 }
                 UIApplication.shared.delegate?.applicationWillTerminate?(UIApplication.shared)
                 // Some apps will freeze or crash when click close button if we send willTerminateNotification.
