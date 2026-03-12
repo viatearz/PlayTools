@@ -12,6 +12,9 @@ import Security
 // World's Most Advanced Keychain Replacement Solution:tm:
 // This is a joke, don't take it seriously
 
+// swiftlint:disable file_length
+
+// swiftlint:disable:next type_body_length
 public class PlayKeychain: NSObject {
     static let shared = PlayKeychain()
     private static let playChainDB = PlayKeychainDB.shared
