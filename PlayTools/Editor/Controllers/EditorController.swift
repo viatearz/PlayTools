@@ -116,7 +116,11 @@ class EditorController {
     }
 
     func saveButtons() {
-        var keymapData = KeymappingData(bundleIdentifier: keymap.bundleIdentifier)
+        var keymapData = keymap.currentKeymap
+        keymapData.joystickModel.removeAll()
+        keymapData.draggableButtonModels.removeAll()
+        keymapData.mouseAreaModel.removeAll()
+        keymapData.buttonModels.removeAll()
         controls.forEach {
             switch $0 {
             case let model as JoystickModel:

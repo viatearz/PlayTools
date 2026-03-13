@@ -160,8 +160,66 @@ struct KeymappingData: Codable {
     var draggableButtonModels: [DraggableButton] = []
     var joystickModel: [Joystick] = []
     var mouseAreaModel: [MouseArea] = []
+    var gamepadToKeyModel: [GamepadToKey] = []
     var bundleIdentifier: String
     var version = "2.0.0"
+
+    enum CodingKeys: CodingKey {
+        case buttonModels
+        case draggableButtonModels
+        case joystickModel
+        case mouseAreaModel
+        case bundleIdentifier
+        case version
+    }
+
+    init(bundleIdentifier: String) {
+        self.bundleIdentifier = bundleIdentifier
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        var buttonModels = try container.decode([Button].self, forKey: .buttonModels)
+        self.draggableButtonModels = try container.decode([DraggableButton].self, forKey: .draggableButtonModels)
+        self.joystickModel = try container.decode([Joystick].self, forKey: .joystickModel)
+        self.mouseAreaModel = try container.decode([MouseArea].self, forKey: .mouseAreaModel)
+        self.bundleIdentifier = try container.decode(String.self, forKey: .bundleIdentifier)
+        self.version = try container.decode(String.self, forKey: .version)
+
+        var gamepadToKeyModel: [GamepadToKey] = []
+        for idx in stride(from: buttonModels.count - 1, through: 0, by: -1) {
+            let buttonModel = buttonModels[idx]
+            if buttonModel.keyName.starts(with: "GAMEPAD2KEY$") {
+                buttonModels.remove(at: idx)
+            }
+            let parts = buttonModel.keyName.split(separator: "$")
+            if parts.count > 2 {
+                gamepadToKeyModel.append(GamepadToKey(keyName: String(parts[1]), targetKeyName: String(parts[2])))
+            }
+        }
+        self.buttonModels = buttonModels
+        self.gamepadToKeyModel = gamepadToKeyModel
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        // Store GamepadToKey data in the buttonModels field to ensure compatibility with the official version
+        var buttonModels = self.buttonModels
+        for gamepadToKey in self.gamepadToKeyModel {
+            buttonModels.append(Button(
+                keyCode: KeyCodeNames.defaultCode,
+                keyName: "GAMEPAD2KEY$\(gamepadToKey.keyName)$\(gamepadToKey.targetKeyName)",
+                transform: KeyModelTransform(size: 0, xCoord: -1, yCoord: -1)
+            ))
+        }
+
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(buttonModels, forKey: .buttonModels)
+        try container.encode(self.draggableButtonModels, forKey: .draggableButtonModels)
+        try container.encode(self.joystickModel, forKey: .joystickModel)
+        try container.encode(self.mouseAreaModel, forKey: .mouseAreaModel)
+        try container.encode(self.bundleIdentifier, forKey: .bundleIdentifier)
+        try container.encode(self.version, forKey: .version)
+    }
 }
 
 struct KeymapConfig: Codable {

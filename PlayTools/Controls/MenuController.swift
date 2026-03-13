@@ -31,8 +31,17 @@ extension UIApplication {
     }
 
     @objc
+    func switchGamepadToKeyEditorMode(_ sender: AnyObject) {
+        ModeAutomaton.onCmd0()
+    }
+
+    @objc
     func removeElement(_ sender: AnyObject) {
-        EditorController.shared.removeControl()
+        if EditorController.shared.editorMode {
+            EditorController.shared.removeControl()
+        } else {
+            GamepadToKeyEditorController.shared.setTargetKey("")
+        }
     }
 
     @objc
@@ -256,12 +265,35 @@ class MenuController {
                                     options: .displayInline,
                                     children: arrowKeyChildrenCommands)
 
+        let extraGroup = extraKeymappingMenu()
+
         return UIMenu(title: NSLocalizedString("menu.keymapping", tableName: "Playtools",
                                                value: "Keymapping", comment: ""),
                       image: nil,
                       identifier: .keymappingMenu,
                       options: [],
-                      children: [arrowKeysGroup])
+                      children: [arrowKeysGroup, extraGroup])
+    }
+
+    class func extraKeymappingMenu() -> UIMenu {
+        var children: [UIMenuElement] = []
+
+        let titles = [
+            NSLocalizedString("menu.keymapping.toggleGamepadToKeyEditor", tableName: "Playtools", comment: "")
+        ]
+
+        children.append(UIKeyCommand(
+            title: titles[0],
+            image: UIImage(systemName: "gamecontroller"),
+            action: #selector(UIApplication.switchGamepadToKeyEditorMode(_:)),
+            input: "0",
+            modifierFlags: .command,
+            propertyList: [CommandsList.KeymappingToolbox: titles[0]]
+        ))
+
+        return UIMenu(title: "",
+                      options: .displayInline,
+                      children: children)
     }
 }
 

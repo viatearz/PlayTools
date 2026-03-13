@@ -14,6 +14,7 @@ public enum ControlModeLiteral: String {
     case arbitraryClick
     case off
     case editor
+    case gamepadToKeyEditor
 }
 // This class handles different control logic under different control mode
 

@@ -676,3 +676,85 @@ class FakeMouseAction: Action {
     }
 
 }
+
+class GamepadButtonToKeyAction: Action {
+    let keyName: String
+    let targetKeyName: String
+    let targetKeyCode: UInt16
+    var isPressed = false
+
+    init(keyName: String, targetKeyName: String, autoUpdate: Bool) {
+        self.keyName = keyName
+        self.targetKeyName = targetKeyName
+        self.targetKeyCode = KeyCodeNames.mapKeyNameToVirtualCode[targetKeyName] ?? 0
+        if autoUpdate {
+            ActionDispatcher.register(key: keyName, handler: self.update)
+        }
+    }
+
+    convenience init(data: GamepadToKey, autoUpdate: Bool) {
+        self.init(
+            keyName: data.keyName,
+            targetKeyName: data.targetKeyName,
+            autoUpdate: autoUpdate)
+    }
+
+    func update(pressed: Bool) {
+        guard isPressed != pressed else {
+            return
+        }
+
+        self.isPressed = pressed
+
+        if targetKeyName == KeyCodeNames.leftMouseButton {
+            AKInterface.shared!.postMouseEvent(left: true, right: false, keyDown: pressed)
+
+        } else if targetKeyName == KeyCodeNames.rightMouseButton {
+            AKInterface.shared!.postMouseEvent(left: false, right: true, keyDown: pressed)
+
+        } else if targetKeyName == KeyCodeNames.middleMouseButton {
+            AKInterface.shared!.postMouseEvent(left: false, right: false, keyDown: pressed)
+
+        } else {
+            AKInterface.shared!.postKeyboardEvent(keyCode: self.targetKeyCode, keyDown: pressed)
+        }
+    }
+
+    func invalidate() {
+        update(pressed: false)
+    }
+}
+
+class GamepadThumbstickToKeyAction: Action {
+    let deadZone = 0.25
+    let thumbstickName: String
+    var childActions: [String: GamepadButtonToKeyAction] = [:]
+
+    init(thumbstickName: String) {
+        self.thumbstickName = thumbstickName
+        ActionDispatcher.register(key: thumbstickName, handler: self.thumbstickUpdate)
+    }
+
+    func addChildAction(_ action: GamepadButtonToKeyAction) {
+        childActions[action.keyName] = action
+    }
+
+    func thumbstickUpdate(_ deltaX: CGFloat, _ deltaY: CGFloat) {
+        childUpdate(direction: "Left", pressed: deltaX < -deadZone)
+        childUpdate(direction: "Right", pressed: deltaX > deadZone)
+        childUpdate(direction: "Up", pressed: deltaY > deadZone)
+        childUpdate(direction: "Down", pressed: deltaY < -deadZone)
+    }
+
+    func childUpdate(direction: String, pressed: Bool) {
+        if let childAction = childActions[thumbstickName + " " + direction] {
+            childAction.update(pressed: pressed)
+        }
+    }
+
+    func invalidate() {
+        for (_, childAction) in childActions {
+            childAction.invalidate()
+        }
+    }
+}

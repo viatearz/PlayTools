@@ -45,6 +45,7 @@ public class ActionDispatcher {
     // Backend interfaces
 
     // This should be called whenever keymap may change
+    // swiftlint:disable:next function_body_length
     static public func build() {
         clear()
 
@@ -91,6 +92,24 @@ public class ActionDispatcher {
                 actions.append(JoystickAction(data: joystick))
             }
         }
+
+        var thumbstickDict: [String: GamepadThumbstickToKeyAction] = [:]
+        for gamepadToKey in keymap.currentKeymap.gamepadToKeyModel {
+            if let thumbstickName = gamepadToKey.thumbstickName {
+
+                if thumbstickDict[thumbstickName] == nil {
+                    let action = GamepadThumbstickToKeyAction(thumbstickName: thumbstickName)
+                    thumbstickDict[thumbstickName] = action
+                    actions.append(action)
+                }
+
+                thumbstickDict[thumbstickName]!
+                    .addChildAction(GamepadButtonToKeyAction(data: gamepadToKey, autoUpdate: false))
+            } else {
+                actions.append(GamepadButtonToKeyAction(data: gamepadToKey, autoUpdate: true))
+            }
+        }
+
         // `cursorHideNecessary` is used to disable `option` toggle when there is no mouse mapping
         // but in the case this new feature disabled, `option` should always function.
         // this variable is set here to be checked for mouse mapping later.

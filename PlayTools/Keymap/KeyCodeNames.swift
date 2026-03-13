@@ -161,6 +161,9 @@ extension KeyCodeNames {
             (virtualCode, keyCodes[gcCode]!)
         })
     )
+    public static let mapKeyNameToVirtualCode: [String: UInt16] = Dictionary(uniqueKeysWithValues:
+        virtualCodes.map { ($0.value, $0.key) }
+    )
     private static let mapVirtualToGcLiteral: [UInt16: Int] = [
     0: 4,
     1: 22,

@@ -139,3 +139,17 @@ struct Swipe: BaseElement {
     // [0, 2 * PI)
     var angle: CGFloat
 }
+
+struct GamepadToKey: Codable {
+    var keyName: String
+    var targetKeyName: String
+
+    var thumbstickName: String? {
+        if let range = keyName.range(of: "Thumbstick") {
+            if !keyName.hasSuffix("Button") {
+                return String(keyName[..<range.upperBound])
+            }
+        }
+        return nil
+    }
+}

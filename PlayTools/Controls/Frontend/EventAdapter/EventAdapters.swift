@@ -19,6 +19,8 @@ public class EventAdapters {
             return TouchscreenKeyboardEventAdapter()
         case .editor:
             return EditorKeyboardEventAdapter()
+        case .gamepadToKeyEditor:
+            return GamepadToKeyEditorKeyboardEventAdapter()
         }
     }
 
@@ -32,6 +34,8 @@ public class EventAdapters {
             return TouchscreenMouseEventAdapter()
         case .editor:
             return EditorMouseEventAdapter()
+        case .gamepadToKeyEditor:
+            return GamepadToKeyEditorMouseEventAdapter()
         }
     }
 
@@ -43,6 +47,8 @@ public class EventAdapters {
             return TouchscreenControllerEventAdapter()
         case .editor:
             return EditorControllerEventAdapter()
+        case .gamepadToKeyEditor:
+            return GamepadToKeyEditorControllerEventAdapter()
         }
     }
 }
