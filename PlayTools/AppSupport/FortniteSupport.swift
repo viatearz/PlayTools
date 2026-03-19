@@ -13,6 +13,8 @@ class FortniteSupport: AppSupport {
             """
             try? entitlements.write(to: entitlementsURL, atomically: true, encoding: .utf8)
         }
+
+        PlaySettings.shared.useFloatingJoystick = true
     }
 
     override func applyPatch() -> Bool {
@@ -35,5 +37,19 @@ class FortniteSupport: AppSupport {
             patcher.close()
         }
         return modified
+    }
+
+    override func applyHooks() {
+        self.swizzleInstanceMethod(
+            cls: NSClassFromString("GCEventViewController"),
+            origSelector: NSSelectorFromString("becomeFirstResponder"),
+            newSelector: #selector(NSObject.hook_Fortnite_GCEventViewController_becomeFirstResponder)
+        )
+    }
+}
+
+extension NSObject {
+    @objc func hook_Fortnite_GCEventViewController_becomeFirstResponder() -> Bool {
+        return false
     }
 }

@@ -218,6 +218,10 @@ bool menuWasCreated = false;
     return nil;
 }
 
++ (NSArray *)hook_GCMouse_mice {
+    return @[];
+}
+
 - (void)hook_requestRecordPermission:(void (^)(BOOL))response {
     BOOL granted = [[AVAudioSession sharedInstance] recordPermission] == AVAudioSessionRecordPermissionGranted;
     if (granted) {
@@ -423,6 +427,7 @@ static void showPatchedAlert(void) {
 
         // Fix click conflicts by disabling built-in mouse
         [objc_getClass("GCMouse") swizzleClassMethod:@selector(current) withMethod:@selector(hook_GCMouse_current)];
+        [objc_getClass("GCMouse") swizzleClassMethod:@selector(mice) withMethod:@selector(hook_GCMouse_mice)];
     }
 
     // Wait for UnityFramework.framework to load
