@@ -4,6 +4,10 @@
 //
 
 class EggyPartySupport: AppSupport {
+    required init() {
+        PlaySettings.shared.useFloatingJoystick = true
+    }
+
     override func applyPatch() -> Bool {
         if isPatched() {
             return false
