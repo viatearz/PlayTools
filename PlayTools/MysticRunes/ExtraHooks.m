@@ -227,6 +227,13 @@ __attribute__((visibility("hidden")))
     [self setValue:@(newOrientation) forKey:@"_curOrientation"];
 }
 
+- (BOOL) hook_GCEventViewController_becomeFirstResponder {
+    if (![NSThread isMainThread]) {
+        return NO;
+    }
+    return [self hook_GCEventViewController_becomeFirstResponder];
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -258,6 +265,10 @@ __attribute__((visibility("hidden")))
 
     if ([[PlaySettings shared] forceWebViewUseMobileContentMode]) {
         [objc_getClass("WKWebView") swizzleInstanceMethod:NSSelectorFromString(@"initWithFrame:configuration:") withMethod:@selector(hook_WKWebView_initWithFrame:configuration:)];
+    }
+
+    if ([[PlaySettings shared] fortniteFixNonMainThreadCrash]) {
+        [objc_getClass("GCEventViewController") swizzleInstanceMethod:NSSelectorFromString(@"becomeFirstResponder") withMethod:@selector(hook_GCEventViewController_becomeFirstResponder)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
