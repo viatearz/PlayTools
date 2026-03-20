@@ -234,6 +234,15 @@ __attribute__((visibility("hidden")))
     return [self hook_GCEventViewController_becomeFirstResponder];
 }
 
+- (void) hook_Fortnite_pressesBegan:(NSSet *) presses withEvent:(id) event {
+    for (UIPress *press in presses) {
+        if (press.key && press.key.keyCode == UIKeyboardHIDUsageKeyboardLeftAlt) {
+            return;
+        }
+    }
+    [self hook_Fortnite_pressesBegan:presses withEvent:event];
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -269,6 +278,10 @@ __attribute__((visibility("hidden")))
 
     if ([[PlaySettings shared] fortniteFixNonMainThreadCrash]) {
         [objc_getClass("GCEventViewController") swizzleInstanceMethod:NSSelectorFromString(@"becomeFirstResponder") withMethod:@selector(hook_GCEventViewController_becomeFirstResponder)];
+    }
+
+    if ([[PlaySettings shared] fortniteDisableOptionKey]) {
+        [objc_getClass("IOSViewController") swizzleInstanceMethod:NSSelectorFromString(@"pressesBegan:withEvent:") withMethod:@selector(hook_Fortnite_pressesBegan:withEvent:)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{

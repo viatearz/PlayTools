@@ -102,6 +102,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var fortniteFixNonMainThreadCrash = extraSettingsData.fortniteFixNonMainThreadCrash
 
+    @objc lazy var fortniteDisableOptionKey = extraSettingsData.fortniteDisableOptionKey
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -246,4 +248,5 @@ struct ExtraAppSettingsData: Codable {
     var useNewHitTestMethodAlways = false
     var racingMasterFixFilePath = false
     var fortniteFixNonMainThreadCrash = false
+    var fortniteDisableOptionKey = false
 }
