@@ -208,10 +208,6 @@ class EditorController {
         }
     }
 
-    public func addDraggableButton(_ center: CGPoint) {
-        self.addDraggableButton(center, GCKeyCode.tab.rawValue)
-    }
-
     public func addDraggableButton(_ center: CGPoint, _ keyCode: Int) {
         if editorMode {
             addControlToView(control: DraggableButtonModel(data: DraggableButton(
