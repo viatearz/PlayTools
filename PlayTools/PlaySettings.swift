@@ -106,6 +106,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var fixPlayChainAccessGroup = extraSettingsData.fixPlayChainAccessGroup
 
+    @objc lazy var supportMultipleMice = extraSettingsData.supportMultipleMice
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -252,4 +254,5 @@ struct ExtraAppSettingsData: Codable {
     var fortniteFixNonMainThreadCrash = false
     var fortniteDisableOptionKey = false
     var fixPlayChainAccessGroup = false
+    var supportMultipleMice = false
 }
