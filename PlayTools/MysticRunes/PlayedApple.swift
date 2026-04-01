@@ -19,6 +19,31 @@ public class PlayKeychain: NSObject {
     static let shared = PlayKeychain()
     private static let playChainDB = PlayKeychainDB.shared
 
+    // Derives the default value for kSecAttrAccessGroup by reading the app's entitlements plist.
+    // Reference: https://developer.apple.com/documentation/security/ksecattraccessgroup
+    private static let defaultAccessGroup: String? = {
+        guard let bundleID = Bundle.main.bundleIdentifier else { return nil }
+
+        let url = URL(fileURLWithPath: "/Users/\(NSUserName())/Library/Containers/io.playcover.PlayCover")
+            .appendingPathComponent("Entitlements")
+            .appendingPathComponent("\(bundleID).plist")
+
+        guard
+            FileManager.default.fileExists(atPath: url.path),
+            let data = try? Data(contentsOf: url),
+            let dict = try? PropertyListSerialization.propertyList(
+                from: data, options: [], format: nil) as? [String: Any]
+        else {
+            return nil
+        }
+
+        if let accessGroup = (dict["keychain-access-groups"] as? [String])?.first {
+            return accessGroup
+        }
+
+        return dict["application-identifier"] as? String
+    }()
+
     @objc public static func debugLogger(_ logContent: String) {
         if PlaySettings.shared.settingsData.playChainDebugging {
             NSLog("PC-DEBUG: \(logContent)")
@@ -27,8 +52,16 @@ public class PlayKeychain: NSObject {
     // Emulates SecItemAdd, SecItemUpdate, SecItemDelete and SecItemCopyMatching
     // Store the entire dictionary as a plist
     // SecItemAdd(CFDictionaryRef attributes, CFTypeRef *result)
-    @objc static public func add(_ attributes: NSDictionary,
+    @objc static public func add(_ inAttributes: NSDictionary,
                                  result: UnsafeMutablePointer<Unmanaged<CFTypeRef>?>?) -> OSStatus {
+        guard let attributes = inAttributes.mutableCopy() as? NSMutableDictionary else {
+            return errSecParam
+        }
+        if PlaySettings.shared.fixPlayChainAccessGroup {
+            if attributes[kSecAttrAccessGroup] == nil {
+                attributes[kSecAttrAccessGroup] = defaultAccessGroup
+            }
+        }
         guard let keychainDict = playChainDB.insert(attributes) else {
             debugLogger("Failed to write keychain file")
             return errSecIO
