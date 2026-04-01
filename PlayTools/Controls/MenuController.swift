@@ -36,6 +36,15 @@ extension UIApplication {
     }
 
     @objc
+    func pasteTextIntoInputField(_ sender: AnyObject) {
+        if let view = UIResponder.currentFirstResponder() as? UIView,
+           let keyInput = view.findKeyInput(),
+           let text = UIPasteboard.general.string {
+            keyInput.insertText(text)
+        }
+    }
+
+    @objc
     func removeElement(_ sender: AnyObject) {
         if EditorController.shared.editorMode {
             EditorController.shared.removeControl()
@@ -279,7 +288,8 @@ class MenuController {
         var children: [UIMenuElement] = []
 
         let titles = [
-            NSLocalizedString("menu.keymapping.toggleGamepadToKeyEditor", tableName: "Playtools", comment: "")
+            NSLocalizedString("menu.keymapping.toggleGamepadToKeyEditor", tableName: "Playtools", comment: ""),
+            NSLocalizedString("menu.keymapping.pasteTextIntoInputField", tableName: "Playtools", comment: "")
         ]
 
         children.append(UIKeyCommand(
@@ -289,6 +299,15 @@ class MenuController {
             input: "0",
             modifierFlags: .command,
             propertyList: [CommandsList.KeymappingToolbox: titles[0]]
+        ))
+
+        children.append(UIKeyCommand(
+            title: titles[1],
+            image: UIImage(systemName: "square.and.pencil"),
+            action: #selector(UIApplication.pasteTextIntoInputField(_:)),
+            input: "V",
+            modifierFlags: .command.union(.shift),
+            propertyList: [CommandsList.KeymappingToolbox: titles[1]]
         ))
 
         return UIMenu(title: "",

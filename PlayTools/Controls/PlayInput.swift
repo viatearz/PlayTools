@@ -327,3 +327,38 @@ class MultipleMiceSupport {
         "RCmd": .command
     ]
 }
+
+extension UIResponder {
+    private static weak var _currentFirstResponder: UIResponder?
+
+    @objc private func _captureFirstResponder(_ sender: Any?) {
+        UIResponder._currentFirstResponder = self
+    }
+
+    static func currentFirstResponder() -> UIResponder? {
+        UIResponder._currentFirstResponder = nil
+
+        UIApplication.shared.sendAction(
+            #selector(_captureFirstResponder(_:)),
+            to: nil,
+            from: nil,
+            for: nil
+        )
+
+        return UIResponder._currentFirstResponder
+    }
+}
+
+extension UIView {
+    func findKeyInput() -> UIKeyInput? {
+        if let input = self as? UIKeyInput {
+            return input
+        }
+        for subview in subviews {
+            if let found = subview.findKeyInput() {
+                return found
+            }
+        }
+        return nil
+    }
+}
