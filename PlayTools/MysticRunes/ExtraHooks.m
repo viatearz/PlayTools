@@ -243,6 +243,37 @@ __attribute__((visibility("hidden")))
     [self hook_Fortnite_pressesBegan:presses withEvent:event];
 }
 
+- (void) hook_conditionallyBeginAccessingResourcesWithCompletionHandler:(void (^)(BOOL resourcesAvailable)) completionHandler {
+    [self hook_conditionallyBeginAccessingResourcesWithCompletionHandler:^(BOOL resourcesAvailable) {
+
+        if (!resourcesAvailable) {
+            BOOL allExists = YES;
+
+            NSURL *bundleURL = [[NSBundle mainBundle] bundleURL];
+            NSSet<NSString *> *tags = [self valueForKey:@"tags"];
+            for (NSString *tag in tags) {
+                NSURL *assetURL = [bundleURL URLByAppendingPathComponent:tag];
+
+                BOOL isDir = NO;
+                BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:assetURL.path
+                                                                   isDirectory:&isDir];
+                if (!exists || !isDir) {
+                    allExists = NO;
+                    break;
+                }
+            }
+
+            if (allExists) {
+                resourcesAvailable = YES;
+            }
+        }
+
+        if (completionHandler != nil) {
+            completionHandler(resourcesAvailable);
+        }
+    }];
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -282,6 +313,10 @@ __attribute__((visibility("hidden")))
 
     if ([[PlaySettings shared] fortniteDisableOptionKey]) {
         [objc_getClass("IOSViewController") swizzleInstanceMethod:NSSelectorFromString(@"pressesBegan:withEvent:") withMethod:@selector(hook_Fortnite_pressesBegan:withEvent:)];
+    }
+
+    if ([[PlaySettings shared] bypassOnDemandResources]) {
+        [objc_getClass("NSBundleResourceRequest") swizzleInstanceMethod:NSSelectorFromString(@"conditionallyBeginAccessingResourcesWithCompletionHandler:") withMethod:@selector(hook_conditionallyBeginAccessingResourcesWithCompletionHandler:)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
