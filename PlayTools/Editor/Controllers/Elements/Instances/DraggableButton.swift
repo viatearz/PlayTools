@@ -42,7 +42,7 @@ class DraggableButtonModel: ControlModel<DraggableButton>, ParentElement {
     }
 
     override func setKey(code: Int, name: String) {
-        if name == "Mouse" || name == "RMB" {
+        if name == "Mouse" {
             // set the parent key
             self.data.movementKeyName = "Mouse"
             button.setTitle(data.movementKeyName, for: UIControl.State.normal)

@@ -66,7 +66,15 @@ struct DraggableButton: BaseElement {
 
         let parts = serializedString.split(separator: "$")
         if parts.count == 1 {
-            self.keyName = KeyCodeNames.keyCodes[keyCode] ?? "Btn"
+            if keyCode == -2 {
+                self.keyCode = KeyCodeNames.defaultCode
+                self.keyName = KeyCodeNames.rightMouseButton
+            } else if keyCode == -3 {
+                self.keyCode = KeyCodeNames.defaultCode
+                self.keyName = KeyCodeNames.middleMouseButton
+            } else {
+                self.keyName = KeyCodeNames.keyCodes[keyCode] ?? "Btn"
+            }
             self.movementKeyName = String(parts[0])
             self.mode = .mouseCursorHidden
         } else {
@@ -77,8 +85,14 @@ struct DraggableButton: BaseElement {
     }
 
     func encode(to encoder: Encoder) throws {
+        var keyCode = keyCode
         var serializedString = ""
         if mode == .mouseCursorHidden {
+            if keyName == KeyCodeNames.rightMouseButton {
+                keyCode = -2
+            } else if keyName == KeyCodeNames.middleMouseButton {
+                keyCode = -3
+            }
             serializedString = movementKeyName
         } else {
             serializedString = "\(movementKeyName)$\(keyName)$\(mode.rawValue)"
