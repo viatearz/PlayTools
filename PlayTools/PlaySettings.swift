@@ -110,6 +110,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var bypassOnDemandResources = extraSettingsData.bypassOnDemandResources
 
+    @objc lazy var disableBuiltinKeyboard = extraSettingsData.disableBuiltinKeyboard
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -258,4 +260,5 @@ struct ExtraAppSettingsData: Codable {
     var fixPlayChainAccessGroup = false
     var supportMultipleMice = false
     var bypassOnDemandResources = false
+    var disableBuiltinKeyboard = false
 }
