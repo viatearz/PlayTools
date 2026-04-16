@@ -16,8 +16,6 @@ public class EditorKeyboardEventAdapter: KeyboardEventAdapter {
         .rightGUI,
         .leftAlt,
         .rightAlt,
-        .leftControl,
-        .rightControl,
         .printScreen
     ]
 
@@ -34,7 +32,7 @@ public class EditorKeyboardEventAdapter: KeyboardEventAdapter {
             return false
         }
 
-        if ctrlModified {
+        if ctrlModified && gcKeyCode != .leftControl && gcKeyCode != .rightControl {
             if let name = KeyCodeNames.virtualCodes[keycode] {
                 // Setkey by name does not work with all kinds of mapping
                 EditorController.shared.setKey("⌃" + name)
