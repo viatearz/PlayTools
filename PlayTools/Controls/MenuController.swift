@@ -173,7 +173,6 @@ var iconsSelctor = [
     UIImage(systemName: "trash.fill"),
     UIImage(systemName: "square.resize.up"),
     UIImage(systemName: "square.resize.down"),
-    UIImage(systemName: "rectangle.landscape.rotate"),
     UIImage(systemName: "wrench.and.screwdriver"),
     UIImage(systemName: "pointer.arrow.slash"),
     UIImage(systemName: "arrow.down.square"),
@@ -183,7 +182,6 @@ var keymappingSelectors = [#selector(UIApplication.switchEditorMode(_:)),
                            #selector(UIApplication.removeElement(_:)),
                            #selector(UIApplication.upscaleElement(_:)),
                            #selector(UIApplication.downscaleElement(_:)),
-                           #selector(UIApplication.rotateView(_:)),
                            #selector(UIApplication.toggleDebugOverlay(_:)),
                            #selector(UIApplication.hideCursor(_:)),
                            #selector(UIApplication.previousKeymap(_:)),
@@ -283,7 +281,8 @@ class MenuController {
 
         let rotationMenu = UIMenu(
             title: NSLocalizedString("menu.keymapping.rotateDisplay", tableName: "Playtools",
-                              value: "Rotate display area", comment: ""), image: nil,
+                              value: "Rotate display area", comment: ""),
+            image: UIImage(systemName: "rectangle.landscape.rotate"),
             identifier: .rotationOptionsMenu,
             options: [],
             children: rotationMenuItems
