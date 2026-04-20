@@ -114,8 +114,48 @@ class PlayCursor {
             return
         }
 
-        let trackingView = PlayCursorTrackingView(frame: contentView.bounds, cursor: cursor)
-        contentView.addSubview(trackingView)
+        // Previously we used a single tracking area. If the custom cursor unexpectedly disappeared,
+        // the user had to move the cursor out of the window and back in to force a refresh.
+        // Now we split the tracking area into four regions. If the cursor becomes incorrect,
+        // moving between regions (e.g. top to bottom) triggers a refresh, so leaving the window
+        // is no longer required.
+
+        let topLeft = PlayCursorTrackingView(cursor: cursor)
+        let topRight = PlayCursorTrackingView(cursor: cursor)
+        let bottomLeft = PlayCursorTrackingView(cursor: cursor)
+        let bottomRight = PlayCursorTrackingView(cursor: cursor)
+
+        [topLeft, topRight, bottomLeft, bottomRight].forEach {
+            contentView.addSubview($0)
+        }
+
+        NSLayoutConstraint.activate([
+
+            // topLeft
+            topLeft.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            topLeft.topAnchor.constraint(equalTo: contentView.topAnchor),
+            topLeft.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
+            topLeft.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
+
+            // topRight
+            topRight.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            topRight.topAnchor.constraint(equalTo: contentView.topAnchor),
+            topRight.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
+            topRight.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
+
+            // bottomLeft
+            bottomLeft.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            bottomLeft.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            bottomLeft.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
+            bottomLeft.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
+
+            // bottomRight
+            bottomRight.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            bottomRight.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            bottomRight.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
+            bottomRight.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5)
+
+        ])
     }
 
     func updateCursorIfNeeded() {
@@ -135,10 +175,10 @@ class PlayCursorTrackingView: NSView {
     private var trackingArea: NSTrackingArea?
     private var cursor: NSCursor?
 
-    init(frame frameRect: NSRect, cursor: NSCursor?) {
-        super.init(frame: frameRect)
+    init(cursor: NSCursor?) {
+        super.init(frame: .zero)
         self.cursor = cursor
-        self.autoresizingMask = [.width, .height]
+        self.translatesAutoresizingMaskIntoConstraints = false
         self.wantsLayer = true
         self.layer?.backgroundColor = NSColor.clear.cgColor
     }
