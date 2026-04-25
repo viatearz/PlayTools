@@ -300,6 +300,12 @@ class MultipleMiceSupport {
             return nil
         }
 
+        if key == "Rshft" && PlaySettings.shared.nikkeTTSMiniGameRemapRightShift {
+            return UIKeyCommand(input: "=",
+                                modifierFlags: UIKeyModifierFlags(rawValue: 0),
+                                action: #selector(doNothing))
+        }
+
         if let modifierFlags = UnityEngineKeyboardSupport.keyToModifierFlags[key] {
             return UIKeyCommand(input: "", modifierFlags: modifierFlags, action: #selector(doNothing))
         }

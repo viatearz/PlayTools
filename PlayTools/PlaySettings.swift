@@ -114,6 +114,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var disableBuiltinGamepad = extraSettingsData.disableBuiltinGamepad
 
+    @objc lazy var nikkeTTSMiniGameRemapRightShift = extraSettingsData.nikkeTTSMiniGameRemapRightShift
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -267,4 +269,5 @@ struct ExtraAppSettingsData: Codable {
     var bypassOnDemandResources = false
     var disableBuiltinKeyboard = false
     var disableBuiltinGamepad = false
+    var nikkeTTSMiniGameRemapRightShift = false
 }
