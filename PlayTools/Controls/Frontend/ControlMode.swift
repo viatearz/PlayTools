@@ -81,10 +81,29 @@ public class ControlMode: Equatable {
     private func setupGameController() {
         let centre = NotificationCenter.default
         let main = OperationQueue.main
-        centre.addObserver(forName: NSNotification.Name.GCControllerDidConnect, object: nil, queue: main) { _ in
-            GCController.shouldMonitorBackgroundEvents = true
-            GCController.current?.extendedGamepad?.valueChangedHandler = { profile, element in
-                self.controllerAdapter.handleValueChanged(profile, element)
+
+        if PlaySettings.shared.disableBuiltinGamepad {
+            // The app may set its own gamepad event handler, so delay a few seconds and override it
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
+                GCController.current?.extendedGamepad?.valueChangedHandler = { profile, element in
+                    self.controllerAdapter.handleValueChanged(profile, element)
+                }
+            }
+
+            centre.addObserver(forName: NSNotification.Name.GCControllerDidConnect, object: nil, queue: main) { _ in
+                GCController.shouldMonitorBackgroundEvents = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
+                    GCController.current?.extendedGamepad?.valueChangedHandler = { profile, element in
+                        self.controllerAdapter.handleValueChanged(profile, element)
+                    }
+                }
+            }
+        } else {
+            centre.addObserver(forName: NSNotification.Name.GCControllerDidConnect, object: nil, queue: main) { _ in
+                GCController.shouldMonitorBackgroundEvents = true
+                GCController.current?.extendedGamepad?.valueChangedHandler = { profile, element in
+                    self.controllerAdapter.handleValueChanged(profile, element)
+                }
             }
         }
     }

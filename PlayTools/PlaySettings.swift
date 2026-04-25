@@ -112,6 +112,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var disableBuiltinKeyboard = extraSettingsData.disableBuiltinKeyboard
 
+    @objc lazy var disableBuiltinGamepad = extraSettingsData.disableBuiltinGamepad
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -264,4 +266,5 @@ struct ExtraAppSettingsData: Codable {
     var supportMultipleMice = false
     var bypassOnDemandResources = false
     var disableBuiltinKeyboard = false
+    var disableBuiltinGamepad = false
 }
