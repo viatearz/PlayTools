@@ -116,6 +116,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var nikkeTTSMiniGameRemapRightShift = extraSettingsData.nikkeTTSMiniGameRemapRightShift
 
+    @objc lazy var skipUsercentricsConsentBanner = extraSettingsData.skipUsercentricsConsentBanner
+
     lazy var discordActivity = settingsData.discordActivity
 
     lazy var keymapping = settingsData.keymapping
@@ -272,4 +274,5 @@ struct ExtraAppSettingsData: Codable {
     var disableBuiltinKeyboard = false
     var disableBuiltinGamepad = false
     var nikkeTTSMiniGameRemapRightShift = false
+    var skipUsercentricsConsentBanner = false
 }

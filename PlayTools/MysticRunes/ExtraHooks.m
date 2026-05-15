@@ -274,6 +274,22 @@ __attribute__((visibility("hidden")))
     }];
 }
 
+- (void) hook_Usercentrics_showFirstLayerWithHostView:(id)hostView bannerSettings:(id)bannerSettings {
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        Class cls = NSClassFromString(@"UsercentricsHelper");
+
+        SEL selector = NSSelectorFromString(@"sendUnityMessageWithObj:andMethod:andMsg:");
+
+        if ([cls respondsToSelector:selector]) {
+            IMP imp = [cls methodForSelector:selector];
+            typedef void (*Function)(id, SEL, id, id, id);
+            Function function = (Function)imp;
+            function(cls, selector, @"Usercentrics", @"HandleBannerResponse", @"{}");
+        }
+    });
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -363,6 +379,10 @@ __attribute__((visibility("hidden")))
 
         if ([[PlaySettings shared] unityEngineFixAutoRotate]) {
             [objc_getClass("UnityAppController") swizzleInstanceMethod:NSSelectorFromString(@"didTransitionToViewController:fromViewController:") withMethod:@selector(hook_UnityAppController_didTransitionToViewController:fromViewController:)];
+        }
+
+        if ([[PlaySettings shared] skipUsercentricsConsentBanner]) {
+            [objc_getClass("UsercentricsUI.UsercentricsUnityBanner") swizzleInstanceMethod:NSSelectorFromString(@"showFirstLayerWithHostView:bannerSettings:") withMethod:@selector(hook_Usercentrics_showFirstLayerWithHostView:bannerSettings:)];
         }
     });
 }
