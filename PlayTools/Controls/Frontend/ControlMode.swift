@@ -85,17 +85,24 @@ public class ControlMode: Equatable {
         if PlaySettings.shared.disableBuiltinGamepad {
             // The app may set its own gamepad event handler, so delay a few seconds and override it
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
-                GCController.current?.extendedGamepad?.valueChangedHandler = { profile, element in
-                    self.controllerAdapter.handleValueChanged(profile, element)
+                self.overrideGameController(controller: GCController.current)
+            }
+
+            centre.addObserver(forName: NSNotification.Name.GCControllerDidBecomeCurrent,
+                               object: nil,
+                               queue: main) { nofitication in
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
+                    self.overrideGameController(controller: nofitication.object as? GCController)
                 }
             }
 
-            centre.addObserver(forName: NSNotification.Name.GCControllerDidConnect, object: nil, queue: main) { _ in
+            centre.addObserver(forName: NSNotification.Name.GCControllerDidConnect,
+                               object: nil,
+                               queue: main) { nofitication in
                 GCController.shouldMonitorBackgroundEvents = true
+
                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
-                    GCController.current?.extendedGamepad?.valueChangedHandler = { profile, element in
-                        self.controllerAdapter.handleValueChanged(profile, element)
-                    }
+                    self.overrideGameController(controller: nofitication.object as? GCController)
                 }
             }
         } else {
@@ -105,6 +112,18 @@ public class ControlMode: Equatable {
                     self.controllerAdapter.handleValueChanged(profile, element)
                 }
             }
+        }
+    }
+
+    private func overrideGameController(controller: GCController?) {
+        guard let controller = controller else {
+            return
+        }
+
+        NotificationCenter.default.post(name: .GCControllerDidDisconnect, object: controller)
+
+        controller.extendedGamepad?.valueChangedHandler = { profile, element in
+            self.controllerAdapter.handleValueChanged(profile, element)
         }
     }
 
