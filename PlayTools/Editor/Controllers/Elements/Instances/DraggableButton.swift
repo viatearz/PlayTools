@@ -54,7 +54,7 @@ class DraggableButtonModel: ControlModel<DraggableButton>, ParentElement {
             self.data.movementKeyName = name
             button.setTitle(data.movementKeyName, for: UIControl.State.normal)
             if !self.data.mode.isThumbstickType {
-                setMode(mode: .thumbstick)
+                setMode(mode: .thumbstickFreeRadius)
             }
         } else {
             // set the child key
@@ -79,9 +79,19 @@ class DraggableButtonModel: ControlModel<DraggableButton>, ParentElement {
     }
 
     func switchToNextMode() {
-        let maxValue = DraggableMode.mouseTypeMax.rawValue - 1
-        let newValue = data.mode.rawValue % maxValue + 1
-        let newMode = DraggableMode(rawValue: newValue)!
-        setMode(mode: newMode)
+        let minValue = data.mode.isMouseType
+            ? DraggableMode.mouseCursorHidden.rawValue
+            : DraggableMode.thumbstickFixedRadius.rawValue
+
+        let maxValue = data.mode.isMouseType
+            ? DraggableMode.mouseTypeMax.rawValue - 1
+            : DraggableMode.thumbstickTypeMax.rawValue - 1
+
+        var nextValue = data.mode.rawValue + 1
+        if nextValue > maxValue {
+            nextValue = minValue
+        }
+
+        setMode(mode: DraggableMode(rawValue: nextValue)!)
     }
 }

@@ -67,11 +67,17 @@ public class TouchscreenControllerEventAdapter: ControllerEventAdapter {
 
 class ThumbstickCursorControl {
     private var thumbstickVelocity: CGVector = CGVector.zero,
-                thumbstickPolling: Bool = false,
-                key: String
+                thumbstickPolling: Bool = false
+    private let onPoll: (CGFloat, CGFloat) -> Void
 
     init(_ key: String) {
-        self.key = key
+        self.onPoll = { valueX, valueY in
+            _ = ActionDispatcher.dispatch(key: key, valueX: valueX, valueY: valueY)
+        }
+    }
+
+    init(onPoll: @escaping (CGFloat, CGFloat) -> Void) {
+        self.onPoll = onPoll
     }
 
     static private func isVectorSignificant(_ vector: CGVector) -> Bool {
@@ -87,12 +93,19 @@ class ThumbstickCursorControl {
         }
     }
 
+    public func stop() {
+        self.thumbstickPolling = false
+    }
+
     private func thumbstickPoll() {
+        if !self.thumbstickPolling {
+            return
+        }
         if !ThumbstickCursorControl.isVectorSignificant(self.thumbstickVelocity) {
             self.thumbstickPolling = false
             return
         }
-        _ = ActionDispatcher.dispatch(key: key, valueX: thumbstickVelocity.dx, valueY: thumbstickVelocity.dy)
+        onPoll(thumbstickVelocity.dx, thumbstickVelocity.dy)
         PlayInput.touchQueue.asyncAfter(
             deadline: DispatchTime.now() + 0.017, execute: self.thumbstickPoll)
     }

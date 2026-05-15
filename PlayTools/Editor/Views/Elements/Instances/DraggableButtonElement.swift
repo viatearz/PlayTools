@@ -49,7 +49,7 @@ class DraggableButtonElement: Element {
     override func focus(_ focus: Bool) {
         super.focus(focus)
         self.isFocus = focus
-        self.changeModeButton?.isHidden = !isFocus || !mode.isMouseType
+        self.changeModeButton?.isHidden = !isFocus
     }
 
     // Since the change mode button is outside its parent's bounds,
@@ -103,13 +103,13 @@ class DraggableButtonElement: Element {
 
     func setMode(mode: DraggableMode) {
         self.mode = mode
-        self.changeModeButton?.isHidden = !isFocus || !mode.isMouseType
+        self.changeModeButton?.isHidden = !isFocus
 
         var displayName: String
-        if mode == .mouseCursorHidden {
+        if mode == .mouseCursorHidden || mode == .thumbstickFreeRadius {
             displayName = NSLocalizedString("keymappingEditor.draggableButton.mode1",
                                             tableName: "Playtools", value: "Mode 1", comment: "")
-        } else if mode == .mouseCursorVisible {
+        } else if mode == .mouseCursorVisible || mode == .thumbstickFixedRadius {
             displayName = NSLocalizedString("keymappingEditor.draggableButton.mode2",
                                             tableName: "Playtools", value: "Mode 2", comment: "")
         } else {

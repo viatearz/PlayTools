@@ -24,7 +24,9 @@ enum DraggableMode: Int, CaseIterable {
     case mouseCursorHidden = 1
     case mouseCursorVisible = 2
     case mouseTypeMax
-    case thumbstick = 1000
+    case thumbstickFixedRadius = 1000
+    case thumbstickFreeRadius = 1001
+    case thumbstickTypeMax
 
     var isMouseType: Bool {
         self.rawValue >= DraggableMode.mouseCursorHidden.rawValue &&
@@ -32,7 +34,8 @@ enum DraggableMode: Int, CaseIterable {
     }
 
     var isThumbstickType: Bool {
-        self == .thumbstick
+        self.rawValue >= DraggableMode.thumbstickFixedRadius.rawValue &&
+        self.rawValue < DraggableMode.thumbstickTypeMax.rawValue
     }
 }
 

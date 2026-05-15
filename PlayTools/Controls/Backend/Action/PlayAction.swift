@@ -161,16 +161,28 @@ class ThumbstickDraggableButtonAction: ButtonAction {
     var releasePoint: CGPoint?
     var movementKeyName: String
     var sensitivity: CGFloat = 1.0
+    var draggableMode: DraggableMode
+    var thumbstickPoller: ThumbstickCursorControl?
 
     init(keyCode: Int, keyName: String, point: CGPoint, movementKeyName: String,
-         sensitivity: CGFloat) {
+         sensitivity: CGFloat, draggableMode: DraggableMode) {
         self.currentPoint = point
         self.movementKeyName = movementKeyName
         self.sensitivity = sensitivity
+        self.draggableMode = draggableMode
         super.init(keyCode: keyCode, keyName: keyName, point: point)
     }
 
     convenience init(data: DraggableButton) {
+        let sensitivity = switch data.mode {
+        case .thumbstickFixedRadius:
+            data.transform.size.absoluteSize / 2    // Match the absolute radius of editor elements
+        case .thumbstickFreeRadius:
+            data.transform.size / 15                // 15 is the default size of editor elements
+        default:
+            1.0
+        }
+
         self.init(
             keyCode: data.keyCode,
             keyName: data.keyName,
@@ -178,7 +190,8 @@ class ThumbstickDraggableButtonAction: ButtonAction {
                 x: data.transform.xCoord.absoluteX,
                 y: data.transform.yCoord.absoluteY),
             movementKeyName: data.movementKeyName,
-            sensitivity: data.transform.size.absoluteSize / 2)
+            sensitivity: sensitivity,
+            draggableMode: data.mode)
     }
 
     override func update(pressed: Bool) {
@@ -196,15 +209,30 @@ class ThumbstickDraggableButtonAction: ButtonAction {
             if id == nil {
                 ActionDispatcher.unregister(key: self.movementKeyName)
             }
+            self.thumbstickPoller?.stop()
+            self.thumbstickPoller = nil
         }
     }
 
     override func invalidate() {
         ActionDispatcher.unregister(key: self.movementKeyName)
+        self.thumbstickPoller?.stop()
+        self.thumbstickPoller = nil
         super.invalidate()
     }
 
     func thumbstickUpdate(_ deltaX: CGFloat, _ deltaY: CGFloat) {
+        switch draggableMode {
+        case .thumbstickFixedRadius:
+            handleFixedRadius(deltaX, deltaY)
+        case .thumbstickFreeRadius:
+            handleFreeRadius(deltaX, deltaY)
+        default:
+            print("unsupported mode: \(draggableMode)")
+        }
+    }
+
+    func handleFixedRadius(_ deltaX: CGFloat, _ deltaY: CGFloat) {
         let dist = deltaX * deltaX + deltaY * deltaY
         if dist < releaseThreshold * releaseThreshold {
             if let releasePoint = releasePoint {
@@ -226,6 +254,22 @@ class ThumbstickDraggableButtonAction: ButtonAction {
         if dist > activateThreshold * activateThreshold {
             self.releasePoint = currentPoint
         }
+    }
+
+    func handleFreeRadius(_ deltaX: CGFloat, _ deltaY: CGFloat) {
+        if self.thumbstickPoller == nil {
+            self.thumbstickPoller = ThumbstickCursorControl(onPoll: onFreeRadiusPoll)
+        }
+        self.thumbstickPoller?.update(velocityX: deltaX * 6, velocityY: deltaY * 6)
+    }
+
+    func onFreeRadiusPoll(_ deltaX: CGFloat, _ deltaY: CGFloat) {
+        self.currentPoint.x += deltaX * sensitivity * 2
+        self.currentPoint.y -= deltaY * sensitivity * 2
+        Toucher.touchcam(point: currentPoint, phase: UITouch.Phase.moved, tid: &id,
+                         actionName: "DraggableButton", keyName: keyName)
+
+        self.releasePoint = currentPoint
     }
 }
 
