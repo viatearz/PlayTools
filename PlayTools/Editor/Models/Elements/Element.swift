@@ -60,48 +60,56 @@ struct DraggableButton: BaseElement {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.keyCode = try container.decode(Int.self, forKey: .keyCode)
-        let serializedString = try container.decode(String.self, forKey: .keyName)
+        var decodedKeyCode = try container.decode(Int.self, forKey: .keyCode)
+        var decodedKeyName = try container.decode(String.self, forKey: .keyName)
+        (decodedKeyCode, decodedKeyName) = Self.migrateLegacyConfig(keyCode: decodedKeyCode,
+                                                                    keyName: decodedKeyName)
         self.transform = try container.decode(KeyModelTransform.self, forKey: .transform)
 
-        let parts = serializedString.split(separator: "$")
+        let parts = decodedKeyName.split(separator: "$")
         if parts.count == 1 {
-            if keyCode == -2 {
-                self.keyCode = KeyCodeNames.defaultCode
-                self.keyName = KeyCodeNames.rightMouseButton
-            } else if keyCode == -3 {
-                self.keyCode = KeyCodeNames.defaultCode
-                self.keyName = KeyCodeNames.middleMouseButton
-            } else {
-                self.keyName = KeyCodeNames.keyCodes[keyCode] ?? "Btn"
-            }
-            self.movementKeyName = String(parts[0])
+            self.keyCode = decodedKeyCode
+            self.keyName = KeyCodeNames.keyCodes[keyCode] ?? "Btn"
+            self.movementKeyName = decodedKeyName
             self.mode = .mouseCursorHidden
         } else {
+            self.keyCode = decodedKeyCode
             self.keyName = String(parts[1])
             self.movementKeyName = String(parts[0])
-            self.mode = DraggableButton.parseMode(from: String(parts[2]))
+            self.mode = Self.parseMode(from: String(parts[2]))
         }
     }
 
     func encode(to encoder: Encoder) throws {
-        var keyCode = keyCode
-        var serializedString = ""
-        if mode == .mouseCursorHidden {
-            if keyName == KeyCodeNames.rightMouseButton {
-                keyCode = -2
-            } else if keyName == KeyCodeNames.middleMouseButton {
-                keyCode = -3
-            }
-            serializedString = movementKeyName
+        var serializedKeyName = ""
+        if mode == .mouseCursorHidden && !KeyCodeNames.isMouseButton(keyName) {
+            // When using the default mode, ensure compatibility with the official version
+            serializedKeyName = movementKeyName
         } else {
-            serializedString = "\(movementKeyName)$\(keyName)$\(mode.rawValue)"
+            serializedKeyName = "\(movementKeyName)$\(keyName)$\(mode.rawValue)"
         }
 
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(keyCode, forKey: .keyCode)
-        try container.encode(serializedString, forKey: .keyName)
+        try container.encode(serializedKeyName, forKey: .keyName)
         try container.encode(transform, forKey: .transform)
+    }
+
+    private static func migrateLegacyConfig(keyCode: Int, keyName: String) -> (Int, String) {
+        switch keyCode {
+        case -2:
+            return (
+                KeyCodeNames.defaultCode,
+                "\(keyName)$\(KeyCodeNames.rightMouseButton)$\(DraggableMode.mouseCursorHidden.rawValue)"
+            )
+        case -3:
+            return (
+                KeyCodeNames.defaultCode,
+                "\(keyName)$\(KeyCodeNames.middleMouseButton)$\(DraggableMode.mouseCursorHidden.rawValue)"
+            )
+        default:
+            return (keyCode, keyName)
+        }
     }
 
     private static func parseMode(from str: String) -> DraggableMode {

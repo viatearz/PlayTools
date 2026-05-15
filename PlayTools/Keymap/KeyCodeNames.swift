@@ -153,6 +153,10 @@ class KeyCodeNames {
         gcCode[GCKeyCode.pageDown.rawValue] = "Page Down"
         return gcCode
     }()
+
+    public static func isMouseButton(_ keyName: String) -> Bool {
+        keyName == leftMouseButton || keyName == rightMouseButton || keyName == middleMouseButton
+    }
 }
 // Swift lint said the class was too long, so split into two parts
 extension KeyCodeNames {
