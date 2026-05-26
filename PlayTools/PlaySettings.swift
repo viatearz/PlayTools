@@ -116,6 +116,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var skipUsercentricsConsentBanner = extraSettingsData.skipUsercentricsConsentBanner
 
+    @objc lazy var duelLinksFixLoginIssue = extraSettingsData.duelLinksFixLoginIssue
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -287,4 +289,5 @@ struct ExtraAppSettingsData: Codable {
     var disableBuiltinGamepad = false
     var nikkeTTSMiniGameRemapRightShift = false
     var skipUsercentricsConsentBanner = false
+    var duelLinksFixLoginIssue = false
 }

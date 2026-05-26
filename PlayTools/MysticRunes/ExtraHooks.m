@@ -290,6 +290,44 @@ __attribute__((visibility("hidden")))
     });
 }
 
+static void NSApplicationActivate(void) {
+    id obj = [NSClassFromString(@"NSApplication") valueForKey:@"sharedApplication"];
+    
+    SEL selector = NSSelectorFromString(@"activate");
+    
+    if (obj != nil && [obj respondsToSelector:selector]) {
+        IMP imp = [obj methodForSelector:selector];
+        typedef void (*Function)(id, SEL);
+        Function function = (Function)imp;
+        function(obj, selector);
+    }
+}
+
+static void NSApplicationHide(void) {
+    id obj = [NSClassFromString(@"NSApplication") valueForKey:@"sharedApplication"];
+    
+    SEL selector = NSSelectorFromString(@"hide:");
+    
+    if (obj != nil && [obj respondsToSelector:selector]) {
+        IMP imp = [obj methodForSelector:selector];
+        typedef void (*Function)(id, SEL, id);
+        Function function = (Function)imp;
+        function(obj, selector, nil);
+    }
+}
+
+- (void) hook_YuGiOhDuelLinks_application:(id)application openURL:(id)url options:(id)options {
+    [self hook_YuGiOhDuelLinks_application:application openURL:url options:options];
+    
+    // Trigger -[UnityAppController applicationDidBecomeActive:] to finish login
+    
+    NSApplicationHide();
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        NSApplicationActivate();
+    });
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -391,6 +429,10 @@ __attribute__((visibility("hidden")))
 
         if ([[PlaySettings shared] skipUsercentricsConsentBanner]) {
             [objc_getClass("UsercentricsUI.UsercentricsUnityBanner") swizzleInstanceMethod:NSSelectorFromString(@"showFirstLayerWithHostView:bannerSettings:") withMethod:@selector(hook_Usercentrics_showFirstLayerWithHostView:bannerSettings:)];
+        }
+
+        if ([[PlaySettings shared] duelLinksFixLoginIssue]) {
+            [objc_getClass("UnityAppControllerExtention") swizzleInstanceMethod:NSSelectorFromString(@"application:openURL:options:") withMethod:@selector(hook_YuGiOhDuelLinks_application:openURL:options:)];
         }
     });
 }
