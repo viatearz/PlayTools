@@ -335,6 +335,13 @@ __attribute__((visibility("hidden")))
         [objc_getClass("NSBundleResourceRequest") swizzleInstanceMethod:NSSelectorFromString(@"conditionallyBeginAccessingResourcesWithCompletionHandler:") withMethod:@selector(hook_conditionallyBeginAccessingResourcesWithCompletionHandler:)];
     }
 
+    if ([[PlaySettings shared] forceUIViewLandscape]) {
+        // First pass
+        for (NSString *UIViewControllerName in [[PlaySettings shared] landscapeUIViewControllerNames]) {
+            [NSClassFromString(UIViewControllerName) swizzleInstanceMethod:NSSelectorFromString(@"supportedInterfaceOrientations") withMethod:@selector(hook_UIViewController_supportedInterfaceOrientations)];
+        }
+    }
+
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         if ([[PlaySettings shared] unityEngineFixKeyboardInput]) {
             [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
@@ -365,7 +372,8 @@ __attribute__((visibility("hidden")))
         }
 
         if ([[PlaySettings shared] forceUIViewLandscape]) {
-            for (NSString *UIViewControllerName in [[PlaySettings shared] forceUIViewLandscapeArgs]) {
+            // Second pass
+            for (NSString *UIViewControllerName in [[PlaySettings shared] landscapeUIViewControllerNames]) {
                 [NSClassFromString(UIViewControllerName) swizzleInstanceMethod:NSSelectorFromString(@"supportedInterfaceOrientations") withMethod:@selector(hook_UIViewController_supportedInterfaceOrientations)];
             }
         }

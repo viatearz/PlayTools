@@ -80,8 +80,6 @@ let settings = PlaySettings.shared
 
     @objc lazy var forceUIViewLandscape = extraSettingsData.forceUIViewLandscape
 
-    @objc lazy var forceUIViewLandscapeArgs = extraSettingsData.forceUIViewLandscapeArgs
-
     @objc lazy var useBuiltinPointerLock = extraSettingsData.useBuiltinPointerLock
 
     @objc lazy var clearLastTouchesWhenEnterTextInput = extraSettingsData.clearLastTouchesWhenEnterTextInput
@@ -117,6 +115,20 @@ let settings = PlaySettings.shared
     @objc lazy var nikkeTTSMiniGameRemapRightShift = extraSettingsData.nikkeTTSMiniGameRemapRightShift
 
     @objc lazy var skipUsercentricsConsentBanner = extraSettingsData.skipUsercentricsConsentBanner
+
+    private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
+
+    @objc func landscapeUIViewControllerNames() -> [String] {
+        let result = pendingLandscapeUIViewControllerNames.filter {
+            NSClassFromString($0) != nil
+        }
+
+        pendingLandscapeUIViewControllerNames.removeAll {
+            result.contains($0)
+        }
+
+        return result
+    }
 
     lazy var discordActivity = settingsData.discordActivity
 
