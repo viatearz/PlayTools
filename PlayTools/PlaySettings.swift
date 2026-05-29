@@ -118,6 +118,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var duelLinksFixLoginIssue = extraSettingsData.duelLinksFixLoginIssue
 
+    @objc lazy var bypassMCMetaPlistCheck = extraSettingsData.bypassMCMetaPlistCheck
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -290,4 +292,5 @@ struct ExtraAppSettingsData: Codable {
     var nikkeTTSMiniGameRemapRightShift = false
     var skipUsercentricsConsentBanner = false
     var duelLinksFixLoginIssue = false
+    var bypassMCMetaPlistCheck = false
 }

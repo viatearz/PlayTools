@@ -328,6 +328,23 @@ static void NSApplicationHide(void) {
     });
 }
 
+- (id) hook_NSFileManager_attributesOfItemAtPath:(NSString *)path error:(NSError **)error {
+    if ([path isEqualToString:@"/var/mobile/Library/UserConfigurationProfiles/PublicInfo/MCMeta.plist"]) {
+        NSFileManager *fileManager = (NSFileManager *)self;
+
+        NSURL *libraryDirectory = [[fileManager URLsForDirectory:NSLibraryDirectory inDomains:NSUserDomainMask] lastObject];
+
+        NSString *redirectedPath = [[libraryDirectory URLByAppendingPathComponent:@"MCMeta.plist"] path];
+
+        if (![fileManager fileExistsAtPath:redirectedPath]) {
+            [fileManager createFileAtPath:redirectedPath contents:nil attributes:nil];
+        }
+
+        path = redirectedPath;
+    }
+    return [self hook_NSFileManager_attributesOfItemAtPath:path error:error];
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -378,6 +395,10 @@ static void NSApplicationHide(void) {
         for (NSString *UIViewControllerName in [[PlaySettings shared] landscapeUIViewControllerNames]) {
             [NSClassFromString(UIViewControllerName) swizzleInstanceMethod:NSSelectorFromString(@"supportedInterfaceOrientations") withMethod:@selector(hook_UIViewController_supportedInterfaceOrientations)];
         }
+    }
+
+    if ([[PlaySettings shared] bypassMCMetaPlistCheck]) {
+        [objc_getClass("NSFileManager") swizzleInstanceMethod:@selector(attributesOfItemAtPath:error:) withMethod:@selector(hook_NSFileManager_attributesOfItemAtPath:error:)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
