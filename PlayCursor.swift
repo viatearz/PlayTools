@@ -53,7 +53,7 @@ class PlayCursor {
         // Add tracking area when the window is created,
         // and refresh the cursor when switching back from another app.
         NotificationCenter.default.addObserver(
-            forName: NSWindow.didBecomeKeyNotification,
+            forName: NSWindow.didBecomeMainNotification,
             object: nil,
             queue: .main
         ) { _ in
@@ -105,7 +105,7 @@ class PlayCursor {
     }
 
     private func addTrackingArea() {
-        guard let contentView = NSApplication.shared.keyWindow?.contentView else {
+        guard let contentView = NSApplication.shared.mainWindow?.contentView else {
             return
         }
 
