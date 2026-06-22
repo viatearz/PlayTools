@@ -15,6 +15,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMotion/CoreMotion.h>
 #import <GameController/GameController.h>
+#import <mach-o/dyld.h>
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -228,6 +229,42 @@ bool menuWasCreated = false;
 
 @end
 
+static void UnityHooks(void) {
+    if ([[PlaySettings shared] ignoreUnityKeyboardInitializationError]) {
+        [objc_getClass("KeyboardDelegate") swizzleClassMethod:NSSelectorFromString(@"Initialize") withMethod:@selector(hook_Unity_KeyboardDelegate_Initialize)];
+    }
+}
+
+static bool CStringEndsWith(const char *str, const char *suffix) {
+    if (!str || !suffix) {
+        return false;
+    }
+    size_t strLen = strlen(str);
+    size_t suffixLen = strlen(suffix);
+    if (suffixLen > strLen) {
+        return false;
+    }
+    return strcmp(str + strLen - suffixLen, suffix) == 0;
+}
+
+static void OnImageAdded(const struct mach_header *mh, intptr_t vmaddr_slide) {
+    const char *path = NULL;
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        if (_dyld_get_image_header(i) == mh) {
+            path = _dyld_get_image_name(i);
+            break;
+        }
+    }
+
+    if (CStringEndsWith(path, "UnityFramework.framework/UnityFramework")) {
+        if (objc_getClass("UnityView") != nil) {
+            UnityHooks();
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{ UnityHooks(); });
+        }
+    }
+}
+
 /*
  This class only exists to apply swizzles from the +load of a class that won't have any categories/extensions. The reason
  for not doing this in a C module initializer is that obj-c initialization happens before any __attribute__((constructor))
@@ -365,12 +402,9 @@ bool menuWasCreated = false;
         [objc_getClass("GCMouse") swizzleClassMethod:@selector(mice) withMethod:@selector(hook_GCMouse_mice)];
     }
 
-    // Delay a frame to wait for some frameworks (such as UnityFramework) to load
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        if ([[PlaySettings shared] ignoreUnityKeyboardInitializationError]) {
-            [objc_getClass("KeyboardDelegate") swizzleClassMethod:NSSelectorFromString(@"Initialize") withMethod:@selector(hook_Unity_KeyboardDelegate_Initialize)];
-        }
-    });
+    if ([[PlaySettings shared] ignoreUnityKeyboardInitializationError]) {
+        _dyld_register_func_for_add_image(OnImageAdded);
+    }
 }
 
 @end
