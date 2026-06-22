@@ -345,6 +345,14 @@ static void NSApplicationHide(void) {
     return [self hook_NSFileManager_attributesOfItemAtPath:path error:error];
 }
 
+- (void) hook_UnityView_pressesBegan:(id)presses withEvent:(id)event {
+    // do nothing
+}
+
+- (id) hook_UnityView_keyCommands_DISABLED {
+    return nil;
+}
+
 @end
 
 @implementation ExtraHooksLoader
@@ -454,6 +462,11 @@ static void NSApplicationHide(void) {
 
         if ([[PlaySettings shared] duelLinksFixLoginIssue]) {
             [objc_getClass("UnityAppControllerExtention") swizzleInstanceMethod:NSSelectorFromString(@"application:openURL:options:") withMethod:@selector(hook_YuGiOhDuelLinks_application:openURL:options:)];
+        }
+
+        if (([[PlaySettings shared] disableBuiltinKeyboard])) {
+            [objc_getClass("UnityView") swizzleInstanceMethod:@selector(pressesBegan:withEvent:) withMethod:@selector(hook_UnityView_pressesBegan:withEvent:)];
+            [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands")  withMethod:@selector(hook_UnityView_keyCommands_DISABLED)];
         }
     });
 }
