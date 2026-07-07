@@ -17,6 +17,8 @@
 		920DDAA72F4B353500D0E9A8 /* ExtraHooks.m in Sources */ = {isa = PBXBuildFile; fileRef = 920DDAA62F4B353500D0E9A8 /* ExtraHooks.m */; };
 		920DDAAA2F4B36D100D0E9A8 /* ExtraHooks.h in Headers */ = {isa = PBXBuildFile; fileRef = 920DDAA92F4B36D100D0E9A8 /* ExtraHooks.h */; };
 		920DDAAE2F4B4B5900D0E9A8 /* PlayCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920DDAAC2F4B4B5400D0E9A8 /* PlayCursor.swift */; };
+		925CF1BC2FFCE25500F429D8 /* FilteredDirectoryEnumerator.h in Sources */ = {isa = PBXBuildFile; fileRef = 925CF1BB2FFCE25200F429D8 /* FilteredDirectoryEnumerator.h */; };
+		925CF1BE2FFCE25D00F429D8 /* FilteredDirectoryEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 925CF1BD2FFCE25900F429D8 /* FilteredDirectoryEnumerator.m */; };
 		92611FD72F5FDDB900B7B1E8 /* GamepadToKeyEditorKeyboardEventAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92611FD62F5FDDAF00B7B1E8 /* GamepadToKeyEditorKeyboardEventAdapter.swift */; };
 		92611FDA2F5FDDEC00B7B1E8 /* GamepadToKeyEditorMouseEventAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92611FD92F5FDDE500B7B1E8 /* GamepadToKeyEditorMouseEventAdapter.swift */; };
 		92611FDC2F5FDE0F00B7B1E8 /* GamepadToKeyEditorControllerEventAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92611FDB2F5FDE0A00B7B1E8 /* GamepadToKeyEditorControllerEventAdapter.swift */; };
@@ -121,6 +123,8 @@
 		920DDAA62F4B353500D0E9A8 /* ExtraHooks.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExtraHooks.m; sourceTree = "<group>"; };
 		920DDAA92F4B36D100D0E9A8 /* ExtraHooks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtraHooks.h; sourceTree = "<group>"; };
 		920DDAAC2F4B4B5400D0E9A8 /* PlayCursor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayCursor.swift; sourceTree = "<group>"; };
+		925CF1BB2FFCE25200F429D8 /* FilteredDirectoryEnumerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FilteredDirectoryEnumerator.h; sourceTree = "<group>"; };
+		925CF1BD2FFCE25900F429D8 /* FilteredDirectoryEnumerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FilteredDirectoryEnumerator.m; sourceTree = "<group>"; };
 		92611FD62F5FDDAF00B7B1E8 /* GamepadToKeyEditorKeyboardEventAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadToKeyEditorKeyboardEventAdapter.swift; sourceTree = "<group>"; };
 		92611FD92F5FDDE500B7B1E8 /* GamepadToKeyEditorMouseEventAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadToKeyEditorMouseEventAdapter.swift; sourceTree = "<group>"; };
 		92611FDB2F5FDE0A00B7B1E8 /* GamepadToKeyEditorControllerEventAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamepadToKeyEditorControllerEventAdapter.swift; sourceTree = "<group>"; };
@@ -569,6 +573,8 @@
 				AB7DA47629B8A78B0034ACB2 /* PlayShadow.h */,
 				920DDAA62F4B353500D0E9A8 /* ExtraHooks.m */,
 				920DDAA92F4B36D100D0E9A8 /* ExtraHooks.h */,
+				925CF1BD2FFCE25900F429D8 /* FilteredDirectoryEnumerator.m */,
+				925CF1BB2FFCE25200F429D8 /* FilteredDirectoryEnumerator.h */,
 			);
 			path = MysticRunes;
 			sourceTree = "<group>";
@@ -779,11 +785,13 @@
 				9562D15A2AB4FBBB002C329D /* TransparentKeyboardEventAdapter.swift in Sources */,
 				AA71978B287A480D00623C15 /* MenuController.swift in Sources */,
 				9562D1732AB52416002C329D /* EditorKeyboardEventAdapter.swift in Sources */,
+				925CF1BE2FFCE25D00F429D8 /* FilteredDirectoryEnumerator.m in Sources */,
 				92611FD72F5FDDB900B7B1E8 /* GamepadToKeyEditorKeyboardEventAdapter.swift in Sources */,
 				9562D1752AB52479002C329D /* EditorMouseEventAdapter.swift in Sources */,
 				AA7197AA287A481500623C15 /* Toast.swift in Sources */,
 				AA719789287A480D00623C15 /* PlayInput.swift in Sources */,
 				AA71970B287A44D200623C15 /* PlayLoader.m in Sources */,
+				925CF1BC2FFCE25500F429D8 /* FilteredDirectoryEnumerator.h in Sources */,
 				9555ED332C058E36006E469C /* DebugController.swift in Sources */,
 				9562D1512AB484C7002C329D /* EventAdapters.swift in Sources */,
 				92611FDE2F5FDF3E00B7B1E8 /* GamepadToKeyEditorController.swift in Sources */,

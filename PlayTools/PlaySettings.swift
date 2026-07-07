@@ -122,6 +122,10 @@ let settings = PlaySettings.shared
 
     @objc lazy var playChainConvertDataToString = extraSettingsData.playChainConvertDataToString
 
+    @objc lazy var bypassDetectionB = extraSettingsData.bypassDetectionB
+
+    @objc lazy var bypassDetectionC = extraSettingsData.bypassDetectionC
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -299,4 +303,6 @@ struct ExtraAppSettingsData: Codable {
     var duelLinksFixLoginIssue = false
     var bypassMCMetaPlistCheck = false
     var playChainConvertDataToString = false
+    var bypassDetectionB = false
+    var bypassDetectionC = false
 }

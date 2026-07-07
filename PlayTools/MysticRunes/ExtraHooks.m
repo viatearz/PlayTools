@@ -8,6 +8,7 @@
 #import <PlayTools/PlayTools-Swift.h>
 #import "ExtraHooks.h"
 #import <WebKit/WebKit.h>
+#import "FilteredDirectoryEnumerator.h"
 
 __attribute__((visibility("hidden")))
 @interface ExtraHooksLoader : NSObject
@@ -357,6 +358,50 @@ static void NSApplicationHide(void) {
     return nil;
 }
 
+static NSDictionary *GetEntitlements(void) {
+    NSString *path = [NSString stringWithFormat:@"/Users/%@/Library/Containers/io.playcover.PlayCover/Entitlements/%@.plist",
+                      NSUserName(),
+                      NSBundle.mainBundle.bundleIdentifier];
+    return [NSDictionary dictionaryWithContentsOfFile:path];
+}
+
++ (id) hook_NSPropertyListSerialization_propertyListWithData:(NSData *) data
+                                                     options:(NSPropertyListReadOptions) opt
+                                                      format:(NSPropertyListFormat *) format
+                                                       error:(NSError **) error {
+    id plist = [self hook_NSPropertyListSerialization_propertyListWithData:data
+                                                                 options:opt
+                                                                  format:format
+                                                                   error:error];
+
+    if (![plist isKindOfClass:[NSDictionary class]]) {
+        return plist;
+    }
+
+    NSDictionary *dict = (NSDictionary *)plist;
+    if (dict[@"com.apple.security.app-sandbox"] == nil) {
+        return plist;
+    }
+
+    NSDictionary *entitlements = GetEntitlements();
+    return entitlements ?: plist;
+}
+
+- (NSDirectoryEnumerator *) hook_NSFileManager_enumeratorAtPath:(NSString *) path {
+    NSDirectoryEnumerator *enumerator = [self hook_NSFileManager_enumeratorAtPath:path];
+    if (enumerator == nil) {
+        return nil;
+    }
+
+    BOOL (^filter)(NSString *) = ^BOOL(NSString *path) {
+        if ([path containsString:@"AKInterface.bundle"]) {
+            return YES;
+        }
+        return NO;
+    };
+
+    return [[FilteredDirectoryEnumerator alloc] initWithEnumerator:enumerator filter:filter];
+}
 @end
 
 @implementation ExtraHooksLoader
@@ -416,6 +461,14 @@ static void NSApplicationHide(void) {
     if (([[PlaySettings shared] disableBuiltinKeyboard])) {
         [objc_getClass("GCKeyboard") swizzleClassMethod:NSSelectorFromString(@"coalescedKeyboard") withMethod:@selector(hook_GCKeyboard_coalescedKeyboard)];
         [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(pressesBegan:withEvent:) withMethod:@selector(hook_UIView_pressesBegan:withEvent:)];
+    }
+
+    if (([[PlaySettings shared] bypassDetectionB])) {
+        [objc_getClass("NSPropertyListSerialization") swizzleClassMethod:@selector(propertyListWithData:options:format:error:)  withMethod:@selector(hook_NSPropertyListSerialization_propertyListWithData:options:format:error:)];
+    }
+
+    if (([[PlaySettings shared] bypassDetectionC])) {
+        [objc_getClass("NSFileManager") swizzleInstanceMethod:@selector(enumeratorAtPath:) withMethod:@selector(hook_NSFileManager_enumeratorAtPath:)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
