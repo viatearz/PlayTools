@@ -19,6 +19,11 @@ public class PlayKeychain: NSObject {
     static let shared = PlayKeychain()
     private static let playChainDB = PlayKeychainDB.shared
 
+    private enum PlayKeychainAction {
+        case add
+        case update
+    }
+
     // Derives the default value for kSecAttrAccessGroup by reading the app's entitlements plist.
     // Reference: https://developer.apple.com/documentation/security/ksecattraccessgroup
     private static let defaultAccessGroup: String? = {
@@ -44,6 +49,20 @@ public class PlayKeychain: NSObject {
         return dict["application-identifier"] as? String
     }()
 
+    private static func preprocess(_ attributes: NSDictionary, for action: PlayKeychainAction) -> NSDictionary {
+        guard let newAttributes = attributes.mutableCopy() as? NSMutableDictionary else {
+            return attributes
+        }
+
+        if PlaySettings.shared.fixPlayChainAccessGroup {
+            if action == .add && newAttributes[kSecAttrAccessGroup] == nil {
+                newAttributes[kSecAttrAccessGroup] = defaultAccessGroup
+            }
+        }
+
+        return newAttributes
+    }
+
     @objc public static func debugLogger(_ logContent: String) {
         if PlaySettings.shared.settingsData.playChainDebugging {
             NSLog("PC-DEBUG: \(logContent)")
@@ -52,16 +71,9 @@ public class PlayKeychain: NSObject {
     // Emulates SecItemAdd, SecItemUpdate, SecItemDelete and SecItemCopyMatching
     // Store the entire dictionary as a plist
     // SecItemAdd(CFDictionaryRef attributes, CFTypeRef *result)
-    @objc static public func add(_ inAttributes: NSDictionary,
+    @objc static public func add(_ attributes: NSDictionary,
                                  result: UnsafeMutablePointer<Unmanaged<CFTypeRef>?>?) -> OSStatus {
-        guard let attributes = inAttributes.mutableCopy() as? NSMutableDictionary else {
-            return errSecParam
-        }
-        if PlaySettings.shared.fixPlayChainAccessGroup {
-            if attributes[kSecAttrAccessGroup] == nil {
-                attributes[kSecAttrAccessGroup] = defaultAccessGroup
-            }
-        }
+        let attributes = preprocess(attributes, for: .add)
         guard let keychainDict = playChainDB.insert(attributes) else {
             debugLogger("Failed to write keychain file")
             return errSecIO
@@ -111,6 +123,7 @@ public class PlayKeychain: NSObject {
 
     // SecItemUpdate(CFDictionaryRef query, CFDictionaryRef attributesToUpdate)
     @objc static public func update(_ query: NSDictionary, attributesToUpdate: NSDictionary) -> OSStatus {
+        let attributesToUpdate = preprocess(attributesToUpdate, for: .update)
         guard let keychainDict = playChainDB.query(query)?.first else {
             debugLogger("Keychain item not found in db")
             return errSecItemNotFound
