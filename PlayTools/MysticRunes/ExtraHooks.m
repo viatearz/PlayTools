@@ -345,11 +345,15 @@ static void NSApplicationHide(void) {
     return [self hook_NSFileManager_attributesOfItemAtPath:path error:error];
 }
 
-- (void) hook_UnityView_pressesBegan:(id)presses withEvent:(id)event {
+- (void) hook_UIView_pressesBegan:(id)presses withEvent:(id)event {
     // do nothing
 }
 
 - (id) hook_UnityView_keyCommands_DISABLED {
+    return nil;
+}
+
+- (id) hook_GCKeyboard_coalescedKeyboard {
     return nil;
 }
 
@@ -409,6 +413,11 @@ static void NSApplicationHide(void) {
         [objc_getClass("NSFileManager") swizzleInstanceMethod:@selector(attributesOfItemAtPath:error:) withMethod:@selector(hook_NSFileManager_attributesOfItemAtPath:error:)];
     }
 
+    if (([[PlaySettings shared] disableBuiltinKeyboard])) {
+        [objc_getClass("GCKeyboard") swizzleClassMethod:NSSelectorFromString(@"coalescedKeyboard") withMethod:@selector(hook_GCKeyboard_coalescedKeyboard)];
+        [objc_getClass("FIOSView") swizzleInstanceMethod:@selector(pressesBegan:withEvent:) withMethod:@selector(hook_UIView_pressesBegan:withEvent:)];
+    }
+
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         if ([[PlaySettings shared] unityEngineFixKeyboardInput]) {
             [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands") withMethod:@selector(hook_UnityView_keyCommands)];
@@ -465,7 +474,7 @@ static void NSApplicationHide(void) {
         }
 
         if (([[PlaySettings shared] disableBuiltinKeyboard])) {
-            [objc_getClass("UnityView") swizzleInstanceMethod:@selector(pressesBegan:withEvent:) withMethod:@selector(hook_UnityView_pressesBegan:withEvent:)];
+            [objc_getClass("UnityView") swizzleInstanceMethod:@selector(pressesBegan:withEvent:) withMethod:@selector(hook_UIView_pressesBegan:withEvent:)];
             [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands")  withMethod:@selector(hook_UnityView_keyCommands_DISABLED)];
         }
     });

@@ -78,10 +78,6 @@ import GameController
     }
 
     private func disableBuiltinKeyboard() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
-            GCKeyboard.coalesced?.keyboardInput?.keyChangedHandler = nil
-        }
-
         NotificationCenter.default.addObserver(
             forName: .GCKeyboardDidConnect,
             object: nil,
