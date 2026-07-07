@@ -60,6 +60,13 @@ public class PlayKeychain: NSObject {
             }
         }
 
+        if PlaySettings.shared.playChainConvertDataToString {
+            if let accessibleData = newAttributes[kSecAttrAccessible] as? Data,
+               let accessibleStr = String(data: accessibleData, encoding: .utf8) {
+                newAttributes[kSecAttrAccessible] = accessibleStr
+            }
+        }
+
         return newAttributes
     }
 
