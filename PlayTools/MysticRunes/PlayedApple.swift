@@ -258,6 +258,12 @@ public class PlayKeychain: NSObject {
             debugLogger("Failed to generate key pair.")
             return errSecMissingEntitlement
         }
+        if let newPublicKey = newPublicKey {
+            publicKey?.pointee = Unmanaged.passRetained(newPublicKey)
+        }
+        if let newPrivateKey = newPrivateKey {
+            privateKey?.pointee = Unmanaged.passRetained(newPrivateKey)
+        }
         if isPrivatePermanent {
             // Add the keys to the keychain db with the original attributes
             let publicKeyRef = newPublicKey
