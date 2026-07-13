@@ -254,7 +254,7 @@ public class PlayKeychain: NSObject {
         parametersCopy[kSecPublicKeyAttrs as String] = publicKeyAttrs
         var newPublicKey: SecKey?
         var newPrivateKey: SecKey?
-        guard SecKeyGeneratePair(parametersCopy as CFDictionary, &newPublicKey, &newPrivateKey) != 0 else {
+        guard SecKeyGeneratePair(parametersCopy as CFDictionary, &newPublicKey, &newPrivateKey) == 0 else {
             debugLogger("Failed to generate key pair.")
             return errSecMissingEntitlement
         }
