@@ -2,6 +2,8 @@ import Foundation
 import UIKit
 import GameController
 
+// swiftlint:disable file_length
+
 // This class is a coordinator (and module entrance), coordinating other concrete classes
 
 @objc class PlayInput: NSObject {
@@ -28,32 +30,7 @@ import GameController
         let displaylink = CADisplayLink(target: self, selector: #selector(drainMainDispatchQueue))
         displaylink.add(to: .main, forMode: .common)
 
-        if PlaySettings.shared.disableBuiltinMouse {
-            simulateGCMouseDisconnect()
-        }
-
-        if PlaySettings.shared.disableBuiltinKeyboard {
-            disableBuiltinKeyboard()
-        }
-
-        if PlaySettings.shared.enhanceBuiltinMouse {
-            EnhancedBuiltinMouseSupport.shared.initialize()
-        }
-
-        if PlaySettings.shared.supportMultipleMice {
-            MultipleMiceSupport.shared.initialize()
-        }
-
-        if !PlaySettings.shared.keymapping && PlaySettings.shared.preventKeyboardBeepSound {
-            AKInterface.shared!.setupKeyboard(
-                keyboard: { _, _, _, _ in true },
-                swapMode: { true }
-            )
-        }
-
-        if PlaySettings.shared.minecraftFixKeyboardMouse {
-            applyMinecraftKeyboardMouseFix()
-        }
+        initializeFeatures()
 
         if !PlaySettings.shared.keymapping {
             return
@@ -88,7 +65,36 @@ import GameController
         mode.initialize()
     }
 
-    private func disableBuiltinKeyboard() {
+    private func initializeFeatures() {
+        if PlaySettings.shared.disableBuiltinMouse {
+            simulateGCMouseDisconnect()
+        }
+
+        if PlaySettings.shared.disableBuiltinKeyboard {
+            simulateGCKeyboardDisconnect()
+        }
+
+        if PlaySettings.shared.enhanceBuiltinMouse {
+            EnhancedBuiltinMouseSupport.shared.initialize()
+        }
+
+        if PlaySettings.shared.supportMultipleMice {
+            MultipleMiceSupport.shared.initialize()
+        }
+
+        if !PlaySettings.shared.keymapping && PlaySettings.shared.preventKeyboardBeepSound {
+            AKInterface.shared!.setupKeyboard(
+                keyboard: { _, _, _, _ in true },
+                swapMode: { true }
+            )
+        }
+
+        if PlaySettings.shared.minecraftFixKeyboardMouse {
+            applyMinecraftKeyboardMouseFix()
+        }
+    }
+
+    private func simulateGCKeyboardDisconnect() {
         NotificationCenter.default.addObserver(
             forName: .GCKeyboardDidConnect,
             object: nil,
