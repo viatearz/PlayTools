@@ -215,29 +215,23 @@ class MultipleMiceSupport {
     }
 
     private func wrapMouseEventHandlers(_ currentMouse: GCMouse) {
-        let leftButtonHandler = currentMouse.mouseInput?.leftButton.pressedChangedHandler
-        let rightButtonHandler = currentMouse.mouseInput?.rightButton?.pressedChangedHandler
-        let middleButtonHandler = currentMouse.mouseInput?.middleButton?.pressedChangedHandler
+        let leftPressedHandler = currentMouse.mouseInput?.leftButton.pressedChangedHandler
+        let leftValueHandler = currentMouse.mouseInput?.leftButton.valueChangedHandler
+        let rightPressedHandler = currentMouse.mouseInput?.rightButton?.pressedChangedHandler
+        let rightValueHandler = currentMouse.mouseInput?.rightButton?.valueChangedHandler
+        let middlePressedHandler = currentMouse.mouseInput?.middleButton?.pressedChangedHandler
+        let middleValueHandler = currentMouse.mouseInput?.middleButton?.valueChangedHandler
         let mouseMovedHandler = currentMouse.mouseInput?.mouseMovedHandler
         let scrollWheelHandler = currentMouse.mouseInput?.scroll.valueChangedHandler
 
         for mouse in GCMouse.mice() {
-            mouse.mouseInput?.leftButton.pressedChangedHandler = { button, value, pressed in
-                leftButtonHandler?(button, value, pressed)
-            }
-
-            mouse.mouseInput?.rightButton?.pressedChangedHandler = { button, value, pressed in
-                rightButtonHandler?(button, value, pressed)
-            }
-
-            mouse.mouseInput?.middleButton?.pressedChangedHandler = { button, value, pressed in
-                middleButtonHandler?(button, value, pressed)
-            }
-
-            mouse.mouseInput?.mouseMovedHandler = { mouse, deltaX, deltaY in
-                mouseMovedHandler?(mouse, deltaX, deltaY)
-            }
-
+            mouse.mouseInput?.leftButton.pressedChangedHandler = leftPressedHandler
+            mouse.mouseInput?.leftButton.valueChangedHandler = leftValueHandler
+            mouse.mouseInput?.rightButton?.pressedChangedHandler = rightPressedHandler
+            mouse.mouseInput?.rightButton?.valueChangedHandler = rightValueHandler
+            mouse.mouseInput?.middleButton?.pressedChangedHandler = middlePressedHandler
+            mouse.mouseInput?.middleButton?.valueChangedHandler = middleValueHandler
+            mouse.mouseInput?.mouseMovedHandler = mouseMovedHandler
             mouse.mouseInput?.scroll.valueChangedHandler = scrollWheelHandler
         }
     }
