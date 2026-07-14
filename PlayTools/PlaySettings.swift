@@ -126,6 +126,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var bypassDetectionC = extraSettingsData.bypassDetectionC
 
+    @objc lazy var minecraftFixKeyboardMouse = extraSettingsData.minecraftFixKeyboardMouse
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -305,4 +307,5 @@ struct ExtraAppSettingsData: Codable {
     var playChainConvertDataToString = false
     var bypassDetectionB = false
     var bypassDetectionC = false
+    var minecraftFixKeyboardMouse = false
 }

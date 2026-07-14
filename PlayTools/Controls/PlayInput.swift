@@ -51,6 +51,10 @@ import GameController
             )
         }
 
+        if PlaySettings.shared.minecraftFixKeyboardMouse {
+            applyMinecraftKeyboardMouseFix()
+        }
+
         if !PlaySettings.shared.keymapping {
             return
         }
@@ -122,6 +126,28 @@ import GameController
                 }
                 mouse.mouseInput?.scroll.valueChangedHandler = nil
                 mouse.mouseInput?.mouseMovedHandler = nil
+            }
+        }
+    }
+
+    private func applyMinecraftKeyboardMouseFix() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+            // Re-post the notifications as a workaround for the game not detecting the devices.
+            if let mouse = GCMouse.current {
+                NotificationCenter.default.post(name: .GCMouseDidConnect, object: mouse)
+            }
+            if let keyboard = GCKeyboard.coalesced {
+                NotificationCenter.default.post(name: .GCKeyboardDidConnect, object: keyboard)
+            }
+
+            // The game has a bug where it reads the wrong scroll axis,
+            // so we need to swap the X and Y axes.
+            if let mouse = GCMouse.current {
+                if let scrollHandler = mouse.mouseInput?.scroll.valueChangedHandler {
+                    mouse.mouseInput?.scroll.valueChangedHandler = { dpad, xValue, yValue in
+                        scrollHandler(dpad, yValue, xValue)
+                    }
+                }
             }
         }
     }
