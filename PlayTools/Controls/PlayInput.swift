@@ -44,6 +44,13 @@ import GameController
             MultipleMiceSupport.shared.initialize()
         }
 
+        if !PlaySettings.shared.keymapping && PlaySettings.shared.preventKeyboardBeepSound {
+            AKInterface.shared!.setupKeyboard(
+                keyboard: { _, _, _, _ in true },
+                swapMode: { true }
+            )
+        }
+
         if !PlaySettings.shared.keymapping {
             return
         }
