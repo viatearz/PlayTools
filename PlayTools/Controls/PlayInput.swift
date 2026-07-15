@@ -83,10 +83,7 @@ import GameController
         }
 
         if !PlaySettings.shared.keymapping && PlaySettings.shared.preventKeyboardBeepSound {
-            AKInterface.shared!.setupKeyboard(
-                keyboard: { _, _, _, _ in true },
-                swapMode: { true }
-            )
+            disableBeepSoundWhenKeymappingDisabled()
         }
 
         if PlaySettings.shared.minecraftFixKeyboardMouse {
@@ -134,6 +131,39 @@ import GameController
                 mouse.mouseInput?.mouseMovedHandler = nil
             }
         }
+    }
+
+    private var isTextInputMode = false
+
+    private func disableBeepSoundWhenKeymappingDisabled() {
+        let centre = NotificationCenter.default
+        let main = OperationQueue.main
+        centre.addObserver(forName: UITextField.textDidEndEditingNotification, object: nil, queue: main) { _ in
+            self.isTextInputMode = false
+        }
+        centre.addObserver(forName: UITextField.textDidBeginEditingNotification, object: nil, queue: main) { _ in
+            self.isTextInputMode = true
+        }
+        centre.addObserver(forName: UITextView.textDidEndEditingNotification, object: nil, queue: main) { _ in
+            self.isTextInputMode = false
+        }
+        centre.addObserver(forName: UITextView.textDidBeginEditingNotification, object: nil, queue: main) { _ in
+            self.isTextInputMode = true
+        }
+        AKInterface.shared!.setupKeyboard(
+            keyboard: { _, _, _, _ in
+                if self.isTextInputMode {
+                    return false
+                }
+                return true // Consume key events
+            },
+            swapMode: {
+                if self.isTextInputMode {
+                    return false
+                }
+                return true // Consume key events
+            }
+        )
     }
 
     private func applyMinecraftKeyboardMouseFix() {
