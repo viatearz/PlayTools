@@ -404,6 +404,44 @@ static NSDictionary *GetEntitlements(void) {
 }
 @end
 
+static BOOL isSystemCaller(void *retAddr) {
+    Dl_info info;
+    if (dladdr(retAddr, &info) && info.dli_fname) {
+        const char *path = info.dli_fname;
+        if (strstr(path, "/System/Library/") != NULL ||
+            strstr(path, "/usr/lib/") != NULL ||
+            strstr(path, "/System/iOSSupport/") != NULL) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+static void swizzleIsiOSAppOnMac(Class cls) {
+    if (!cls) return;
+    SEL sel = @selector(isiOSAppOnMac);
+    Method method = class_getInstanceMethod(cls, sel);
+    if (method) {
+        IMP origImp = method_getImplementation(method);
+        class_replaceMethod(cls, sel, imp_implementationWithBlock(^BOOL(id self) {
+            void *retAddr = __builtin_return_address(0);
+            if (isSystemCaller(retAddr)) {
+                typedef BOOL (*OrigFunc)(id, SEL);
+                return ((OrigFunc)origImp)(self, sel);
+            }
+            return NO; // Return NO to the game and tracking libraries
+        }), method_getTypeEncoding(method));
+    } else {
+        class_addMethod(cls, sel, imp_implementationWithBlock(^BOOL(id self) {
+            void *retAddr = __builtin_return_address(0);
+            if (isSystemCaller(retAddr)) {
+                return YES;
+            }
+            return NO;
+        }), "B@:");
+    }
+}
+
 @implementation ExtraHooksLoader
 + (void)load {
     if ([[PlaySettings shared] forceQuitAppOnClose]) {
@@ -469,6 +507,12 @@ static NSDictionary *GetEntitlements(void) {
 
     if (([[PlaySettings shared] bypassDetectionC])) {
         [objc_getClass("NSFileManager") swizzleInstanceMethod:@selector(enumeratorAtPath:) withMethod:@selector(hook_NSFileManager_enumeratorAtPath:)];
+    }
+
+    if ([[PlaySettings shared] hideiOSAppOnMac]) {
+        // Reference: https://github.com/KohlerVG/FnMacTweak/blob/main/src/Tweak.xm#L1794
+        swizzleIsiOSAppOnMac(objc_getClass("NSProcessInfo"));
+        swizzleIsiOSAppOnMac(objc_getClass("_NSSwiftProcessInfo"));
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{

@@ -130,6 +130,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var fixPlayChainGenKeyPair = extraSettingsData.fixPlayChainGenKeyPair
 
+    @objc lazy var hideiOSAppOnMac = extraSettingsData.hideiOSAppOnMac
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -311,4 +313,5 @@ struct ExtraAppSettingsData: Codable {
     var bypassDetectionC = false
     var minecraftFixKeyboardMouse = false
     var fixPlayChainGenKeyPair = false
+    var hideiOSAppOnMac = false
 }
