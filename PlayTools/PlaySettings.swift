@@ -41,6 +41,7 @@ let settings = PlaySettings.shared
 
         if extraSettingsData.weLinkCloudGameForceTouchMode {
             extraSettingsData.hideiOSAppOnMac = true
+            extraSettingsData.delayKeymapInitialization = true
         }
     }
 
@@ -139,6 +140,8 @@ let settings = PlaySettings.shared
     @objc lazy var weLinkCloudGameForceTouchMode = extraSettingsData.weLinkCloudGameForceTouchMode
 
     @objc lazy var wuwaCloudGameFixMouseIssue = extraSettingsData.wuwaCloudGameFixMouseIssue
+
+    @objc lazy var delayKeymapInitialization = extraSettingsData.delayKeymapInitialization
 
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
@@ -324,4 +327,5 @@ struct ExtraAppSettingsData: Codable {
     var hideiOSAppOnMac = false
     var weLinkCloudGameForceTouchMode = false
     var wuwaCloudGameFixMouseIssue = false
+    var delayKeymapInitialization = false
 }

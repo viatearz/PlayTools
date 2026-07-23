@@ -62,7 +62,14 @@ import GameController
             }
             Toast.initialize()
         }
-        mode.initialize()
+
+        if PlaySettings.shared.delayKeymapInitialization {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3, qos: .utility) {
+                mode.initialize()
+            }
+        } else {
+            mode.initialize()
+        }
     }
 
     private func initializeFeatures() {

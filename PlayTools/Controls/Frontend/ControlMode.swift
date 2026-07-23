@@ -55,12 +55,6 @@ public class ControlMode: Equatable {
         }
 
         ActionDispatcher.build()
-
-        if PlaySettings.shared.weLinkCloudGameForceTouchMode {
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(3)) {
-                ActionDispatcher.build()
-            }
-        }
     }
 
     private func setupTextInputObservers() {
