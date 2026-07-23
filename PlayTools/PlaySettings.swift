@@ -38,6 +38,10 @@ let settings = PlaySettings.shared
         if extraSettingsData.enhanceBuiltinMouse {
             settingsData.disableBuiltinMouse = false
         }
+
+        if extraSettingsData.weLinkCloudGameForceTouchMode {
+            extraSettingsData.hideiOSAppOnMac = true
+        }
     }
 
     @objc lazy var forceQuitAppOnClose = extraSettingsData.forceQuitAppOnClose
@@ -131,6 +135,8 @@ let settings = PlaySettings.shared
     @objc lazy var fixPlayChainGenKeyPair = extraSettingsData.fixPlayChainGenKeyPair
 
     @objc lazy var hideiOSAppOnMac = extraSettingsData.hideiOSAppOnMac
+
+    @objc lazy var weLinkCloudGameForceTouchMode = extraSettingsData.weLinkCloudGameForceTouchMode
 
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
@@ -314,4 +320,5 @@ struct ExtraAppSettingsData: Codable {
     var minecraftFixKeyboardMouse = false
     var fixPlayChainGenKeyPair = false
     var hideiOSAppOnMac = false
+    var weLinkCloudGameForceTouchMode = false
 }

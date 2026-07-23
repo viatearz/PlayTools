@@ -9,6 +9,7 @@
 #import "ExtraHooks.h"
 #import <WebKit/WebKit.h>
 #import "FilteredDirectoryEnumerator.h"
+#import "UIEvent+Private.h"
 
 __attribute__((visibility("hidden")))
 @interface ExtraHooksLoader : NSObject
@@ -402,6 +403,73 @@ static NSDictionary *GetEntitlements(void) {
 
     return [[FilteredDirectoryEnumerator alloc] initWithEnumerator:enumerator filter:filter];
 }
+
+static NSMutableSet<UITouch *> *trackedTouches;
+
+// `event.allTouches` may contain duplicate `UITouchPhaseBegan` or `UITouchPhaseEnded`
+// entries. Filter out touches that are not currently being tracked to avoid
+// processing duplicate begin/end events.
+static void FilterUntrackedTouches(NSSet<UITouch *> *touches, UIEvent *event, UITouchPhase phase) {
+    if (trackedTouches == nil) {
+        trackedTouches = [NSMutableSet set];
+    }
+
+    // Rebuild `event.allTouches` using only the touches that should be tracked.
+    NSMutableArray<UITouch *> *filteredTouches = [NSMutableArray array];
+    for (UITouch *touch in event.allTouches) {
+        if (touch.phase == UITouchPhaseBegan) {
+            if (![trackedTouches containsObject:touch]) {
+                [filteredTouches addObject:touch];
+            }
+        } else {
+            if ([trackedTouches containsObject:touch]) {
+                [filteredTouches addObject:touch];
+            }
+        }
+    }
+
+    // Replace the event's touch list with the filtered set.
+    [event _clearTouches];
+    for (UITouch *touch in filteredTouches) {
+        [event _addTouch:touch forDelayedDelivery:NO];
+    }
+
+    // Update the tracked touch set.
+    if (phase == UITouchPhaseBegan) {
+        for (UITouch *touch in touches.allObjects) {
+            if (![trackedTouches containsObject:touch]) {
+                [trackedTouches addObject:touch];
+            }
+        }
+    }
+    else if (phase == UITouchPhaseEnded || phase == UITouchPhaseCancelled) {
+        for (UITouch *touch in touches.allObjects) {
+            if ([trackedTouches containsObject:touch]) {
+                [trackedTouches removeObject:touch];
+            }
+        }
+    }
+}
+
+- (void) hook_WLCGLayerViewController_touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseBegan);
+    [self hook_WLCGLayerViewController_touchesBegan:touches withEvent:event];
+}
+
+- (void) hook_WLCGLayerViewController_touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseEnded);
+    [self hook_WLCGLayerViewController_touchesEnded:touches withEvent:event];
+}
+
+- (void) hook_WLCGLayerViewController_touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseMoved);
+    [self hook_WLCGLayerViewController_touchesMoved:touches withEvent:event];
+}
+
+- (void) hook_WLCGLayerViewController_touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseCancelled);
+    [self hook_WLCGLayerViewController_touchesCancelled:touches withEvent:event];
+}
 @end
 
 static BOOL isSystemCaller(void *retAddr) {
@@ -573,6 +641,13 @@ static void swizzleIsiOSAppOnMac(Class cls) {
         if (([[PlaySettings shared] disableBuiltinKeyboard])) {
             [objc_getClass("UnityView") swizzleInstanceMethod:@selector(pressesBegan:withEvent:) withMethod:@selector(hook_UIView_pressesBegan:withEvent:)];
             [objc_getClass("UnityView") swizzleInstanceMethod:NSSelectorFromString(@"keyCommands")  withMethod:@selector(hook_UnityView_keyCommands_DISABLED)];
+        }
+
+        if ([[PlaySettings shared] weLinkCloudGameForceTouchMode]) {
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesBegan:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesBegan:withEvent:)];
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesEnded:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesEnded:withEvent:)];
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesMoved:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesMoved:withEvent:)];
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesCancelled:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesCancelled:withEvent:)];
         }
     });
 }
