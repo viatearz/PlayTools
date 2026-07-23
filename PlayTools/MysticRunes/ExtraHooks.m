@@ -8,6 +8,7 @@
 #import <PlayTools/PlayTools-Swift.h>
 #import "ExtraHooks.h"
 #import <WebKit/WebKit.h>
+#import <GameController/GameController.h>
 #import "FilteredDirectoryEnumerator.h"
 #import "UIEvent+Private.h"
 
@@ -470,6 +471,86 @@ static void FilterUntrackedTouches(NSSet<UITouch *> *touches, UIEvent *event, UI
     FilterUntrackedTouches(touches, event, UITouchPhaseCancelled);
     [self hook_WLCGLayerViewController_touchesCancelled:touches withEvent:event];
 }
+
+- (void) hook_CloudWuwa_sendInfoToClientWithCode:(int)code
+                                         message:(id)message
+                                            data:(id)data
+                                            Type:(int)type
+                                          object:(id)object
+                                        userInfo:(NSDictionary *)userInfo {
+
+    [self hook_CloudWuwa_sendInfoToClientWithCode:code
+                                          message:message
+                                             data:data
+                                             Type:type
+                                           object:object
+                                         userInfo:userInfo];
+
+    // Cursor Events
+    if (type == 3) {
+        if (userInfo[@"isShow"] != nil) {
+            if ([userInfo[@"isShow"] intValue] == 0) {
+                [[PlayInput shared] hideCursor];
+            } else {
+                [[PlayInput shared] showCursor];
+            }
+        }
+    }
+}
+
+static int lastAccumulateMouseOffsetX, lastAccumulateMouseOffsetY;
+static int lastMouseX, lastMouseY;
+
+static void CloudWuwa_SendMouseEvent(int keyCode, int action, int accumulateMouseOffsetX, int accumulateMouseOffsetY, int mouseX, int mouseY) {
+
+    Class cls = NSClassFromString(@"WLCGConfig");
+
+    SEL selector = NSSelectorFromString(@"onMouseEventKeyCode:action:accumulateMouseOffsetX:accumulateMouseOffsetY:mouseX:mouseY:");
+
+    if ([cls respondsToSelector:selector]) {
+        typedef void (*Function)(id, SEL, int, int, int, int, int, int);
+        Function function = (Function)[cls methodForSelector:selector];
+        function(cls, selector, keyCode, action, accumulateMouseOffsetX, accumulateMouseOffsetY, mouseX, mouseY);
+    }
+}
+
+- (void) hook_CloudWuwa_connectMouse {
+    [self hook_CloudWuwa_connectMouse];
+
+    lastAccumulateMouseOffsetX = 0;
+    lastAccumulateMouseOffsetY = 0;
+    lastMouseX = 0;
+    lastMouseY = 0;
+
+    for (GCMouse *mouse in [GCMouse mice]) {
+        mouse.mouseInput.scroll.up.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed) {
+            CloudWuwa_SendMouseEvent(8197, 0, lastAccumulateMouseOffsetX, lastAccumulateMouseOffsetY, lastMouseX, lastMouseY);
+        };
+        mouse.mouseInput.scroll.down.valueChangedHandler = ^(GCControllerButtonInput *button, float value, BOOL pressed) {
+            CloudWuwa_SendMouseEvent(8198, 0, lastAccumulateMouseOffsetX, lastAccumulateMouseOffsetY, lastMouseX, lastMouseY);
+        };
+    }
+}
+
++ (void) hook_CloudWuwa_onMouseEventKeyCode:(int)keyCode
+                                     action:(int)action
+                     accumulateMouseOffsetX:(int)accumulateMouseOffsetX
+                     accumulateMouseOffsetY:(int)accumulateMouseOffsetY
+                                     mouseX:(int)mouseX
+                                     mouseY:(int)mouseY {
+
+    [self hook_CloudWuwa_onMouseEventKeyCode:keyCode
+                                      action:action
+                      accumulateMouseOffsetX:accumulateMouseOffsetX
+                      accumulateMouseOffsetY:accumulateMouseOffsetY
+                                      mouseX:mouseX
+                                      mouseY:mouseY];
+
+    lastAccumulateMouseOffsetX = accumulateMouseOffsetX;
+    lastAccumulateMouseOffsetY = accumulateMouseOffsetY;
+    lastMouseX = mouseX;
+    lastMouseY = mouseY;
+}
 @end
 
 static BOOL isSystemCaller(void *retAddr) {
@@ -648,6 +729,12 @@ static void swizzleIsiOSAppOnMac(Class cls) {
             [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesEnded:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesEnded:withEvent:)];
             [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesMoved:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesMoved:withEvent:)];
             [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesCancelled:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesCancelled:withEvent:)];
+        }
+
+        if ([[PlaySettings shared] wuwaCloudGameFixMouseIssue]) {
+            [objc_getClass("GameListener") swizzleInstanceMethod:NSSelectorFromString(@"sendInfoToClientWithCode:message:data:Type:object:userInfo:") withMethod:@selector(hook_CloudWuwa_sendInfoToClientWithCode:message:data:Type:object:userInfo:)];
+            [objc_getClass("GameKeyboardAndMouseManager") swizzleInstanceMethod:NSSelectorFromString(@"connectMouse") withMethod:@selector(hook_CloudWuwa_connectMouse)];
+            [objc_getClass("WLCGConfig") swizzleClassMethod:NSSelectorFromString(@"onMouseEventKeyCode:action:accumulateMouseOffsetX:accumulateMouseOffsetY:mouseX:mouseY:") withMethod:@selector(hook_CloudWuwa_onMouseEventKeyCode:action:accumulateMouseOffsetX:accumulateMouseOffsetY:mouseX:mouseY:)];
         }
     });
 }

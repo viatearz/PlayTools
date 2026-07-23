@@ -138,6 +138,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var weLinkCloudGameForceTouchMode = extraSettingsData.weLinkCloudGameForceTouchMode
 
+    @objc lazy var wuwaCloudGameFixMouseIssue = extraSettingsData.wuwaCloudGameFixMouseIssue
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -321,4 +323,5 @@ struct ExtraAppSettingsData: Codable {
     var fixPlayChainGenKeyPair = false
     var hideiOSAppOnMac = false
     var weLinkCloudGameForceTouchMode = false
+    var wuwaCloudGameFixMouseIssue = false
 }

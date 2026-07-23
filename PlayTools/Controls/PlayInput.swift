@@ -187,6 +187,22 @@ import GameController
             }
         }
     }
+
+    private var isShowCursor = true
+
+    @objc func showCursor() {
+        if !isShowCursor {
+            isShowCursor = true
+            AKInterface.shared?.unhideCursor()
+        }
+    }
+
+    @objc func hideCursor() {
+        if isShowCursor {
+            isShowCursor = false
+            AKInterface.shared?.hideCursor()
+        }
+    }
 }
 
 class EnhancedBuiltinMouseSupport {
