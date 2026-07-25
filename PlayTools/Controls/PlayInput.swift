@@ -44,7 +44,14 @@ class PlayInput {
             }
             Toast.initialize()
         }
-        mode.initialize()
+
+        if Bundle.main.bundleIdentifier == "com.hypergryph.cloud.endfield" {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3, qos: .utility) {
+                mode.initialize()
+            }
+        } else {
+            mode.initialize()
+        }
     }
 
     private func simulateGCMouseDisconnect() {

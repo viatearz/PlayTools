@@ -15,6 +15,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMotion/CoreMotion.h>
 #import <GameController/GameController.h>
+#import "UIEvent+Private.h"
 
 __attribute__((visibility("hidden")))
 @interface PTSwizzleLoader : NSObject
@@ -226,7 +227,111 @@ bool menuWasCreated = false;
     return self;
 }
 
+static NSMutableSet<UITouch *> *trackedTouches;
+
+// `event.allTouches` may contain duplicate `UITouchPhaseBegan` or `UITouchPhaseEnded`
+// entries. Filter out touches that are not currently being tracked to avoid
+// processing duplicate begin/end events.
+static void FilterUntrackedTouches(NSSet<UITouch *> *touches, UIEvent *event, UITouchPhase phase) {
+    if (trackedTouches == nil) {
+        trackedTouches = [NSMutableSet set];
+    }
+
+    // Rebuild `event.allTouches` using only the touches that should be tracked.
+    NSMutableArray<UITouch *> *filteredTouches = [NSMutableArray array];
+    for (UITouch *touch in event.allTouches) {
+        if (touch.phase == UITouchPhaseBegan) {
+            if (![trackedTouches containsObject:touch]) {
+                [filteredTouches addObject:touch];
+            }
+        } else {
+            if ([trackedTouches containsObject:touch]) {
+                [filteredTouches addObject:touch];
+            }
+        }
+    }
+
+    // Replace the event's touch list with the filtered set.
+    [event _clearTouches];
+    for (UITouch *touch in filteredTouches) {
+        [event _addTouch:touch forDelayedDelivery:NO];
+    }
+
+    // Update the tracked touch set.
+    if (phase == UITouchPhaseBegan) {
+        for (UITouch *touch in touches.allObjects) {
+            if (![trackedTouches containsObject:touch]) {
+                [trackedTouches addObject:touch];
+            }
+        }
+    }
+    else if (phase == UITouchPhaseEnded || phase == UITouchPhaseCancelled) {
+        for (UITouch *touch in touches.allObjects) {
+            if ([trackedTouches containsObject:touch]) {
+                [trackedTouches removeObject:touch];
+            }
+        }
+    }
+}
+
+- (void) hook_CloudGame_touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseBegan);
+    [self hook_CloudGame_touchesBegan:touches withEvent:event];
+}
+
+- (void) hook_CloudGame_touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseEnded);
+    [self hook_CloudGame_touchesEnded:touches withEvent:event];
+}
+
+- (void) hook_CloudGame_touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseMoved);
+    [self hook_CloudGame_touchesMoved:touches withEvent:event];
+}
+
+- (void) hook_CloudGame_touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    FilterUntrackedTouches(touches, event, UITouchPhaseCancelled);
+    [self hook_CloudGame_touchesCancelled:touches withEvent:event];
+}
 @end
+
+static BOOL isSystemCaller(void *retAddr) {
+    Dl_info info;
+    if (dladdr(retAddr, &info) && info.dli_fname) {
+        const char *path = info.dli_fname;
+        if (strstr(path, "/System/Library/") != NULL ||
+            strstr(path, "/usr/lib/") != NULL ||
+            strstr(path, "/System/iOSSupport/") != NULL) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+static void swizzleIsiOSAppOnMac(Class cls) {
+    if (!cls) return;
+    SEL sel = @selector(isiOSAppOnMac);
+    Method method = class_getInstanceMethod(cls, sel);
+    if (method) {
+        IMP origImp = method_getImplementation(method);
+        class_replaceMethod(cls, sel, imp_implementationWithBlock(^BOOL(id self) {
+            void *retAddr = __builtin_return_address(0);
+            if (isSystemCaller(retAddr)) {
+                typedef BOOL (*OrigFunc)(id, SEL);
+                return ((OrigFunc)origImp)(self, sel);
+            }
+            return NO; // Return NO to the game and tracking libraries
+        }), method_getTypeEncoding(method));
+    } else {
+        class_addMethod(cls, sel, imp_implementationWithBlock(^BOOL(id self) {
+            void *retAddr = __builtin_return_address(0);
+            if (isSystemCaller(retAddr)) {
+                return YES;
+            }
+            return NO;
+        }), "B@:");
+    }
+}
 
 /*
  This class only exists to apply swizzles from the +load of a class that won't have any categories/extensions. The reason
@@ -369,6 +474,21 @@ bool menuWasCreated = false;
             [objc_getClass("KeyboardDelegate") swizzleClassMethod:NSSelectorFromString(@"Initialize") withMethod:@selector(hook_Unity_KeyboardDelegate_Initialize)];
         }
     });
+
+    NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+    if ([bundleID isEqualToString:@"com.hypergryph.cloud.endfield"]) {
+        // Disable iOSAppOnMac so touch mode can be used in cloud games.
+        swizzleIsiOSAppOnMac(objc_getClass("NSProcessInfo"));
+        swizzleIsiOSAppOnMac(objc_getClass("_NSSwiftProcessInfo"));
+
+        // Fix issues caused by duplicate UITouchPhaseBegan/UITouchPhaseEnded entries.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesBegan:withEvent:) withMethod:@selector(hook_CloudGame_touchesBegan:withEvent:)];
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesEnded:withEvent:) withMethod:@selector(hook_CloudGame_touchesEnded:withEvent:)];
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesMoved:withEvent:) withMethod:@selector(hook_CloudGame_touchesMoved:withEvent:)];
+            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesCancelled:withEvent:) withMethod:@selector(hook_CloudGame_touchesCancelled:withEvent:)];
+        });
+    }
 }
 
 @end
