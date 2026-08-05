@@ -204,10 +204,10 @@ import GameController
         }
     }
 
-    @objc func hideCursor() {
+    @objc func hideCursorWithoutWarp() {
         if isShowCursor {
             isShowCursor = false
-            AKInterface.shared?.hideCursor()
+            AKInterface.shared?.hideCursorWithoutWarp()
         }
     }
 }

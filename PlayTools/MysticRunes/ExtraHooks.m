@@ -490,7 +490,7 @@ static void FilterUntrackedTouches(NSSet<UITouch *> *touches, UIEvent *event, UI
     if (type == 3) {
         if (userInfo[@"isShow"] != nil) {
             if ([userInfo[@"isShow"] intValue] == 0) {
-                [[PlayInput shared] hideCursor];
+                [[PlayInput shared] hideCursorWithoutWarp];
             } else {
                 [[PlayInput shared] showCursor];
             }

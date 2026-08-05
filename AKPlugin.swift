@@ -108,6 +108,12 @@ class AKPlugin: NSObject, Plugin {
         warpCursor()
     }
 
+    func hideCursorWithoutWarp() {
+        NSCursor.hide()
+        cursorHideLevel += 1
+        CGAssociateMouseAndMouseCursorPosition(0)
+    }
+
     func hideCursorMove() {
         NSCursor.setHiddenUntilMouseMoves(true)
     }

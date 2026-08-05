@@ -20,6 +20,7 @@ public protocol Plugin: NSObjectProtocol {
     var cmdPressed: Bool { get }
 
     func hideCursor()
+    func hideCursorWithoutWarp()
     func hideCursorMove()
     func warpCursor()
     func unhideCursor()
