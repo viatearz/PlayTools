@@ -143,6 +143,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var delayKeymapInitialization = extraSettingsData.delayKeymapInitialization
 
+    @objc lazy var fixPlayChainSecKey = extraSettingsData.fixPlayChainSecKey
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -328,4 +330,5 @@ struct ExtraAppSettingsData: Codable {
     var weLinkCloudGameForceTouchMode = false
     var wuwaCloudGameFixMouseIssue = false
     var delayKeymapInitialization = false
+    var fixPlayChainSecKey = false
 }

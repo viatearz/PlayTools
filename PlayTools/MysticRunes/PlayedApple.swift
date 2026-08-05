@@ -67,6 +67,17 @@ public class PlayKeychain: NSObject {
             }
         }
 
+        if PlaySettings.shared.fixPlayChainSecKey {
+            // class = keys, v_Ref != nil
+            if newAttributes[kSecClass] as? String == kSecClassKey as String,
+               newAttributes[kSecValueRef] != nil {
+                // Convert v_Ref to v_Data
+                let keyRef = newAttributes[kSecValueRef] as! SecKey // swiftlint:disable:this force_cast
+                newAttributes[kSecValueData] = SecKeyCopyExternalRepresentation(keyRef, nil) as? Data
+                newAttributes[kSecValueRef] = nil
+            }
+        }
+
         return newAttributes
     }
 
@@ -101,6 +112,13 @@ public class PlayKeychain: NSObject {
             }
             result?.pointee = Unmanaged.passRetained(dummyDict)
             return errSecSuccess
+        }
+
+        if PlaySettings.shared.fixPlayChainSecKey {
+            if attributes["class"] as? String == "keys" && attributes["r_Data"] as? Int == 1 {
+                result?.pointee = Unmanaged.passRetained(vData)
+                return errSecSuccess
+            }
         }
 
         if attributes["class"] as? String == "keys" {
@@ -177,7 +195,7 @@ public class PlayKeychain: NSObject {
         }
     }
 
-    // swiftlint:disable:next function_body_length
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     @objc static public func oldCopyMatching(_ query: NSDictionary,
                                              result: UnsafeMutablePointer<Unmanaged<CFTypeRef>?>?) -> OSStatus {
         guard let keychainDicts = playChainDB.query(query),
@@ -238,6 +256,13 @@ public class PlayKeychain: NSObject {
             let secKey = SecKeyCreateWithData(key as! CFData, dummyKeyAttrs, nil) // swiftlint:disable:this force_cast
             result?.pointee = Unmanaged.passRetained(secKey!)
             return errSecSuccess
+        }
+
+        if PlaySettings.shared.fixPlayChainSecKey {
+            if classType == "keys" && query["r_Data"] as? Int == 1 {
+                result?.pointee = Unmanaged.passRetained(keychainDict[kSecValueData] as CFTypeRef)
+                return errSecSuccess
+            }
         }
 
         // Return v_Data if it exists
@@ -307,6 +332,7 @@ public class PlayKeychain: NSObject {
         }
     }
 
+    // swiftlint:disable:next function_body_length
     static private func copyMatchingItem(_ query: NSDictionary,
                                          _ keychainDict: NSMutableDictionary) -> CFTypeRef? {
         // Check the `r_Attributes` key. If it is set to 1 in the query
@@ -350,6 +376,12 @@ public class PlayKeychain: NSObject {
 
             let secKey = SecKeyCreateWithData(key as! CFData, dummyKeyAttrs, nil) // swiftlint:disable:this force_cast
             return secKey!
+        }
+
+        if PlaySettings.shared.fixPlayChainSecKey {
+            if classType == "keys" && query["r_Data"] as? Int == 1 {
+                return keychainDict[kSecValueData] as? CFTypeRef
+            }
         }
 
         // Return v_Data if it exists
