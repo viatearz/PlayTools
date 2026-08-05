@@ -553,6 +553,12 @@ public class PlayKeychain: NSObject {
             publicKeyDict["kcls"] = kSecAttrKeyClassPublic
             publicKeyDict["v_Data"] = SecKeyCopyExternalRepresentation(publicKeyRef!, nil) as? Data
             publicKeyDict["r_Attributes"] = 1
+            if let applicationTag = (
+                publicKeyAttrs[kSecAttrApplicationTag as String] ??
+                parameters[kSecAttrApplicationTag as String]
+            ) as? Data {
+                publicKeyDict[kSecAttrApplicationTag as String] = applicationTag
+            }
             guard playChainDB.insert(publicKeyDict as NSDictionary) != nil else {
                 debugLogger("Failed to write public key to keychain db")
                 return errSecMissingEntitlement
@@ -565,6 +571,12 @@ public class PlayKeychain: NSObject {
             privateKeyDict["kcls"] = kSecAttrKeyClassPrivate
             privateKeyDict["v_Data"] = SecKeyCopyExternalRepresentation(privateKeyRef!, nil) as? Data
             privateKeyDict["r_Attributes"] = 1
+            if let applicationTag = (
+                privateKeyAttrs[kSecAttrApplicationTag as String] ??
+                parameters[kSecAttrApplicationTag as String]
+            ) as? Data {
+                privateKeyDict[kSecAttrApplicationTag as String] = applicationTag
+            }
             guard playChainDB.insert(privateKeyDict as NSDictionary) != nil else {
                 debugLogger("Failed to write private key to keychain db")
                 return errSecMissingEntitlement
