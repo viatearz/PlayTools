@@ -145,6 +145,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var fixPlayChainSecKey = extraSettingsData.fixPlayChainSecKey
 
+    @objc lazy var minecraftEnhanceScrollWheel = extraSettingsData.minecraftEnhanceScrollWheel
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -331,4 +333,5 @@ struct ExtraAppSettingsData: Codable {
     var wuwaCloudGameFixMouseIssue = false
     var delayKeymapInitialization = false
     var fixPlayChainSecKey = false
+    var minecraftEnhanceScrollWheel = false
 }

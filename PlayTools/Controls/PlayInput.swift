@@ -173,6 +173,15 @@ import GameController
         )
     }
 
+    private weak var mc_window: UIWindow?
+
+    private var mc_isPointerLocked: Bool {
+        if mc_window == nil {
+            mc_window = screen.keyWindow
+        }
+        return mc_window?.isPointerLocked ?? false
+    }
+
     private func applyMinecraftKeyboardMouseFix() {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             // Re-post the notifications as a workaround for the game not detecting the devices.
@@ -183,11 +192,48 @@ import GameController
                 NotificationCenter.default.post(name: .GCKeyboardDidConnect, object: keyboard)
             }
 
-            // The game has a bug where it reads the wrong scroll axis,
-            // so we need to swap the X and Y axes.
-            if let mouse = GCMouse.current {
-                if let scrollHandler = mouse.mouseInput?.scroll.valueChangedHandler {
-                    mouse.mouseInput?.scroll.valueChangedHandler = { dpad, xValue, yValue in
+            // Make sure this block is executed after class MultipleMiceSupport
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
+                self.applyMinecraftScrollWheelPatch()
+            }
+        }
+    }
+
+    private func applyMinecraftScrollWheelPatch() {
+        for mouse in GCMouse.mice() {
+            guard let scrollHandler = mouse.mouseInput?.scroll.valueChangedHandler else {
+                continue
+            }
+
+            if mouse.isTrackpad {
+                mouse.mouseInput?.scroll.valueChangedHandler = { dpad, xValue, yValue in
+                    if self.mc_isPointerLocked {
+                        scrollHandler(dpad, xValue, yValue)
+                    } else {
+                        // Only swap the scroll axes when the cursor is visible
+                        scrollHandler(dpad, yValue, xValue)
+                    }
+                }
+            } else {
+                let enhanceScrollWheel = PlaySettings.shared.minecraftEnhanceScrollWheel
+                let scrollDetector = GCMouseScrollActionDetector()
+                scrollDetector.onScrollUp = { [weak mouse] in
+                    if let dpad = mouse?.mouseInput?.scroll {
+                        scrollHandler(dpad, 1.0, 0.0)
+                    }
+                }
+                scrollDetector.onScrollDown = { [weak mouse] in
+                    if let dpad = mouse?.mouseInput?.scroll {
+                        scrollHandler(dpad, -1.0, 0.0)
+                    }
+                }
+
+                mouse.mouseInput?.scroll.valueChangedHandler = { dpad, xValue, yValue in
+                    if self.mc_isPointerLocked && enhanceScrollWheel {
+                        // Detect ScrollUp / ScrollDown actions manually
+                        scrollDetector.update(delta: yValue)
+                    } else {
+                        // Always swap the scroll axes
                         scrollHandler(dpad, yValue, xValue)
                     }
                 }
@@ -439,6 +485,70 @@ class MultipleMiceSupport {
     ]
 }
 
+class GCMouseScrollActionDetector {
+    public var onScrollUp: (() -> Void)?
+    public var onScrollDown: (() -> Void)?
+    private var resetTimer: Timer?
+    private var lastDelta: Float = 0.0
+    private var isScrolling = false
+    private var didTrigger = false
+
+    func update(delta: Float) {
+        defer {
+            lastDelta = delta
+            isScrolling = true
+            scheduleReset()
+        }
+
+        // Trigger an event if it is a fresh start
+        if !isScrolling {
+            didTrigger = true
+            trigger(for: delta)
+            return
+        }
+
+        // Reset the flag when direction changed
+        if lastDelta.sign != delta.sign {
+            didTrigger = false
+            return
+        }
+
+        if !didTrigger {
+            // Trigger a event when scroll delta is increasing
+            if abs(lastDelta) < abs(delta) {
+                didTrigger = true
+                trigger(for: delta)
+            }
+        } else {
+            // Reset the flag when scroll delta is decreased
+            if abs(lastDelta) > abs(delta) {
+                didTrigger = false
+            }
+        }
+    }
+
+    private func trigger(for delta: Float) {
+        if delta > 0 {
+            onScrollUp?()
+        } else {
+            onScrollDown?()
+        }
+    }
+
+    private func scheduleReset() {
+        // Cancel the existing timer
+        resetTimer?.invalidate()
+
+        // Start a new timer
+        resetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+            self.resetTimer = nil
+            self.lastDelta = 0.0
+            self.isScrolling = false
+            self.didTrigger = false
+        }
+    }
+}
+
 extension UIResponder {
     private static weak var _currentFirstResponder: UIResponder?
 
@@ -471,5 +581,17 @@ extension UIView {
             }
         }
         return nil
+    }
+}
+
+extension UIWindow {
+    var isPointerLocked: Bool {
+        return self.windowScene?.pointerLockState?.isLocked ?? false
+    }
+}
+
+extension GCMouse {
+    var isTrackpad: Bool {
+        return self.vendorName?.lowercased().contains("trackpad") ?? false
     }
 }
