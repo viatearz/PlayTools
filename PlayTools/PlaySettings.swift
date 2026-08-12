@@ -147,6 +147,8 @@ let settings = PlaySettings.shared
 
     @objc lazy var minecraftEnhanceScrollWheel = extraSettingsData.minecraftEnhanceScrollWheel
 
+    @objc lazy var skipAppleSignInStateCheck = extraSettingsData.skipAppleSignInStateCheck
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -334,4 +336,5 @@ struct ExtraAppSettingsData: Codable {
     var delayKeymapInitialization = false
     var fixPlayChainSecKey = false
     var minecraftEnhanceScrollWheel = false
+    var skipAppleSignInStateCheck = false
 }

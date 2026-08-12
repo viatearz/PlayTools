@@ -11,6 +11,7 @@
 #import <GameController/GameController.h>
 #import "FilteredDirectoryEnumerator.h"
 #import "UIEvent+Private.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
 __attribute__((visibility("hidden")))
 @interface ExtraHooksLoader : NSObject
@@ -551,6 +552,17 @@ static void CloudWuwa_SendMouseEvent(int keyCode, int action, int accumulateMous
     lastMouseX = mouseX;
     lastMouseY = mouseY;
 }
+
+- (void) hook_AppleSignIn_getCredentialStateForUserID:(NSString *) userID
+                                           completion:(void (^)(ASAuthorizationAppleIDProviderCredentialState credentialState, NSError *error)) completion {
+    id block = ^(ASAuthorizationAppleIDProviderCredentialState credentialState, NSError *error) {
+        credentialState = ASAuthorizationAppleIDProviderCredentialAuthorized;
+        if (completion) {
+            completion(credentialState, error);
+        }
+    };
+    [self hook_AppleSignIn_getCredentialStateForUserID:userID completion:block];
+}
 @end
 
 static BOOL isSystemCaller(void *retAddr) {
@@ -662,6 +674,10 @@ static void swizzleIsiOSAppOnMac(Class cls) {
         // Reference: https://github.com/KohlerVG/FnMacTweak/blob/main/src/Tweak.xm#L1794
         swizzleIsiOSAppOnMac(objc_getClass("NSProcessInfo"));
         swizzleIsiOSAppOnMac(objc_getClass("_NSSwiftProcessInfo"));
+    }
+
+    if ([[PlaySettings shared] skipAppleSignInStateCheck]) {
+        [objc_getClass("ASAuthorizationAppleIDProvider") swizzleInstanceMethod:NSSelectorFromString(@"getCredentialStateForUserID:completion:") withMethod:@selector(hook_AppleSignIn_getCredentialStateForUserID:completion:)];
     }
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
