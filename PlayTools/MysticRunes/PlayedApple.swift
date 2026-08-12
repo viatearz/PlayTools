@@ -409,6 +409,16 @@ public class PlayKeychain: NSObject {
     @objc static public func keyCreateRandomKey(_ parameters: NSDictionary,
                                                 error: UnsafeMutablePointer<Unmanaged<CFError>?>?)
     -> Unmanaged<SecKey>? {
+        if PlaySettings.shared.fixPlayChainCreateKey {
+            return newKeyCreateRandomKey(parameters, error: error)
+        } else {
+            return oldKeyCreateRandomKey(parameters, error: error)
+        }
+    }
+
+    @objc static public func oldKeyCreateRandomKey(_ parameters: NSDictionary,
+                                                   error: UnsafeMutablePointer<Unmanaged<CFError>?>?)
+    -> Unmanaged<SecKey>? {
         // Check if kSecAttrIsPermanent is set to 1 in kSecPrivateKeyAttrs.
         // If it is, set it to 0 before fowarding the call to SecKeyCreateRandomKey, 
         // and then add the key to the keychain db with the original attributes (with kSecAttrIsPermanent set to 1)
@@ -434,6 +444,44 @@ public class PlayKeychain: NSObject {
             keychainDict["kcls"] = parameters[kSecAttrKeyClass as String]
             keychainDict["v_Data"] = SecKeyCopyExternalRepresentation(key, nil) as? Data
             keychainDict["r_Attributes"] = 1
+            guard playChainDB.insert(keychainDict as NSDictionary) != nil else {
+                debugLogger("Failed to write keychain file")
+                return nil
+            }
+        }
+        return Unmanaged.passRetained(key)
+    }
+
+    @objc static public func newKeyCreateRandomKey(_ parameters: NSDictionary,
+                                                   error: UnsafeMutablePointer<Unmanaged<CFError>?>?)
+    -> Unmanaged<SecKey>? {
+        // Check if kSecAttrIsPermanent is set to 1 in kSecPrivateKeyAttrs.
+        // If it is, set it to 0 before fowarding the call to SecKeyCreateRandomKey,
+        // and then add the key to the keychain db with the original attributes (with kSecAttrIsPermanent set to 1)
+        var privateKeyAttrs = parameters[kSecPrivateKeyAttrs as String] as? [String: Any] ?? [:]
+        let isPermanent = privateKeyAttrs[kSecAttrIsPermanent as String] as? Bool ?? false
+        if isPermanent {
+            privateKeyAttrs[kSecAttrIsPermanent as String] = false
+        }
+        var parametersCopy = parameters as! [String: Any] // swiftlint:disable:this force_cast
+        parametersCopy[kSecPrivateKeyAttrs as String] = privateKeyAttrs
+        parametersCopy[kSecAttrTokenID as String] = nil
+        var error: Unmanaged<CFError>?
+        guard let key = SecKeyCreateRandomKey(parametersCopy as CFDictionary, &error) else {
+            debugLogger("Failed to create random key: \(error!.takeRetainedValue())")
+            return nil
+        }
+        if isPermanent {
+            // Add the key to the keychain db with the original attributes
+            var keychainDict = [String: Any]()
+            keychainDict[kSecClass as String] = kSecClassKey
+            keychainDict[kSecAttrKeyType as String] = parameters[kSecAttrKeyType as String]
+            keychainDict[kSecAttrKeyClass as String] = parameters[kSecAttrKeyClass as String]
+            keychainDict["type"] = parameters[kSecAttrKeyType as String]
+            keychainDict["kcls"] = kSecAttrKeyClassPrivate
+            keychainDict["v_Data"] = SecKeyCopyExternalRepresentation(key, nil) as? Data
+            keychainDict["r_Attributes"] = 1
+            keychainDict[kSecAttrApplicationTag as String] = privateKeyAttrs[kSecAttrApplicationTag as String]
             guard playChainDB.insert(keychainDict as NSDictionary) != nil else {
                 debugLogger("Failed to write keychain file")
                 return nil
