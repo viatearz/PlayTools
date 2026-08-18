@@ -309,8 +309,10 @@ class MenuController {
         var children: [UIMenuElement] = []
 
         let titles = [
-            NSLocalizedString("menu.keymapping.toggleGamepadToKeyEditor", tableName: "Playtools", comment: ""),
-            NSLocalizedString("menu.keymapping.pasteTextIntoInputField", tableName: "Playtools", comment: "")
+            NSLocalizedString("menu.keymapping.toggleGamepadToKeyEditor", tableName: "Playtools",
+                              comment: "Open/Close GamepadToKey Editor"),
+            NSLocalizedString("menu.keymapping.pasteTextIntoInputField", tableName: "Playtools",
+                              comment: "Paste Text into Input Field")
         ]
 
         children.append(UIKeyCommand(
