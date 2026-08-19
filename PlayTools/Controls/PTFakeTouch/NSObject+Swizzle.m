@@ -483,10 +483,14 @@ static void swizzleIsiOSAppOnMac(Class cls) {
 
         // Fix issues caused by duplicate UITouchPhaseBegan/UITouchPhaseEnded entries.
         dispatch_async(dispatch_get_main_queue(), ^{
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesBegan:withEvent:) withMethod:@selector(hook_CloudGame_touchesBegan:withEvent:)];
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesEnded:withEvent:) withMethod:@selector(hook_CloudGame_touchesEnded:withEvent:)];
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesMoved:withEvent:) withMethod:@selector(hook_CloudGame_touchesMoved:withEvent:)];
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesCancelled:withEvent:) withMethod:@selector(hook_CloudGame_touchesCancelled:withEvent:)];
+            Class cls = objc_getClass("WLCGGameView");
+            if (cls == nil) {
+                cls = objc_getClass("WLCGLayerViewController");
+            }
+            [cls swizzleInstanceMethod:@selector(touchesBegan:withEvent:) withMethod:@selector(hook_CloudGame_touchesBegan:withEvent:)];
+            [cls swizzleInstanceMethod:@selector(touchesEnded:withEvent:) withMethod:@selector(hook_CloudGame_touchesEnded:withEvent:)];
+            [cls swizzleInstanceMethod:@selector(touchesMoved:withEvent:) withMethod:@selector(hook_CloudGame_touchesMoved:withEvent:)];
+            [cls swizzleInstanceMethod:@selector(touchesCancelled:withEvent:) withMethod:@selector(hook_CloudGame_touchesCancelled:withEvent:)];
         });
     }
 }
