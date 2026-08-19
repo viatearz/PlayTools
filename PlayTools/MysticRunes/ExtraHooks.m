@@ -741,10 +741,14 @@ static void swizzleIsiOSAppOnMac(Class cls) {
         }
 
         if ([[PlaySettings shared] weLinkCloudGameForceTouchMode]) {
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesBegan:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesBegan:withEvent:)];
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesEnded:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesEnded:withEvent:)];
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesMoved:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesMoved:withEvent:)];
-            [objc_getClass("WLCGLayerViewController") swizzleInstanceMethod:@selector(touchesCancelled:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesCancelled:withEvent:)];
+            Class cls = objc_getClass("WLCGGameView");
+            if (cls == nil) {
+                cls = objc_getClass("WLCGLayerViewController");
+            }
+            [cls swizzleInstanceMethod:@selector(touchesBegan:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesBegan:withEvent:)];
+            [cls swizzleInstanceMethod:@selector(touchesEnded:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesEnded:withEvent:)];
+            [cls swizzleInstanceMethod:@selector(touchesMoved:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesMoved:withEvent:)];
+            [cls swizzleInstanceMethod:@selector(touchesCancelled:withEvent:) withMethod:@selector(hook_WLCGLayerViewController_touchesCancelled:withEvent:)];
         }
 
         if ([[PlaySettings shared] wuwaCloudGameFixMouseIssue]) {
