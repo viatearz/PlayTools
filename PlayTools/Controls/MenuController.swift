@@ -198,6 +198,7 @@ class MenuController {
                 PTPreserveMetalHUDMenuItem()
                 let configuration = UIMainMenuSystem.Configuration()
                 configuration.sidebarPreference = .included
+                configuration.textFormattingPreference = .removed
                 UIMainMenuSystem.shared.setBuildConfiguration(configuration) { builder in
                     PTPreserveMetalHUDMenuItem()
                     self.setupMenu(with: builder)
