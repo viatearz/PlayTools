@@ -563,6 +563,27 @@ static void CloudWuwa_SendMouseEvent(int keyCode, int action, int accumulateMous
     };
     [self hook_AppleSignIn_getCredentialStateForUserID:userID completion:block];
 }
+
+- (UIInterfaceOrientation) hook_UIViewController_preferredInterfaceOrientationForPresentation {
+    return UIInterfaceOrientationLandscapeLeft;
+}
+
+- (void) hook_UIWindowScene_requestGeometryUpdateWithPreferences:(id) preferences
+                                                    errorHandler:(void (^)(NSError *error)) errorHandler; {
+    if (@available(iOS 16.0, *)) {
+        if ([preferences isKindOfClass:[UIWindowSceneGeometryPreferencesIOS class]]) {
+            UIWindowSceneGeometryPreferencesIOS *preferencesIOS = (UIWindowSceneGeometryPreferencesIOS *)preferences;
+            preferencesIOS.interfaceOrientations = UIInterfaceOrientationMaskLandscapeLeft;
+        }
+        [self hook_UIWindowScene_requestGeometryUpdateWithPreferences:preferences
+                                                         errorHandler:errorHandler];
+    }
+}
+
+- (void) hook_WKWebView_setCustomUserAgent:(NSString *)userAgent {
+    userAgent = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Safari/605.1.15";
+    [self hook_WKWebView_setCustomUserAgent:userAgent];
+}
 @end
 
 static BOOL isSystemCaller(void *retAddr) {
@@ -755,6 +776,12 @@ static void swizzleIsiOSAppOnMac(Class cls) {
             [objc_getClass("GameListener") swizzleInstanceMethod:NSSelectorFromString(@"sendInfoToClientWithCode:message:data:Type:object:userInfo:") withMethod:@selector(hook_CloudWuwa_sendInfoToClientWithCode:message:data:Type:object:userInfo:)];
             [objc_getClass("GameKeyboardAndMouseManager") swizzleInstanceMethod:NSSelectorFromString(@"connectMouse") withMethod:@selector(hook_CloudWuwa_connectMouse)];
             [objc_getClass("WLCGConfig") swizzleClassMethod:NSSelectorFromString(@"onMouseEventKeyCode:action:accumulateMouseOffsetX:accumulateMouseOffsetY:mouseX:mouseY:") withMethod:@selector(hook_CloudWuwa_onMouseEventKeyCode:action:accumulateMouseOffsetX:accumulateMouseOffsetY:mouseX:mouseY:)];
+        }
+
+        if ([[PlaySettings shared] lordOfMysteriesLandscapeWebview]) {
+            [objc_getClass("KGWExternalWebViewController") swizzleInstanceMethod:@selector(preferredInterfaceOrientationForPresentation) withMethod:@selector(hook_UIViewController_preferredInterfaceOrientationForPresentation)];
+            [objc_getClass("UIWindowScene") swizzleInstanceMethod:NSSelectorFromString(@"requestGeometryUpdateWithPreferences:errorHandler:") withMethod:@selector(hook_UIWindowScene_requestGeometryUpdateWithPreferences:errorHandler:)];
+            [objc_getClass("WKWebView") swizzleInstanceMethod:@selector(setCustomUserAgent:) withMethod:@selector(hook_WKWebView_setCustomUserAgent:)];
         }
     });
 }

@@ -166,6 +166,8 @@ func playCoverContainerBaseURL() -> URL {
 
     @objc lazy var fixPlayChainCreateKey = extraSettingsData.fixPlayChainCreateKey
 
+    @objc lazy var lordOfMysteriesLandscapeWebview = extraSettingsData.lordOfMysteriesLandscapeWebview
+
     private lazy var pendingLandscapeUIViewControllerNames = extraSettingsData.forceUIViewLandscapeArgs
 
     @objc func landscapeUIViewControllerNames() -> [String] {
@@ -355,4 +357,5 @@ struct ExtraAppSettingsData: Codable {
     var minecraftEnhanceScrollWheel = false
     var skipAppleSignInStateCheck = false
     var fixPlayChainCreateKey = false
+    var lordOfMysteriesLandscapeWebview = false
 }
