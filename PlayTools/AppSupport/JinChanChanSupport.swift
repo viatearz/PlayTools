@@ -31,7 +31,7 @@ class JinChanChanSupport: AppSupport {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
             // Fix web view orientation issue
             self.swizzleInstanceMethod(
-                cls: NSClassFromString("MSDKBaseWebViewController"),
+                cls: NSClassFromString("MSDKPIXWKWebViewController"),
                 origSelector: #selector(getter: UIViewController.supportedInterfaceOrientations),
                 newSelector: #selector(NSObject.hook_JinChanChan_supportedInterfaceOrientations)
             )
