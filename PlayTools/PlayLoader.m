@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <stdatomic.h>
 #include <sys/sysctl.h>
+#include "Il2CppDumper/hack.h"
 
 #import "PlayLoader.h"
 #import <PlayTools/PlayTools-Swift.h>
@@ -414,6 +415,17 @@ static void __attribute__((constructor)) initialize(void) {
             [thread_sleep_lock unlock];
         }];
     }
+
+    [NSThread detachNewThreadWithBlock:^{
+        sleep(3);
+
+        NSString *appSupportDir = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).firstObject;
+
+        NSLog(@"Il2CppDumper OutputPath: %@", appSupportDir);
+
+        // See https://github.com/Perfare/Zygisk-Il2CppDumper
+        hack_start([appSupportDir UTF8String]);
+    }];
 }
 
 @end
