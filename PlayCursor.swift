@@ -30,6 +30,8 @@ class PlayCursor {
     }()
 
     private var cursor: NSCursor?
+    private weak var window: NSWindow?
+    private var timer: DispatchSourceTimer?
 
     func initialize() {
         if !(Self.cursorSettingsData?.enableCustomCursor ?? false) {
@@ -50,39 +52,33 @@ class PlayCursor {
                               y: Self.cursorSettingsData?.customCursorHotSpotY ?? 0)
         self.cursor = createCursor(imageURL: imageURL, size: size, hotSpot: hotSpot)
 
-        // Add tracking area when the window is created,
-        // and refresh the cursor when switching back from another app.
         NotificationCenter.default.addObserver(
-            forName: NSWindow.didBecomeMainNotification,
+            forName: NSWindow.didBecomeKeyNotification,
             object: nil,
             queue: .main
-        ) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                self.addTrackingArea()
-                self.updateCursorIfNeeded()
-            }
-        }
-
-        // Refresh the cursor when the system menu bar appears in fullscreen.
-        // The menu bar triggers an occlusion state change on _NSFullScreenTransitionOverlayWindow.
-        NotificationCenter.default.addObserver(
-            forName: NSWindow.didChangeOcclusionStateNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            guard NSApplication.shared.windows.first!.styleMask.contains(.fullScreen) else {
+        ) { note in
+            guard let window = note.object as? NSWindow else {
                 return
             }
-            self.updateCursorIfNeeded()
+            if self.window == nil {
+                self.window = window
+            }
+            if window == self.window {
+                self.startPolling()
+            }
         }
 
-        // Refresh the cursor when screen recording starts.
         NotificationCenter.default.addObserver(
-            forName: Notification.Name("UIScreenCapturedDidChangeNotification"),
+            forName: NSWindow.didResignKeyNotification,
             object: nil,
             queue: .main
-        ) { _ in
-            self.updateCursorIfNeeded()
+        ) { note in
+            guard let window = note.object as? NSWindow else {
+                return
+            }
+            if window == self.window {
+                self.stopPolling()
+            }
         }
     }
 
@@ -104,107 +100,31 @@ class PlayCursor {
         return newImage
     }
 
-    private func addTrackingArea() {
-        guard let contentView = NSApplication.shared.mainWindow?.contentView else {
-            return
+    func startPolling() {
+        if let timer = self.timer {
+            timer.cancel()
         }
 
-        let exists = contentView.subviews.contains { $0 is PlayCursorTrackingView }
-        if exists {
-            return
+        let timer = DispatchSource.makeTimerSource(queue: .main)
+        timer.schedule(deadline: .now(), repeating: .seconds(1))
+        timer.setEventHandler { [weak self] in
+           self?.refreshCursor()
         }
-
-        // Previously we used a single tracking area. If the custom cursor unexpectedly disappeared,
-        // the user had to move the cursor out of the window and back in to force a refresh.
-        // Now we split the tracking area into four regions. If the cursor becomes incorrect,
-        // moving between regions (e.g. top to bottom) triggers a refresh, so leaving the window
-        // is no longer required.
-
-        let topLeft = PlayCursorTrackingView(cursor: cursor)
-        let topRight = PlayCursorTrackingView(cursor: cursor)
-        let bottomLeft = PlayCursorTrackingView(cursor: cursor)
-        let bottomRight = PlayCursorTrackingView(cursor: cursor)
-
-        [topLeft, topRight, bottomLeft, bottomRight].forEach {
-            contentView.addSubview($0)
-        }
-
-        NSLayoutConstraint.activate([
-
-            // topLeft
-            topLeft.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            topLeft.topAnchor.constraint(equalTo: contentView.topAnchor),
-            topLeft.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
-            topLeft.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
-
-            // topRight
-            topRight.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            topRight.topAnchor.constraint(equalTo: contentView.topAnchor),
-            topRight.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
-            topRight.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
-
-            // bottomLeft
-            bottomLeft.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            bottomLeft.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            bottomLeft.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
-            bottomLeft.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
-
-            // bottomRight
-            bottomRight.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            bottomRight.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            bottomRight.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
-            bottomRight.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5)
-
-        ])
+        timer.resume()
+        self.timer = timer
     }
 
-    func updateCursorIfNeeded() {
-        guard let window = NSApplication.shared.keyWindow else {
-            return
-        }
+    func stopPolling() {
+        self.timer?.cancel()
+        self.timer = nil
+    }
 
+    func refreshCursor() {
+        guard let window = self.window else { return }
         let mouseLocation = NSEvent.mouseLocation
         let contentRect = window.contentRect(forFrameRect: window.frame)
         if contentRect.contains(mouseLocation) {
             cursor?.set()
         }
-    }
-}
-
-class PlayCursorTrackingView: NSView {
-    private var trackingArea: NSTrackingArea?
-    private var cursor: NSCursor?
-
-    init(cursor: NSCursor?) {
-        super.init(frame: .zero)
-        self.cursor = cursor
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.wantsLayer = true
-        self.layer?.backgroundColor = NSColor.clear.cgColor
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-
-        if let trackingArea = self.trackingArea {
-            removeTrackingArea(trackingArea)
-        }
-
-        let newTrackingArea = NSTrackingArea(
-            rect: bounds,
-            options: [.activeInKeyWindow, .cursorUpdate],
-            owner: self,
-            userInfo: nil
-        )
-        addTrackingArea(newTrackingArea)
-        self.trackingArea = newTrackingArea
-    }
-
-    override func cursorUpdate(with event: NSEvent) {
-        cursor?.set()
     }
 }
